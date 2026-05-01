@@ -27,26 +27,14 @@
 #ifndef INCLUDED_UTIL
 #define INCLUDED_UTIL
 
-#include <cmake.h>
-// cmake.h include header must come first
-
-#include <sys/types.h>
-
 #include <string>
 #include <vector>
-#if defined(FREEBSD) || defined(OPENBSD)
-#include <uuid.h>
-#else
-#include <uuid/uuid.h>
-#endif
-#include <Table.h>
+
+class Table;
 
 // util.cpp
 int confirm4(const std::string&);
 
-#ifndef HAVE_UUID_UNPARSE_LOWER
-void uuid_unparse_lower(uuid_t uu, char* out);
-#endif
 const std::string uuid();
 
 const std::string indentProject(const std::string&, const std::string& whitespace = "  ",

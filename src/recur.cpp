@@ -33,7 +33,6 @@
 #include <Lexer.h>
 #include <feedback.h>
 #include <format.h>
-#include <pwd.h>
 #include <recur.h>
 #include <stdlib.h>
 #include <sys/types.h>

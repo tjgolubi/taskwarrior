@@ -51,10 +51,40 @@ add_executable (task_executable main.cpp)
 add_executable (calc_executable calc.cpp)
 add_executable (lex_executable lex.cpp)
 
-# Yes, 'task' (and hence libshared) is included twice, otherwise linking fails on assorted OSes.
-target_link_libraries (task_executable task commands columns libshared task libshared ${TASK_LIBRARIES})
-target_link_libraries (calc_executable task commands columns libshared task libshared ${TASK_LIBRARIES})
-target_link_libraries (lex_executable  task commands columns libshared task libshared ${TASK_LIBRARIES})
+if (NOT TASK_UCRT64)
+  # Yes, 'task' (and hence libshared) is included twice, otherwise linking fails on assorted OSes.
+  target_link_libraries (task_executable task commands columns libshared task libshared ${TASK_LIBRARIES})
+  target_link_libraries (calc_executable task commands columns libshared task libshared ${TASK_LIBRARIES})
+  target_link_libraries (lex_executable  task commands columns libshared task libshared ${TASK_LIBRARIES})
+else()
+  set (LINK_GROUP_START "-Wl,--start-group")
+  set (LINK_GROUP_END   "-Wl,--end-group")
+
+  target_link_libraries (task_executable
+      ${LINK_GROUP_START}
+      task commands columns libshared task libshared
+      taskchampion-cpp
+      ${TASK_LIBRARIES}
+      ${CMAKE_BINARY_DIR}/src/taskchampion-cpp/libtaskchampion_lib.a
+      ${LINK_GROUP_END})
+
+  target_link_libraries (calc_executable
+      ${LINK_GROUP_START}
+      task commands columns libshared task libshared
+      taskchampion-cpp
+      ${TASK_LIBRARIES}
+      ${CMAKE_BINARY_DIR}/src/taskchampion-cpp/libtaskchampion_lib.a
+      ${LINK_GROUP_END})
+
+  target_link_libraries (lex_executable
+      ${LINK_GROUP_START}
+      task commands columns libshared task libshared
+      taskchampion-cpp
+      ${TASK_LIBRARIES}
+      ${CMAKE_BINARY_DIR}/src/taskchampion-cpp/libtaskchampion_lib.a
+      ${LINK_GROUP_END})
+endif ()
+
 if (DARWIN)
     # SystemConfiguration is required by Rust libraries like reqwest, to get proxy configuration.
     target_link_libraries (task_executable "-framework CoreFoundation -framework Security -framework SystemConfiguration")

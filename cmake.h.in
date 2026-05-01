@@ -36,7 +36,8 @@
 #cmakedefine SOLARIS
 #cmakedefine KFREEBSD
 #cmakedefine GNUHURD
-#cmakedefine UNKNOWN
+#cmakedefine TASK_UCRT64
+#cmakedefine TASK_SYSTEM_UNKNOWN
 
 /* Found tm_gmtoff */
 #cmakedefine HAVE_TM_GMTOFF
@@ -49,6 +50,8 @@
 
 /* Found uuid_unparse_lower in the uuid library */
 #cmakedefine HAVE_UUID_UNPARSE_LOWER
+#cmakedefine TASK_HAVE_UUID
+#cmakedefine TASK_HAVE_RPC
 
 /* Found wordexp.h */
 #cmakedefine HAVE_WORDEXP

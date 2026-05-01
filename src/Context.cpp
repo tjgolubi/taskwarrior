@@ -54,7 +54,17 @@
 #include <commit.h>
 #endif
 
+#if __has_include(<sys/ioctl.h>)
+#if __has_include(<sys/termbits.h>)
+#include <sys/termbits.h>
+#endif
 #include <sys/ioctl.h>
+#define TASK_HAS_IOCTL
+#endif
+
+#ifdef TASK_UCRT64
+#include <windows.h>
+#endif
 
 #ifdef SOLARIS
 #include <sys/termios.h>
@@ -891,6 +901,49 @@ int Context::dispatch(std::string& out) {
   return commands["help"]->execute(out);
 }
 
+namespace {
+
+struct Dim {
+  int width  = 0;
+  int height = 0;
+}; // Dim
+
+#if defined(TIOCGWINSZ)
+
+std::optional<Dim> GetDimensions() {
+  struct winsize {
+    unsigned short ws_row = 0;
+    unsigned short ws_col = 0;
+    unsigned short ws_xpixel = 0;  /* unused */
+    unsigned short ws_ypixel = 0;  /* unused */
+  } ws;
+  if (::ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == -1)
+    return std::nullopt;
+  return Dim{ws.ws_col, ws.ws_row};
+}
+
+#elif defined(TASK_UCRT64)
+
+std::optional<Dim> GetDimensions() {
+  const auto handle = ::GetStdHandle(STD_OUTPUT_HANDLE);
+  if (handle == INVALID_HANDLE_VALUE)
+    return std::nullopt;
+  auto info = CONSOLE_SCREEN_BUFFER_INFO{};
+  if (!::GetConsoleScreenBufferInfo(handle, &info))
+    return std::nullopt;
+
+  return Dim{ info.srWindow.Right - info.srWindow.Left + 1,
+              info.srWindow.Bottom - info.srWindow.Top + 1  };
+}
+
+#else
+
+constexpr std::optional<Dim> GetDimensions() { return std::nullopt; }
+
+#endif
+
+} // local
+
 ////////////////////////////////////////////////////////////////////////////////
 int Context::getWidth() {
   // Determine window size.
@@ -901,10 +954,9 @@ int Context::getWidth() {
 
   if (config.getBoolean("detection")) {
     if (terminal_width == 0 && terminal_height == 0) {
-      unsigned short buff[4];
-      if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &buff) != -1) {
-        terminal_height = buff[0];
-        terminal_width = buff[1];
+      if (auto dim = GetDimensions(); dim.has_value()) {
+        terminal_height = dim->height;
+        terminal_width  = dim->width;
       }
     }
 
@@ -929,10 +981,9 @@ int Context::getHeight() {
 
   if (config.getBoolean("detection")) {
     if (terminal_width == 0 && terminal_height == 0) {
-      unsigned short buff[4];
-      if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &buff) != -1) {
-        terminal_height = buff[0];
-        terminal_width = buff[1];
+      if (auto dim = GetDimensions(); dim.has_value()) {
+        terminal_height = dim->height;
+        terminal_width  = dim->width;
       }
     }
 

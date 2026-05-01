@@ -24,7 +24,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <cmake.h>
+#include "../cmake.h"
 // cmake.h include header must come first
 
 #include <format.h>
@@ -36,17 +36,20 @@
 #endif
 #include <Context.h>
 #include <Lexer.h>
-#include <pwd.h>
 #include <signal.h>
 #include <stdlib.h>
-#include <sys/select.h>
 #include <sys/time.h>
 #include <sys/types.h>
-#include <sys/wait.h>
 #include <unicode.h>
 #include <unistd.h>
 #include <utf8.h>
 #include <util.h>
+
+#if   defined(TASK_HAVE_UUID)
+#include <uuid.h>
+#elif defined(TASK_HAVE_RPC)
+#include <rpc.h>
+#endif
 
 #include <iostream>
 #include <string>
@@ -131,7 +134,7 @@ const std::string uuid() {
 
   return res;
 }
-#else
+#elif defined(TASK_HAVE_UUID)
 
 ////////////////////////////////////////////////////////////////////////////////
 #ifndef HAVE_UUID_UNPARSE_LOWER
@@ -155,6 +158,35 @@ const std::string uuid() {
 
   return std::string(buffer);
 }
+
+#elif defined(TASK_HAVE_RPC)
+
+namespace {
+
+struct RpcStringDeleter {
+  void operator()(RPC_CSTR ptr) const {
+    if (ptr != nullptr)
+      ::RpcStringFreeA(&ptr);
+  }
+}; // RpcStringDeleter
+
+} // local
+
+const std::string uuid() {
+  auto id = UUID{};
+  if (::UuidCreate(&id) != RPC_S_OK)
+    throw std::runtime_error{"UuidCreate() failed"};
+  RPC_CSTR raw = nullptr;
+  if (::UuidToStringA(&id, &raw) != RPC_S_OK)
+    throw std::runtime_error{"UuidToStringA() failed"};
+  auto str = std::unique_ptr<unsigned char, RpcStringDeleter>{raw};
+  return std::string{reinterpret_cast<const char*>(str.get())};
+}
+
+#else
+
+#error "No uuid() implementation"
+
 #endif
 
 // Collides with std::numeric_limits methods

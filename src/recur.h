@@ -36,7 +36,6 @@
 #include <Duration.h>
 #include <Lexer.h>
 #include <format.h>
-#include <pwd.h>
 #include <sys/types.h>
 #include <time.h>
 #include <unicode.h>
