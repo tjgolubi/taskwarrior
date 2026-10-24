@@ -1,308 +1,106 @@
-# Build and test
+# TaskWarrior build and validation
 
-[Document map](README.md) · [Workflow](Workflow.md) · [C++ design](CppDesign.md) · [Website](Website.md)
+[Document map](README.md) · [Workflow](Workflow.md) · [Integration design](CppDesign.md) · [Documentation](Website.md)
 
-Updated October 23, 2026. Commands run from the library checkout root unless
-stated otherwise. `/doc/` in project discussion means repository-relative.
+Updated October 23, 2026.
 
-## Platforms and tools
+## Current evidence
 
-Primary development platforms are Windows/MSYS2 and Android/Termux; GitHub CI
-adds Linux, Windows, and macOS coverage. New work targets C++23 while retaining
-{fmt}'s supported older-language paths. C++26 is a future target, not a current
-local-build prerequisite.
+No fresh TaskWarrior baseline build, FmtColor consumer build, integration test,
+or runtime validation has been performed for this project. No dependency has
+been installed or integrated. Existing local build directories and UCRT64 work
+are not evidence for the new `upstream/develop` baseline.
 
-On the PC use MSYS `/usr/bin` GCC, CMake, Python, and Doxygen. UCRT64 was removed
-at Terry's request; do not use or reinstall it. Use MSYS2 Git for both project
-repositories. Before diagnosing tool failures, check:
+FmtColor's coordination records report 43 successful jobs for its proposed pin
+`d9d64d361591311901e06c662c24879128c63724`, including guide publication.
+They also report 42 jobs for a separate upstream-compatibility branch, with
+intentional test/documentation adjustments. These are historical dependency
+results, not fresh verification here or proof of TaskWarrior compatibility.
 
-```bash
-command -v git python cmake g++ doxygen
-```
+## Establish a reproducible baseline
 
-The recorded PC toolchain is MSYS GCC 15.3.0, CMake 4.4.4, Python 3.12.15,
-MkDocs 1.6.1, and Doxygen 1.18.0. These are observed versions, not instructions
-to install arbitrary latest releases. Keep CMake caches and virtual environments
-specific to the selected platform/toolchain. See
-[Workflow.md](Workflow.md#repositories-and-tools) for Git, SSH, and PATH rules.
+Before configuring or building:
 
-## Build and tests
+1. Verify the upstream remote, selected `upstream/develop` full SHA, repository
+   instructions, working tree, and exact submodule commits. Establish the fresh
+   working checkout only when authorized; preserve the existing checkout.
+2. Read that revision's CMake files, installation/development instructions,
+   test documentation, and CI workflows. Determine actual compiler, C++ standard,
+   Rust, native-library, and test-runner requirements.
+3. Identify tool provenance and versions. Use the agreed MSYS environment on
+   this PC; do not reinstall UCRT64 or copy incompatible caches. If the fresh
+   application requires a toolchain decision, report it before changing tools.
+4. Select a separate build directory. Inspect configure-time downloads,
+   submodule initialization, generated source-tree files, and other side effects
+   before running CMake. A configure command is not necessarily read-only.
+5. Once build work is authorized, build and test the unmodified baseline first.
+   Record failures before attributing them to FmtColor.
 
-The shared script configures Release/C++23 with tests and documentation,
-builds with eight jobs, runs CTest serially, then builds the guide:
+Use MSYS2 Git as described in [Workflow.md](Workflow.md). Reuse existing
+credentials and agent setup. Network acquisition and installation must follow
+available permissions; do not change global settings as an incidental fix.
 
-```bash
-./build.bash
-```
+## Commands to confirm, not yet verified
 
-Run it from the checkout root; do not source it. It stops at a failing test
-before building documentation. For separate control:
-
-```bash
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release \
-  -DCMAKE_CXX_STANDARD=23 -DFMT_TEST=ON -DFMTCOLOR_SKIP=OFF
-cmake --build build --parallel 8
-ctest --test-dir build --output-on-failure
-```
-
-For a focused color change:
+The previously inspected checkout documents this general sequence. Confirm
+commands and target names at the fresh baseline before using them:
 
 ```bash
-cmake --build build --target color-test --parallel 8
-ctest --test-dir build -R '^color-test$' --output-on-failure
+cmake -S . -B build/fmtcolor-baseline -DCMAKE_BUILD_TYPE=Release
+cmake --build build/fmtcolor-baseline --parallel 8
+cmake --build build/fmtcolor-baseline --target test_runner --target task_executable
+ctest --test-dir build/fmtcolor-baseline -N
+ctest --test-dir build/fmtcolor-baseline --output-on-failure
 ```
 
-A focused pass does not establish a full-suite pass. Include wide-character,
-compile-time-format, or other tests when affected; do not broaden or repeat
-checks without a relevant change, failure, or unresolved concern.
+Listing tests establishes actual names before selecting focused tests. Determine
+whether low-level color tests in a submodule need separate build targets or a
+standalone configuration. Do not assume TaskWarrior's CTest invocation covers
+them automatically. Confirm Python test dependencies and test executable paths.
+The example sequence is not an instruction to run builds during assessment.
 
-### Termux descriptor skips
+## Dependency consumer verification
 
-`FMTCOLOR_SKIP` is a test-only option, OFF by default. Seven tests deliberately
-close descriptors owned by live C `FILE` objects and conflict with Android
-`fdsan`: four in `gtest-extra-test`, three in `os-test`. ON produces explicit
-GoogleTest skips; it does not disable fdsan or alter production code.
-`build.bash` detects Termux and selects ON there, OFF elsewhere.
+After the integration plan is accepted, record how FmtColor is acquired, pinned,
+configured, and linked. Verify the compiler actually selects the pinned
+`<fmt/color.h>`, rather than a system {fmt} header. Check for existing {fmt}
+dependencies, conflicting versions, target visibility, and header-only versus
+compiled-library consistency before choosing a mode.
 
-```bash
-cmake -S . -B build -DCMAKE_CXX_STANDARD=23 \
-  -DFMT_TEST=ON -DFMTCOLOR_SKIP=ON
-cmake --build build --parallel 8
-ctest --test-dir build --output-on-failure
-ctest --test-dir build -R '^(gtest-extra-test|os-test)$' -V
-```
+Verify reproducibility without an implicit sibling checkout. Document an
+explicit local source override if one is supported. Test the language mode
+TaskWarrior actually requires; FmtColor's C++11 support does not require changing
+the application's language standard or running its whole compiler matrix.
 
-Use OFF on ordinary PC/Linux runs; explicitly reset cached options when changing
-purpose. An unused-option warning on an older branch means skips were not
-enabled. Passing executables can contain individual skips, so record both.
-Missing locales can also limit locale-dependent tests.
+## Application checks after changes
 
-## Documentation
+Choose checks from the source assessment and changed behavior:
 
-Use the checked-out, hash-pinned `support/doc-requirements.txt` and Doxygen.
-Follow the virtual-environment technique in `support/release.py`, but do not run
-that release script merely to build documentation. Reuse the environment unless
-an interpreter/toolchain change makes it incompatible; preserve unrelated files.
+- Existing low-level color parsing, conversion, comparison, and output tests.
+- Foreground/background colors, specified black, empty styles, attributes,
+  brightness, 16/256/truecolor modes, and reset/restoration behavior.
+- Rule precedence and blending, representative themes, reports, tables,
+  disabled color, and width/truncation where affected.
+- Relevant CLI color, color-rule, and diagnostic tests discovered at baseline.
+- Configuration round trips or numeric translation if those interfaces remain.
 
-```bash
-(
-  set -euo pipefail
-  if [[ ! -d build/venv ]]; then
-    python -m venv build/venv
-  fi
-  doc_bin="$(pwd)/build/venv/bin"
-  "$doc_bin/python" -m pip install --require-hashes \
-    -r support/doc-requirements.txt
-  export PATH="$doc_bin:$PATH"
-  cmake -S . -B build -U MKDOCS -DFMT_DOC=ON
-  cmake --build build --target doc
-)
-```
+Add targeted regressions for newly introduced behavior or gaps in existing
+coverage, not tests that merely repeat an implementation detail. Broaden to the
+applicable full application suite after focused checks pass. Submodule changes
+also need that repository's relevant checks. A visual terminal check complements
+rather than replaces automated assertions.
 
-`build.bash` uses this environment and installs its pinned dependencies when
-creating it. Reinstall from the requirements if dependency inputs change.
-MSYS and Termux environments use `bin/`; native Windows Python may differ.
-`-U MKDOCS` clears an old cached launcher path. A stale Python launcher after an
-upgrade may require recreating the environment, not replacing the whole toolchain.
-Do not mix native Windows path conventions with incompatible MSYS tools.
+Use temporary test data/configuration and explicitly isolated task commands;
+never run exploratory commands against Terry's real task database or taskrc.
+Do not install the experimental executable over the normal task command.
 
-The normal configuration is `support/mkdocs.yml`; output is `build/doc-html`.
-The exact GitHub Pages build is:
+## Recording results
 
-```bash
-(
-  export PATH="$(pwd)/build/venv/bin:$PATH"
-  PYTHONPATH=support/python python -m mkdocs build \
-    --config-file support/mkdocs-pages.yml \
-    --site-dir "$(pwd)/build/doc-html" --no-directory-urls
-)
-```
+For each meaningful result, record application branch/full SHA, submodule SHAs,
+FmtColor pin, local diff status, toolchain, build configuration, command, result,
+and skips. Label baseline failures, unavailable tests, and manual observations.
+Do not treat successful jobs with skipped tests as complete exercised coverage.
 
-Preview locally, then stop with Ctrl-C:
-
-```bash
-python -m http.server 8000 --bind 127.0.0.1 --directory build/doc-html
-```
-
-Open `http://127.0.0.1:8000/` on that device. A known missing anchor in upstream
-`syntax.md` and a Material notice about future MkDocs changes are nonfatal; keep
-pinned dependencies and do not turn color work into an upstream-link cleanup.
-
-### Reference rendering and publication
-
-Doxygen comments in `include/fmt/color.h` supply shared API descriptions.
-Markdown in `doc/color/` supplies organization and examples. The C++ handler at
-`support/python/mkdocstrings_handlers/cxx/__init__.py` invokes Doxygen and renders
-the reference, named RGB constants, explicit conversions, and swatches.
-Public members need Doxygen comments or the handler omits their entries.
-The text-style reference uses `exclude_members` to hide the six longer
-component/presence accessors and the two former strike methods. Compatibility
-notes describe the retained names. Check that `term_color`, `strike()`,
-`is_strike()`, and the short getters, setters, and presence queries remain
-rendered. The emphasis reference retains the documented enum alias.
-
-The `::: name` blocks are **MkDocs directives**, not C++ or portable GitHub
-Markdown. `!!! note "Changed behavior"` needs the configured `admonition`
-extension. Check generated HTML for rendered API declarations and
-`<div class="admonition note">`, rather than judging raw `.md` pages on GitHub.
-The named-color page includes 141 named RGB swatches, 16 fixed terminal RGB
-swatches in separate normal/bright grids, 24 gray swatches, and all 216 cube
-colors. Cube rows vary red, columns green, and the six three-character fields
-inside each cell vary blue. Check values and indexed-palette offsets against
-independent expectations.
-
-`.github/workflows/fmtcolor-pages.yml` builds and publishes after pushes to
-`FmtColorDev`. The `github-pages` environment permits that branch. The separate
-`doc` workflow verifies the build; it does not itself publish this guide.
-See [Website.md](Website.md#user-guide) and `support/fmtcolor-pages.md` for setup.
-
-## Compatibility checks
-
-For color changes intended to preserve older modes, check relevant C++11,
-C++14, C++17, C++20, and C++23 paths. For example:
-
-```bash
-g++ -std=c++11 -pedantic-errors -Wall -Wextra \
-  -Wconversion -Wshadow -Werror -Iinclude \
-  -fsyntax-only -x c++ include/fmt/color.h
-
-g++ -D_GNU_SOURCE -std=c++11 -pedantic-errors -Wall -Wextra -Werror \
-  -Iinclude -Itest -Itest/gtest -fsyntax-only test/color-test.cc
-```
-
-Repeat with affected language modes. MSYS GoogleTest needs `_GNU_SOURCE` for
-POSIX declarations. The test-source command omits conversion/shadow warnings
-for bundled GoogleTest; the header command and CI provide stricter coverage.
-A modern compiler in C++11 mode is not evidence about the oldest compiler.
-
-CI has verified old GCC/Clang releases as well as modern standard libraries.
-When an exact release is unavailable locally, an authorized Compiler Explorer
-check can isolate a diagnostic. Supply actual headers as separate files;
-concatenating them can produce misleading errors. Include a negative check when
-testing a rejection path and verify scoped warning suppression does not leak.
-
-### Regression coverage
-
-`FmtColorDev` color tests cover construction, all 216 cube RGB conversions
-against independent Xterm values, terminal mappings, gray/cube boundaries,
-range failures, type/index access and assignment, all five visitor alternatives,
-reference lifetimes, mixed-kind OR promotion, ANSI output, comparisons, hashes,
-plain/variant/style blending, `to_rgb()`, and `empty()`/fluent `clear()`.
-Check unspecified versus specified black, kind preservation for a lone blended
-color, independent style channels, and constexpr/noexcept contracts.
-
-Fluent checks exercise all 256 emphasis masks, each attribute's enable/disable
-and idempotence, reference returns, component replacement/clearing, presence
-queries and aliases, and independent bold/faint rendering. ShortNames checks
-retain aliases and all 16 terminal colors. Existing upstream spellings remain
-in older tests. Targeted old GCC/native MSVC workarounds stay gated as described
-in [CppDesign.md](CppDesign.md#compiler-constraints).
-
-## Current validation
-
-### Integrated Palette
-
-Verified October 23, 2026 for final amended `FmtColorDev` commit
-[`d9d64d361591311901e06c662c24879128c63724`](https://github.com/tjgolubi/fmt/commit/d9d64d361591311901e06c662c24879128c63724):
-
-| Workflow      | Successful jobs | Evidence |
-|---------------------|----| ---- |
-| Linux               | 18 | [Run](https://github.com/tjgolubi/fmt/actions/runs/40042644485) |
-| Windows             | 13 | [Run](https://github.com/tjgolubi/fmt/actions/runs/40042644491) |
-| macOS               |  9 | [Run](https://github.com/tjgolubi/fmt/actions/runs/40042644509) |
-| Documentation build |  1 | [Run](https://github.com/tjgolubi/fmt/actions/runs/40042644586) |
-| Guide publication   |  2 | [Run](https://github.com/tjgolubi/fmt/actions/runs/40042644505) |
-
-*Guide publication includes deployment*
-
-All **43 jobs** passed, with exact local/GitHub/run SHAs matched and every job
-independently checked. The deployed guide includes the generated changelog's
-commit, palette swatches, conversions, blending, and style clearing.
-
-Feature development included C++11/14/17/20/23 test-source checks, strict
-C++11/C++23 headers, disabled-exception compilation, C++11 color-test execution,
-focused Release/C++23 tests, and guide builds. Final integration additionally
-verified the staged tree exactly matched the CI-passed candidate and reran the
-focused color tests. These do not claim a fresh local full-suite/Termux run for
-the feature branch; exact final-SHA CI supplies broader coverage.
-
-### Upstream compatibility branch
-
-Verified October 23, 2026 for `test/UpstreamCompatibility` commit
-[`21eba01b33becd9f94cd34a1a8758f64ecbc53c3`](https://github.com/tjgolubi/fmt/commit/21eba01b33becd9f94cd34a1a8758f64ecbc53c3). It is based on
-upstream `0fc31633`, with `color.h` identical to `FmtColorDev` at `d9d64d36`.
-
-| Workflow        | Successful jobs | Evidence |
-|---------------------|----| --- |
-| Linux               | 19 | [Run](https://github.com/tjgolubi/fmt/actions/runs/40049194916) |
-| Windows             | 13 | [Run](https://github.com/tjgolubi/fmt/actions/runs/40049194937) |
-| macOS               |  9 | [Run](https://github.com/tjgolubi/fmt/actions/runs/40049194887) |
-| Documentation build |  1 | [Run](https://github.com/tjgolubi/fmt/actions/runs/40049194931) |
-
-All **42 jobs** passed for the matching local/GitHub/run SHA. Linux includes
-GCC 4.9/Clang 3.6 C++11 and GCC 16/C++26 reflection. This branch uses upstream
-CMake and workflows, without importing our added regression suite. Its only
-production library change is the enhanced `color.h`. Ancillary additions are
-the local build script, ignore rule, and
-[`UpstreamTestCompatibility.md`](https://github.com/tjgolubi/fmt/blob/21eba01b33becd9f94cd34a1a8758f64ecbc53c3/UpstreamTestCompatibility.md).
-The report's old `CheckTests` name refers to this renamed branch.
-
-Required upstream adjustments are intentional:
-
-- Six exception assertions become exact RGB-result checks: terminal black OR
-  black yields RGB zero, black OR normal white yields RGB `229,229,229`, and
-  terminal black OR named RGB black yields RGB zero, for both fg/bg.
-- Four no-throw expressions explicitly discard nodiscard results with `(void)`.
-- Two `doc/api.md` directives change from `fg/bg(detail::color_type)` to
-  `fg/bg(color_t)`; no documentation-handler change is needed.
-
-No other upstream tests required changes; do not say all tests pass unchanged.
-Locally, all **22 configured C++23 CTest tests** passed with no compiler warnings
-or reported individual skips, all **five color tests** passed strict C++11 with
-`-pedantic-errors -Wall -Wextra -Werror`, and upstream documentation built.
-This is separate from testing the complete FmtColorDev regression suite.
-
-For a fresh isolated local compatibility build:
-
-```bash
-cmake -S . -B build/check-upstream-tests -DCMAKE_BUILD_TYPE=Release \
-  -DCMAKE_CXX_COMPILER=g++ -DCMAKE_CXX_STANDARD=23 \
-  -DFMT_TEST=ON -DFMT_DOC=OFF
-cmake --build build/check-upstream-tests --parallel 8
-ctest --test-dir build/check-upstream-tests --output-on-failure
-```
-
-The report gives the standalone C++11 command. Logs are
-`build/check-upstream-build.log`, `build/check-upstream-ctest.log`,
-`build/check-upstream-cxx11.log`, and `build/check-upstream-doc.log`.
-The separate existing documentation build requires `FMT_DOC=ON` and the pinned
-environment. Switching branches may leave a configured build with other inputs;
-inspect its cache and source branch before interpreting a result.
-
-### Coverage limits and follow-up
-
-FmtColorDev's Linux fail-fast is enabled; GCC 16/C++26 reflection is still
-commented out there. The upstream compatibility matrix includes and passed that
-job. [Issue #2](https://github.com/tjgolubi/fmt/issues/2) tracks the workflow
-exclusion; do not claim it is restored on FmtColorDev or close the issue without
-authorization. Upstream package caching remains dependent on downloads.
-
-Push results do not establish passes for separate PR-only lint/fuzz workflows.
-Individual test skips remain distinct from successful jobs. No new tablet run,
-ABI verification, or performance benchmark is established by these checks.
-After every amendment, header refresh, or rebase, verify the exact new commit
-and every applicable job; never cite a baseline-only run for uncommitted work.
-
-### Website validation
-
-Website version **26** adds the compatibility overview callout and detailed
-evidence section. Three pages and 39 local links/anchors were validated, with
-downloads and Future Work preserved; the new section was inspected locally and
-live after native Sites deployment succeeded. Earlier Palette page checks
-validated guide links and C++11/C++23 examples. See
-[Website.md](Website.md#current-publication) for exact publication provenance.
-
-For new test results, record branch/full SHA, toolchain, mode, CMake options,
-commands, results, and skips. Distinguish observed checks from Terry reports.
-`build/Testing/Temporary/LastTest.log` is test output, not compiler diagnostics.
-Follow [Workflow.md](Workflow.md#ci-gate-and-acceptance) for integration gates.
+Inspect TaskWarrior's actual CI requirements. Any changed commit or dependency
+pin needs new applicable checks. FmtColor's upstream-compatibility evidence does
+not establish application semantics, ABI, performance, or persisted-data safety.

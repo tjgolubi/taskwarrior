@@ -1,235 +1,55 @@
-# Website
+# Documentation and external references
 
-[Document map](README.md) · [Workflow](Workflow.md) · [C++ design](CppDesign.md) · [Build and test](BuildAndTest.md)
+[Document map](README.md) · [Workflow](Workflow.md) · [Integration design](CppDesign.md) · [Build and test](BuildAndTest.md)
 
 Updated October 23, 2026.
 
-## Purpose and content
+## Scope
 
-The public [FmtColor website](https://fmtcolor.ardentokapi66.chatgpt.site)
-explains the contribution, design rationale, demonstration, and future work.
-Its audience, in priority order, is Terry and collaborating assistants, the
-{fmt} developers, technical friends, and nontechnical family. Use brief
-plain-language introductions followed by useful technical detail.
+This project currently has no integration website or publishing task. This file
+retains its inherited name to preserve the coordination document map; it now
+records documentation boundaries and reference locations.
 
-The site is not a progress blog. Present the current contribution as a coherent
-change, without narrating development struggles, intermediate commits, or
-superseded fixes. Explain motivation, behavior, examples, tradeoffs,
-compatibility, and validation. Keep implemented APIs separate from proposals,
-and fork integration separate from upstream acceptance.
+Keep TaskWarrior integration instructions, dependency setup, supported behavior,
+and validation with the application project. Update user-facing color/theme
+instructions only when the agreed integration changes require it. The first
+assessment should read existing application documentation before proposing
+syntax changes or describing behavior as compatible.
 
-The current structure is:
+The FmtColor website, generated guide, changelog, release process, and source
+belong to the separate library project. Do not update them as incidental work
+for TaskWarrior. Missing capabilities should be recorded in the assessment and
+discussed separately. This document adaptation authorizes no publication.
 
-- [Overview](https://fmtcolor.ardentokapi66.chatgpt.site/): features, two
-  deliverables, a prominent upstream-compatibility callout, design, and demo.
-- [The contribution](https://fmtcolor.ardentokapi66.chatgpt.site/integrated-changes.html):
-  upstream compatibility evidence first, followed by implemented styling,
-  palette colors, conversion, blending, compatibility changes, and final CI.
-- [Future work](https://fmtcolor.ardentokapi66.chatgpt.site/work-in-progress.html):
-  the retained introduction/development summary, then `feat/StyledText` and
-  inclusion policy. Repeated completed-feature sections are removed.
+## References
 
-Fluent, ShortNames, VarColor, Palette, RGB conversion, color/style blending,
-and style clearing are integrated on `FmtColorDev` at `d9d64d36`. The branch
-contains five feature commits and a publication fix above upstream `0fc31633`.
-All 43 final integration CI jobs passed, including guide deployment. The
-separate `test/UpstreamCompatibility` commit `21eba01b` passed 42 jobs using
-upstream test infrastructure and the documented adjustments. Neither result
-means the contribution has been accepted into fmtlib/fmt.
+- [TaskWarrior upstream repository](https://github.com/GothenburgBitFactory/taskwarrior):
+  use the approved `upstream/develop` ref and verify the actual configured remote
+  and full commit when setting up the new project.
+- [FmtColor source at the proposed pin](https://github.com/tjgolubi/fmt/tree/d9d64d361591311901e06c662c24879128c63724):
+  implementation and tests establish the dependency API.
+- [FmtColor generated user guide](https://tjgolubi.github.io/fmt/color/index.html):
+  API references, examples, palette conversions, and behavior notes. It is a
+  moving publication; verify details against the pinned source when they matter.
+- [FmtColor project website](https://fmtcolor.ardentokapi66.chatgpt.site):
+  motivation, contribution, compatibility evidence, and future design. Future
+  work and downloadable demos must not be mistaken for implemented capabilities.
+- FmtColor coordination branch `docs/Coord`: the library's own workflow, design,
+  build, and publication context. This project's `ForTaskWarrior` adaptation
+  does not replace or modify that branch's library guidance.
 
-Keep upstream compatibility prominent and link its exact report/diff/CI.
-State the six result-expectation changes, four explicit nodiscard discards,
-and two documentation-signature changes; do not claim unchanged-test success.
-These reflect intended features. Preserve the distinction between source-test
-compatibility and numeric/binary compatibility or measured performance.
+Use the generated guide for user-facing reference links; GitHub does not render
+its source Markdown's MkDocs directives. Prefer exact commit links for code and
+validation claims. Do not infer upstream acceptance or a numbered FmtColor
+release from integration on `FmtColorDev`.
 
-Branch inclusion needs Terry's approval; an experimental/play branch such as
-Crazy does not belong merely because it exists. Describing a proposal does not
-authorize implementation. See [CppDesign.md](CppDesign.md) for current behavior.
+## Handoff documentation
 
-## User guide
+At task completion, keep the coordination documents consistent with the actual
+application/dependency revisions and observed checks. State what remains a
+proposal. Document compatibility decisions and any application-specific adapter
+logic so a new chat can proceed without reconstructing earlier discussions.
 
-The Sites website explains rationale; the library's generated
-[user guide](https://tjgolubi.github.io/fmt/color/index.html) explains use.
-Do not maintain a competing guide in Sites or put the Sites implementation into
-the library repository.
-
-Documentation buttons and user-guide links must point to the **generated HTML**,
-not GitHub's raw/rendered Markdown. The source contains `:::` MkDocs reference
-directives and `!!! note` admonitions that GitHub Markdown does not process.
-Source links remain appropriate when explicitly labeled as source.
-
-The guide covers colors, emphasis, text styles, styled arguments, formatting,
-printing, palette conversion/blending, empty/clear style operations, and a
-separate named-color swatch page. Doxygen comments supply shared
-reference text; Markdown provides organization and examples. Keep RGB concepts
-before named RGB constants and numeric representation details after ordinary
-usage. Keep emphasis discussion on its own page. Normal enum-underlying
-facilities do not need generic explanation in this guide.
-
-Keep component accessors, presence queries, attribute queries, and attribute
-setters grouped on the Text styles page. Use `fg()`, `bg()`, `emph()`,
-`has_fg()`, `has_bg()`, and `has_emph()` throughout examples and prose. Mention
-the six older accessor names only in one backward-compatibility note; omit
-their separate generated entries with the reference handler's `exclude_members`
-option. Keep Doxygen comments on public members, including compatibility
-wrappers; undocumented members are omitted by the handler. Use `term_color`,
-`emphasis::strike`, `strike()`, and `is_strike()` in examples. The former strike
-methods are also excluded from generated member entries and explained in a
-compatibility note.
-
-Use `!!! note "Changed behavior"` boxes for changed behavior. Describe the
-change without telling users how to fix their code. The MkDocs configuration
-enables admonitions; judge the generated HTML rather than source Markdown.
-
-`.github/workflows/fmtcolor-pages.yml` publishes after pushes to `FmtColorDev`.
-`support/mkdocs-pages.yml` supplies the fork URL/edit links and disables the
-version selector. The `github-pages` environment now permits `FmtColorDev`;
-existing `FmtColor` and `main` rules were retained. It uses GitHub Actions as the
-Pages source and uploads generated HTML as an artifact, not committed output.
-The ordinary `doc` workflow builds but does not publish this guide.
-See `support/fmtcolor-pages.md` and [BuildAndTest.md](BuildAndTest.md#documentation).
-
-Guide build and deployment succeeded for `d9d64d36`. The guide includes
-five-alternative public variants, `to_rgb()`, color/style blending, `empty()`
-and `clear()`, and the grouped Fluent API. Constructors and fluent operations
-precede the less desirable OR examples; the scoped `using enum` style example
-is labeled C++20 and later. Free fg/bg docs explain ADL convenience.
-
-The Colors page orders terminal, RGB, gray, cube, unspecified, then variants.
-Terminal tables include RGB equivalents and link to swatches, as do gray/cube
-sections. Named Colors separates normal and bright terminal grids, includes
-24 gray levels, and shows all 216 cube colors with red rows, green columns,
-and six blue digits padded to three monospace characters per cell. The
-Overview compares blend and OR using red/bright-red against blue/bright-blue,
-with aligned columns and colored input labels. Blend immediately follows
-Palette on the contribution website, before comparisons.
-
-Preserve the swatch orientation, padding, contrast, responsive grids, and
-the fixed-Xterm-theme explanation. The VPS remains an unused alternative host.
-
-## Demonstration and future design
-
-Keep the downloadable `FmtColorDemo.cpp` and `AnsiRenderDemo.txt`, the displayed
-sample, and its styled output together. The demo is a **future acceptance
-target**, not implemented/tested functionality of the current contribution.
-Preserve nested emphasis/colors, absolute underline, the enclosing background,
-and `gray_color{12}`. The HTML output reproduces Terry's older AnsiRender output
-with a stated representative terminal palette; exact SGR bytes need not match.
-
-The sample targets the later standard-formatting deliverable using
-`std::println`, retaining `<fmt/color.h>` and namespace `fmt` through the selected
-installation. Both the displayed and downloadable samples use `term_color`
-and `strike()`, retaining `no_color` and
-`emphasis::reverse`. The sample shows color-first, background-only,
-emphasis-only, emphasis-first, and default-plus-fluent construction. Keep
-its downloadable and displayed C++ identical. Shared-source compatibility
-also requires standard formatter
-support in the {fmt}-based implementation. Do not imply that retaining the
-header name introduces a dependency on fmtlib in the independent library.
-
-Preserve these design distinctions:
-
-- Color/style OR promotes overlapping specified colors to RGB and combines
-  channel bits. Free `blend()` averages specified channels, independently for
-  style fg/bg, and ORs emphasis. Unspecified inputs are ignored; one specified
-  color retains its kind. Strict rejection is superseded, and `rgb::blend()`
-  is removed.
-- Constructors/fluent setters choose or replace state. Sequential ANSI SGR
-  commands update terminal state; they are distinct from value composition.
-- Bold/faint are independent. {fmt} retains conceal and omits flash; the
-  independent library replaces conceal with flash.
-- Absolute boundaries reset terminal state and block enclosing blending in the
-  planned StyledText renderer. Lazy blending, subtree lifetimes, parsing,
-  width/precision, and serialization remain design work.
-
-Use [CppDesign.md](CppDesign.md) for the complete design and open decisions.
-A documentation or website request does not authorize implementing proposals.
-
-## Sites maintenance and publication
-
-Only update the website when requested. An authorized website update includes
-the source edits and normal publication; Terry need not manage its checkout or
-build tools. It does not authorize library/coordination commits or pushes.
-Follow the currently installed Sites skill and native tool access checks.
-
-1. Identify the existing site by its URL and retained project ID. Read its
-   latest metadata, access, and shared source before editing. Do not overwrite
-   from an old checkout, downloaded page, captured Library copy, or chat summary,
-   and do not create a replacement site.
-2. Preserve the site identity, public audience, design, demonstration, assets,
-   and unrelated content. Verify source, commit, and CI claims against GitHub.
-   Keep credentials in memory and pass them only through the helper's hidden
-   stdin, never shell arguments, repository files, logs, or handoffs.
-3. Use the Sites source helper to open/synchronize the checkout, own source
-   commit/push, run remaining checks, and package the exact pushed state.
-   Validate affected copy, local links/anchors, unique IDs, examples, and layout
-   with available tools. State meaningful verification limits honestly.
-4. Save the exact source/archive as a Sites version and deploy through native
-   Sites tools. Reuse successful source/package/version results after a later
-   failure. A source push or archive alone is not publication; report success
-   only after deployment is confirmed.
-5. Return the affected live links. For a request covering both website and
-   coordination, publish first, then record confirmed provenance here. Do not
-   claim that local coordination edits have been committed or pushed.
-
-Every Sites deployment URL is production. Preserve public access; do not
-change it to deploy. Poll only a nonterminal deployment, stop on success/failure,
-and do not resave or redeploy an already successful result unnecessarily.
-Avoid concurrent edits; resynchronize after another session's update.
-
-If tools cannot retrieve source, edit, or confirm publication, identify the
-blocked step. Do not promise that switching apps or devices guarantees access.
-A handoff to Sites in the ChatGPT web interface should include the existing URL,
-requested change, and direction to read these documents and retrieve fresh source.
-Personal-website links belong to Terry's separate personal-website context.
-
-### Windows publishing
-
-The Sites Node helper needs **native Windows Git** ahead of
-`C:\msys64\usr\bin` on its process-local PATH. This is an exception for the
-separate Sites checkout; MSYS2 Git remains required for `fmt` and `FmtColorGpt`.
-Locate the current native Git/runtime rather than assuming an old plugin path.
-
-Bash must also be available for packaging. Set process-local
-`TAR_OPTIONS=--force-local` so GNU tar does not interpret the colon in an absolute
-Windows archive path as a remote host. Use forward slashes in archive arguments.
-Do not alter global Git, SSH, or library-toolchain settings to repair Sites.
-Follow the skill's helper procedure and preserve the opening result, source SHA,
-and exact archive returned for the selected site.
-
-## Current publication
-
-**Public Site version 26** is live at
-[fmtcolor.ardentokapi66.chatgpt.site](https://fmtcolor.ardentokapi66.chatgpt.site).
-The overview prominently links to
-[upstream compatibility](https://fmtcolor.ardentokapi66.chatgpt.site/integrated-changes.html#upstream-compatibility).
-That section documents the exact compatibility changes and 42 successful jobs
-for `21eba01b`, including GCC 16/C++26 reflection. The contribution also covers
-integrated Palette, conversion, color/style blending, and the separate 43-job
-FmtColorDev result at `d9d64d36`. The complete {fmt} release supports C++11;
-the later independent library requires C++23 and `std::variant`.
-
-| Item | Current value |
-| --- | --- |
-| Site project ID | `appgprj_6ad129c3e8408191b873a4e06e601c63` |
-| Source commit | `10ae36cd5769b8e180b9f1a5cf91487bc6b48ea5` |
-| Saved version ID | `appgprj_6ad129c3e8408191b873a4e06e601c63~appgver_dae570da194c8191abb781b08b575590` |
-| Successful deployment ID | `appgdep_6adc09e7ca248191808e71b04cc4dfc1` |
-| Audience | Public |
-
-Native Sites deployment returned `succeeded`. Validation covered all three
-pages, 39 local links/anchors, unique IDs, whitespace, exact compatibility CI
-links, unchanged downloads, and preserved Future Work. The new compatibility
-section was inspected locally and live. Earlier Palette content validation
-also checked guide anchors, demo/source agreement, and C++11/C++23 examples.
-The demo remains a future acceptance target; nested text is not implemented.
-Website checks do not establish library runtime or tablet coverage.
-
-Keep preview screenshots outside the source checkout (or in a helper-supported
-ignored directory) so the helper's commit step does not add them. Package an
-archive outside the website checkout; on this Windows setup the helper rejected
-paths inside it. Preserve the project, opening result, source commit, archive,
-saved version, and successful deployment when continuing work.
-
-Future migration to MkDocs/Material remains a separate task.
+No TaskWarrior assessment report, accepted implementation design, or integration
+validation exists yet. The first report should be grounded in the fresh upstream
+baseline and should exclude the old TjgColor material.
