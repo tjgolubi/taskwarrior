@@ -2,102 +2,112 @@
 
 [Document map](README.md) · [Integration design](CppDesign.md) · [Build and test](BuildAndTest.md) · [Documentation](Website.md)
 
-Updated October 23, 2026.
+Updated October 27, 2026.
 
 ## Authorization and scope
 
-Modify project files only when Terry instructs us in the imperative mood.
-Questions and statements of intent are discussion, not edit authorization.
-Read-only inspection and checks needed to answer a prompt are allowed.
-Explain proposed changes before editing, keep each increment focused, verify
-it, and review it before proceeding. Preserve explicit stopping points.
+Modify files when Terry gives an implementation instruction, normally in the
+imperative mood. Questions about capability and statements such as "we should"
+or "I am considering" are discussion, not edit authorization. Terry has
+repeatedly corrected premature edits in this chat. Do not treat every "can you"
+question as permission; explicit contextual authorization, such as "I'm asking",
+can make the request clear. Read-only inspection needed to answer is allowed.
 
-The current instruction authorizes adapting these coordination documents. It
-is not authorization to implement the integration, establish a new checkout,
-change dependencies, or modify TaskWarrior or FmtColor source.
+A request to review or check a file authorizes inspection, not fixes or an
+unsolicited build/test run. Explain findings and leave the source unchanged.
+Re-read saved files: Terry edits concurrently and sometimes has unsaved changes.
+Preserve review pauses. Announcing an expansion of scope does not authorize it;
+report unrelated build problems instead of fixing them incidentally.
 
-Commits, pushes, merges, branch switches, rebases, deletions, and stashes require
-authorization for the relevant operation. Terry normally performs the final
-commit and push. Editing permission does not imply permission for those actions.
-Do not create a new Codex chat or message another chat without Terry's request.
+Explain an authorized change before editing, keep it focused, and verify it.
+When Terry fixes an error blocking an already-requested build/test and says
+"Fixed", resume that authorized operation. Generating a commit message only
+means supplying text. Terry normally commits and pushes himself.
 
-## Project and dependency boundaries
+Commits, pushes, merges, branch switches, rebases, deletions, stashes, and network
+fetches need authorization for the relevant operation. Editing permission alone
+does not grant it. Do not create or message another chat without his request.
+Do not send a library-team wish-list just because its contents are documented.
 
-TaskWarrior is the application under development. Use a fresh baseline from
-`upstream/develop`, as approved by Terry. Verify the remote URL and full SHA
-before beginning; fetching or creating/switching branches requires authorization.
-Do not base the project on local `fix/Ucrt64` changes or the inapplicable
-`TjgColor` material. Preserve the old checkout and its unrelated files.
+## Paths and coordination working tree
 
-Inspect TaskWarrior's own repository instructions. Identify submodules before
-editing: a change inside a submodule belongs to a separate repository and may
-require both a submodule commit and a parent gitlink update. Do not assume all
-color implementation changes belong directly to the TaskWarrior repository.
+In discussion, `^` and `taskwarrior:` mean the TaskWarrior root,
+`~/prj/taskwarrior`. `libshared:` means `^/src/libshared`; `fmt:` means the
+sibling `^/../fmt`. Expand these to real paths in executable commands; they are
+not shell syntax. `.` is the shell's current working directory.
 
-FmtColor is an external dependency pinned to a full commit, initially proposed
-in [README.md](README.md#starting-references). Its source, tests, user guide,
-release history, and website belong to its own project. A missing capability
-is a finding to discuss, not permission to change that dependency. If a library
-change is separately authorized, coordinate it there and explicitly review any
-new application pin.
+The source tree at `^/` is on FmtColor. Coordination documents are on doc/Coord
+in the separate working tree `^/coord/`. Each worktree has its own checkout and
+index while sharing repository history. Changing directories changes which
+worktree Git reports; it does not switch the other worktree's branch.
 
-These coordination documents govern this integration project. FmtColor's
-squash policy, changelog generation, release process, and full library CI matrix
-do not automatically govern TaskWarrior work. Follow the applicable application
-repository instructions and the agreed integration scope.
+Never put coordination documents or persistent worktrees under `^/build/`.
+Terry routinely deletes that directory for clean rebuilds. The original temporary
+coordination worktree was moved to coord; do not create a competing copy.
+The old root FmtColorTODO.md is gone; use CppDesign.md's to-do list.
 
-## Before changes
+Review documentation with `git -C coord status` and `git -C coord diff` from `^/`.
+These edits remain uncommitted until Terry commits on doc/Coord. `/coord/` is now
+in the parent repository's local `.git/info/exclude`; it is not a tracked source
+change or a submodule. Do not add the nested worktree to a TaskWarrior commit.
 
-Inspect branch, full commit, working tree, submodule state, relevant source,
-and repository instructions. Resolve unrelated tracked changes with Terry;
-do not discard or stash them automatically. Re-read files changed concurrently.
-Preserve untracked experiments, scripts, archives, and logs; mention them only
-when they affect the task or risk accidental inclusion. Exclude TjgColor from
-the integration without deleting it.
+## Git and dependency boundaries
 
-Use MSYS2 Git (`C:\msys64\usr\bin\git.exe` from PowerShell, `/usr/bin/git`
-in MSYS) and verify executable provenance. The inherited FmtColor environment
-uses MSYS tools; UCRT64 was removed at Terry's request. Do not reinstall it or
-revive the old TaskWarrior UCRT64 fixes as incidental setup work. Establish the
-actual TaskWarrior toolchain requirements before configuring a build.
+TaskWarrior and libshared are separate repositories. Commit libshared changes
+separately, then record its resulting commit in the parent gitlink when instructed.
+`git commit -a` picks up changed tracked gitlinks but does not commit the
+submodule's dirty files or add untracked files.
 
-Reuse existing SSH agents, keys, identity, and configuration. Keep credentials
-out of files, logs, tool output, and handoffs. Do not change global environment
-or toolchain settings to work around a local build problem.
+Both TryDevelop branches were deliberately deleted after a successful rebase
+rehearsal. FmtColor / MyColor are the current baseline again; exact revisions and
+rehearsal results are in README.md. Do not recreate, rebase, or merge automatically.
+On any branch restoration, inspect `git submodule status --recursive`: changing
+the parent branch does not necessarily restore the checked-out submodule commits.
+Corrosion was restored to c4786e7ae, then CMake was regenerated and tests rerun.
 
-## Implementation and validation
+A stale empty `.git/index.lock` previously blocked commits and was removed only
+after inspection and Terry's approval. It is not a current blocker. A reboot
+alone does not delete a stale file; never assume a lock is stale while Git or a
+commit editor is using it.
 
-After the assessment is reviewed and implementation is authorized, propose a
-focused branch name and confirm the exact baseline before creating it. Keep
-changes minimal and follow the affected repository's style. Preserve existing
-line endings; new text files use LF.
+FmtColor is maintained in the separate fmt project. Its source, release policy,
+user guide, website, and docs/Coord branch belong there. Report missing library
+capabilities rather than implementing them incidentally here. Use exact source
+and installed revisions; the library version or branch name does not identify
+our custom API sufficiently.
 
-Document the dependency pin, acquisition method, CMake integration, and linkage
-mode so another checkout can reproduce the build without relying on a sibling
-FmtColor tree or a developer's global include paths. An explicit local source
-override may aid development, but must not silently select another revision.
+The current dependency is still a locally installed package from ../fmt. A root
+fmt submodule was discussed but not added. Publishing requires accessible
+library commits and correct submodule URLs; see README.md. Preserve MyColor and
+FmtColor history until Terry explicitly chooses the next Git operation.
 
-Preserve valid configuration and agreed application semantics. Discuss behavior
-changes and unsupported cases before implementation. Run appropriate baseline
-and changed-code checks; do not claim an integration pass from library CI alone.
-Use isolated test data and configuration, never Terry's real task database.
+## Tools and verification
 
-Do not invent a required TaskWarrior CI matrix from the FmtColor workflow.
-Inspect actual workflows and repository requirements. Record full SHAs, jobs,
-results, and skips for any CI evidence. Changed commits require fresh checks
-before citing earlier results as current. Do not push or trigger publication
-workflows without authorization.
+Use MSYS2 Git (`C:/msys64/usr/bin/git.exe` or `/usr/bin/git`), not native Windows
+Git: worktree metadata may contain MSYS paths. Its Windows shared-memory startup
+may need escalated execution in the tool runner. Do not change global settings
+to work around sandbox limitations.
 
-## Task completion and handoff
+Use MSYS tools and objects, not UCRT64 or MSVC. Do not reinstall UCRT64. Preserve
+source line endings; newly written coordination documents use LF. Use
+`bash --noprofile --norc` for automation because login startup runs unrelated
+personal jobs. Set PATH for the command rather than globally, including
+`/home/tjgolubi/.cargo/bin` when building TaskWarrior.
 
-Update affected coordination documents when instructed as part of task closure.
-Replace superseded decisions instead of appending a diary. Record:
+Use isolated test data/configuration and the documented workspace-local TMPDIR.
+Do not test against Terry's actual task database or install over his normal task
+command. Run TaskWarrior C++ tests serially; script tests can run concurrently.
+Check whole logs before claiming completed tests all pass, not just the tail.
+Report known failures honestly; ignore-for-now is not permission to disable them.
 
-- The accepted application baseline and dependency pin.
-- Implemented scope and compatibility decisions, separated from proposals.
-- Relevant build/test commands, observed results, and limitations.
-- Remaining questions and a concrete next task for a new chat.
+Changing a library header in ../fmt does not update installed headers. Refresh
+build/fmtcolor-install before testing new APIs. Reconfigure when requested or
+when build definitions change, and rebuild consumers. Record which installed
+revision was actually tested. A library CI pass is not application validation.
 
-Distinguish local edits, commits, pushes, and published results. Another machine
-cannot read unpushed changes from GitHub. Do not record proposed work as finished
-or historical library validation as application validation.
+## Handoff
+
+Update these documents when instructed, replacing stale information instead of
+appending a chat transcript. Distinguish proposed work, source edits, commits,
+pushes, local installation, and fresh versus historical tests. No new source
+work, Git publication, or future rebase is authorized by this documentation update.

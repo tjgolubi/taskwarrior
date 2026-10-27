@@ -2,54 +2,67 @@
 
 [Document map](README.md) · [Workflow](Workflow.md) · [Integration design](CppDesign.md) · [Build and test](BuildAndTest.md)
 
-Updated October 23, 2026.
+Updated October 27, 2026.
 
-## Scope
+## Scope and ownership
 
-This project currently has no integration website or publishing task. This file
-retains its inherited name to preserve the coordination document map; it now
-records documentation boundaries and reference locations.
+The authoritative TaskWarrior coordination documents are on doc/Coord in
+`^/coord/`. This project has no website implementation or publication task.
+Website.md retains its inherited name and records documentation boundaries.
+The to-do list belongs in CppDesign.md; do not recreate FmtColorTODO.md.
 
-Keep TaskWarrior integration instructions, dependency setup, supported behavior,
-and validation with the application project. Update user-facing color/theme
-instructions only when the agreed integration changes require it. The first
-assessment should read existing application documentation before proposing
-syntax changes or describing behavior as compatible.
+Keep application integration instructions, dependency setup, and validation
+with TaskWarrior. FmtColor's source, tests, generated guide, releases, website,
+and library coordination branch docs/Coord belong to its separate project.
+Do not apply that project's release/squash/CI policies automatically here.
 
-The FmtColor website, generated guide, changelog, release process, and source
-belong to the separate library project. Do not update them as incidental work
-for TaskWarrior. Missing capabilities should be recorded in the assessment and
-discussed separately. This document adaptation authorizes no publication.
+The current Color alias, Style helper namespace, added emphasis keywords and
+canonical order, signed numeric interfaces, and styled stream output are
+implemented. User-facing TaskWarrior documentation has not yet been comprehensively
+updated to describe the new color syntax. In particular, do not describe the
+implemented faint/italic/strike support as merely a proposal. Blink, conceal,
+and the parser spelling strikethrough remain future decisions.
+
+Use neutral language: this integration showcases readable named colors and
+attributes in an application Terry uses. No measured speedup or upstream
+acceptance has been established. Rebase feasibility and local test passes are
+not claims that a pull request has been accepted or that CI has run.
 
 ## References
 
-- [TaskWarrior upstream repository](https://github.com/GothenburgBitFactory/taskwarrior):
-  use the approved `upstream/develop` ref and verify the actual configured remote
-  and full commit when setting up the new project.
-- [FmtColor source at the proposed pin](https://github.com/tjgolubi/fmt/tree/d9d64d361591311901e06c662c24879128c63724):
-  implementation and tests establish the dependency API.
-- [FmtColor generated user guide](https://tjgolubi.github.io/fmt/color/index.html):
-  API references, examples, palette conversions, and behavior notes. It is a
-  moving publication; verify details against the pinned source when they matter.
-- [FmtColor project website](https://fmtcolor.ardentokapi66.chatgpt.site):
-  motivation, contribution, compatibility evidence, and future design. Future
-  work and downloadable demos must not be mistaken for implemented capabilities.
-- FmtColor coordination branch `docs/Coord`: the library's own workflow, design,
-  build, and publication context. This project's `ForTaskWarrior` adaptation
-  does not replace or modify that branch's library guidance.
+- [TaskWarrior upstream](https://github.com/GothenburgBitFactory/taskwarrior).
+  Current integration base and historical develop inspection are distinguished
+  in README.md. Proposed contributions should target develop, per its
+  [branching model](https://github.com/GothenburgBitFactory/taskwarrior/blob/develop/doc/devel/contrib/branching.md).
+  Terry deliberately restored the original feature branches after a successful
+  rehearsal; do not automatically rebase them again.
+- [FmtColor at the installed revision](https://github.com/tjgolubi/fmt/tree/eb0444023168fbe79f68f2c032bf1ca67ebd47b8).
+  The exact revision exists locally; remote publication must be checked before
+  relying on a GitHub link from another machine. Inspect ../fmt and the installed
+  headers for authoritative API details. Styled stream insertion and ostream
+  print/println are in fmt/color-ostream.h, not color.h alone.
+- [FmtColor generated user guide](https://tjgolubi.github.io/fmt/color/index.html).
+  This moving publication is appropriate for user-facing library documentation;
+  exact source revisions support implementation claims. GitHub does not render
+  all MkDocs directives in the guide's source Markdown.
+- [FmtColor project website](https://fmtcolor.ardentokapi66.chatgpt.site).
+  Proposed designs do not establish implemented APIs.
+- [Haiku introduction](https://www.haiku-os.org/about/).
+  Haiku is an open-source operating system inspired by BeOS. The upstream
+  libshared support commit also contains platform-independent subprocess fixes;
+  see README.md rather than assuming all its changes affect only Haiku.
+- [Xterm control sequences](https://invisible-island.net/xterm/ctlseqs/ctlseqs.html)
+  and [mintty control sequences](https://github.com/mintty/mintty/wiki/CtrlSeqs).
+  OSC 10 and 11 query terminal default foreground/background. That proposal is
+  separate from SGR styling and has not been integrated into TaskWarrior.
 
-Use the generated guide for user-facing reference links; GitHub does not render
-its source Markdown's MkDocs directives. Prefer exact commit links for code and
-validation claims. Do not infer upstream acceptance or a numbered FmtColor
-release from integration on `FmtColorDev`.
+## Next documentation work
 
-## Handoff documentation
+When authorized, document supported parser spellings and canonical output,
+independent foreground/background brightness, and the distinction between
+TaskWarrior's rgbRGB cube syntax and 24-bit RGB. Keep examples readable without
+requiring the programmer to consult the SGR manual.
 
-At task completion, keep the coordination documents consistent with the actual
-application/dependency revisions and observed checks. State what remains a
-proposal. Document compatibility decisions and any application-specific adapter
-logic so a new chat can proceed without reconstructing earlier discussions.
-
-No TaskWarrior assessment report, accepted implementation design, or integration
-validation exists yet. The first report should be grounded in the fresh upstream
-baseline and should exclude the old TjgColor material.
+Before publishing or submitting upstream, settle dependency acquisition and
+submodule URLs and commit the coordination updates separately. This handoff
+update performs no commits, pushes, publication, or library changes.

@@ -1,88 +1,145 @@
 # TaskWarrior / FmtColor coordination
 
-Updated October 23, 2026.
+Updated October 27, 2026.
 
-## Purpose
+## Start here in a new conversation
 
-Evaluate and integrate FmtColor into TaskWarrior as a third-party dependency,
-replacing TaskWarrior's existing color handling while preserving valid user
-configuration and agreed application behavior. This is a TaskWarrior-centered
-project, separate from development of FmtColor itself.
+Read this file, [Workflow.md](Workflow.md), [CppDesign.md](CppDesign.md), and
+[BuildAndTest.md](BuildAndTest.md) before acting. These are the authoritative
+coordination documents on TaskWarrior's `doc/Coord` branch, checked out in the
+separate working tree `^/coord/`. Source and Terry's newer instructions take
+precedence over this handoff. Do not resume an abandoned rebase or automatically
+start another cleanup pass; continue with the task Terry requests.
 
-Each chat addresses a focused task. These documents supply its starting context,
-accepted decisions, working rules, validation, and remaining questions. Update
-them when completing a task so the next chat can begin from the current state.
-Keep a coherent account rather than appending a conversation or event log.
-Source and tests establish implemented behavior; newer explicit instructions
-from Terry override older wording. Proposals are not implementation permission.
+The purpose is to showcase FmtColor's readable, named styles in a colorized
+application Terry actually uses. Avoid requiring programmers to consult an SGR
+manual. Performance is a possible benefit, not a measured outcome. Describe the
+integration without disparaging TaskWarrior's original implementation.
 
 ## Document map
 
 | Document | Purpose |
 | --- | --- |
-| [Workflow.md](Workflow.md) | Authorization, repositories, Git, and handoff rules. |
-| [CppDesign.md](CppDesign.md) | Integration boundaries, dependency API, and assessment questions. |
-| [BuildAndTest.md](BuildAndTest.md) | Baseline discovery, build strategy, and validation requirements. |
-| [Website.md](Website.md) | Documentation scope and external project references. |
+| [Workflow.md](Workflow.md) | Authorization, path notation, Git, and working trees. |
+| [CppDesign.md](CppDesign.md) | Implemented interfaces, output conventions, and remaining work. |
+| [BuildAndTest.md](BuildAndTest.md) | Dependency installation, commands, and validation evidence. |
+| [Website.md](Website.md) | Documentation ownership and external references. |
 
-## Accepted starting decisions
+## Paths
 
-- Center the new Codex project on the TaskWarrior repository.
-- Start fresh from TaskWarrior's `upstream/develop`. Terry approved this ref
-  after initially referring to upstream master. Do not continue the existing
-  local `fix/Ucrt64` work or use its patches as the integration baseline.
-- Existing `TjgColor` material is not applicable. Do not adopt, repair, or migrate
-  it. Preserve existing files and unrelated work when establishing the fresh
-  checkout; starting fresh does not authorize deletion or resetting that work.
-- Treat FmtColor as a third-party library with an explicit pinned revision.
-  Initially target the {fmt}-based implementation, not the future independent
-  C++23 library. The proposed initial pin is recorded below; dependency packaging
-  and acquisition remain to be agreed.
-- Begin with a read-only assessment and review its proposal before implementation.
-- Keep TaskWarrior integration changes separate from FmtColor development.
-  Report missing library capabilities instead of silently extending FmtColor.
+`^` and `taskwarrior:` always mean `~/prj/taskwarrior`, regardless of the current
+directory. On this PC that is `C:/msys64/home/tjgolubi/prj/taskwarrior`, or
+`/home/tjgolubi/prj/taskwarrior` in MSYS. `.` retains its shell meaning.
 
-## Starting references
+- `^/`: TaskWarrior source working tree, branch `FmtColor`.
+- `^/coord/`: coordination working tree, branch `doc/Coord`.
+- `libshared:`: separate repository/submodule at `^/src/libshared`, branch `MyColor`.
+- `fmt:`: sibling repository at `^/../fmt`, branch `TaskWarrior`.
 
-These documents were adapted on `ForTaskWarrior`, split from the FmtColor
-coordination branch `docs/Coord` at `4f256561`. They are coordination material,
-not TaskWarrior or FmtColor product source. Their eventual home in the new
-project remains to be settled; do not create competing authoritative copies.
+## Verified current baseline
 
-TaskWarrior's starting ref is `upstream/develop`; its exact full SHA and remote
-URL must be verified and recorded at project setup. Existing local refs are
-not proof of the latest upstream state. Do not assume that the old local build,
-source inspection, or tests describe the fresh baseline.
+Inspected October 27 after restoring the pre-rebase branches. TaskWarrior,
+libshared, and fmt are clean; the five coordination documents have uncommitted
+updates on `doc/Coord`. No documentation commit or push is authorized by this
+update. The parent repository locally ignores `/coord/` through `.git/info/exclude`.
 
-Proposed initial FmtColor dependency:
+| Repository                    | Current HEAD                               |
+| ----------------------------- | ------------------------------------------ |
+| TaskWarrior, `FmtColor`       | `7f2dd35364f2037899acc9996cd219cc54f909d9` |
+| libshared, `MyColor`          | `47d599c400ce5734bb6c4d1fe2c8a56c91612e1e` |
+| fmt, `TaskWarrior`            | `eb0444023168fbe79f68f2c032bf1ca67ebd47b8` |
+| Corrosion, detached submodule | `c4786e7ae2d5ade784aca29448df362c874ed04e` |
 
-- Repository: [tjgolubi/fmt](https://github.com/tjgolubi/fmt).
-- Development line: `FmtColorDev`.
-- Pin: `d9d64d361591311901e06c662c24879128c63724`.
-- Header/API: `<fmt/color.h>`, namespace `fmt`.
-- Implementation: {fmt} with FmtColor extensions; supports C++11.
+TaskWarrior's recorded submodule revisions match both checkouts. Corrosion had
+remained at the newer develop revision after the rehearsal; it was explicitly
+restored and both application and standalone-libshared CMake configurations were
+regenerated. The current build directories now describe this original baseline.
 
-The upstream {fmt} baseline for that dependency is
-`0fc31633e7d53ac895ae0a688b83b7d44f0b0c1f`. A moving branch name or inherited
-`FMT_VERSION` does not uniquely identify the FmtColor feature set. Do not choose
-`test/UpstreamCompatibility` as the application dependency.
+The TaskWarrior base remains v3.5.0, `3419d5ba1e6a780fbbb0a8d68d8fd31e675c1bf8`,
+followed by the MSYS build fix `772905203fac096cbcaaa1aa324688e7826629f6` and
+our integration commits. Source changes discussed in the preceding conversation
+have been committed by Terry. Do not restart the old fresh-checkout assessment.
 
-## Current status and next task
+## Current implementation and validation
 
-No TaskWarrior integration has been implemented or validated by this project.
-Only the coordination documents have been adapted. Local observations from the
-previous checkout are discovery leads, not accepted baseline findings.
+`Color` is a global alias for `fmt::text_style`; the old Color class is gone.
+Application helpers are in namespace `Style`: Parse, Spec, strip_sgr, and colorize.
+The namespaces and aliases have already been migrated; do not rename them again.
 
-The first task is a read-only assessment against the selected upstream commit:
+The local fmt installation is `^/build/fmtcolor-install`. It contains the signed
+numeric interfaces, `emphasis::operator|=`, styled ostream insertion, and the
+assert/clamp constructors from `eb044402`. The installed color.h hash matches
+the sibling source. Both projects use C++17 and compact SGR mode.
 
-1. Establish repository/submodule ownership, clean starting state, and build inputs.
-2. Trace color storage, parsing, composition, rendering, callers, and tests.
-3. Identify persistence or numeric-representation dependencies and valid theme syntax.
-4. Compare application behavior with the pinned FmtColor API and list gaps.
-5. Propose one small integration increment with affected files, dependency setup,
-   compatibility decisions, and tests; review it with Terry before editing code.
+Latest full verification on the restored baseline:
 
-A compatibility adapter retaining TaskWarrior's existing `Color` interface and
-parser is an initial hypothesis, not a chosen design. The assessment may suggest
-a better boundary. Do not assume FmtColor's value-level OR or averaging matches
-TaskWarrior's current blending policy.
+- TaskWarrior: all 178 tests passed (31 C++ and 147 script entries).
+- libshared: 11,894 assertions passed, seven known emoji-related failures,
+  four skips. All 1,097 Color assertions passed.
+- No new test failures. See BuildAndTest.md for logs and limitations.
+
+## Rebase rehearsal: completed, then deliberately undone
+
+Terry successfully rebased TaskWarrior onto local upstream develop
+`c280c347c1adc47e9bb1ad42c92958e2d7f92e9c`. We verified all seven integration
+commits survived. Git could not merge the divergent libshared gitlink; selecting
+our integration revision preserved the color implementation but initially left
+out two upstream libshared commits.
+
+We subsequently rebased libshared's temporary `TryDevelop` onto upstream
+`d899eba6d1a863f78f15e5e82d45d857278e9471`. All six local commits were preserved
+unchanged by range-diff, with no conflicts. Both projects rebuilt; TaskWarrior
+passed 179 tests (32 C++ and 147 scripts), and libshared retained seven emoji
+failures. The extra C++ entry belongs to the newer upstream base.
+
+Terry then deleted both TryDevelop branches and restored everything to FmtColor /
+MyColor. This was intentional. No active rebase or uncommitted gitlink update
+remains. The rehearsal established that a later rebase is feasible; it is not
+permission to rebase again. Historical tips, only for recovery/reference:
+TaskWarrior `668dd43bc`; rebased libshared
+`17a5126966e3f911b8975f65f529b119dbe56c21`.
+
+Upstream libshared commits still absent from the restored MyColor:
+
+- `df59fd69119d81cd320e67d3b868226ce5f1dd2d`: Haiku detection and one
+  Haiku-specific Unicode skip, plus general subprocess fixes (retry interrupted
+  select/read/write and use waitpid for the specific child). The subprocess
+  changes are not restricted to Haiku and may matter on MSYS2 too.
+- `d899eba6d1a863f78f15e5e82d45d857278e9471`: removes the Haiku CI job added by
+  the first commit. There is no net Haiku CI-job addition.
+
+Haiku is a separate open-source operating system inspired by BeOS. Do not dismiss
+both commits as merely Haiku test changes. These upstream commits are not fixes
+for our known emoji-width failures.
+
+## Pending decisions and publication
+
+Proposed upstream TaskWarrior work should ultimately be based on develop; their
+contribution documentation uses that branch. Terry chose to keep working on the
+original branches for now and plans to squash local feature commits before
+publishing. Preserve upstream base commits when squashing.
+
+Recommended dependency publication order is fmt, libshared, then TaskWarrior.
+No pushes were performed by the agent, and remote publication was not freshly
+verified for this handoff. Relevant forks are tjgolubi/fmt, tjgolubi/libshared,
+and tjgolubi/taskwarrior. After rewriting/squashing libshared, the parent gitlink
+must point to the new commit. Current `.gitmodules` and local submodule URL still
+name GothenburgBitFactory/libshared; a fork that references our private-to-fork
+commits needs an accessible fork URL before others can initialize it. No URL
+change has been made.
+
+A single fmt submodule at the TaskWarrior root (for example external/fmt) was
+discussed as a way to make this trial self-contained. It has NOT been added and
+CMake still consumes the installed package from the sibling source. Do not assume
+that proposal is approved implementation work. Portable acquisition and pinning
+remain unfinished.
+
+The attempted split() string_view refactor was fully reverted at Terry's request.
+It must be separate future work/commit, not mixed into the color integration.
+Optional saved patches are disposable files under build/color-cxx17-check;
+see CppDesign.md. There is no pending reminder automation: the integer-interface
+reminder was delivered and deleted, and the library team implemented that request.
+
+The next conversation should verify this baseline, then follow Terry's next
+requested task. Remaining features and documentation work are tracked in
+[CppDesign.md](CppDesign.md#to-do-and-open-questions).
