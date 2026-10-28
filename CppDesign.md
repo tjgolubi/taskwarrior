@@ -6,9 +6,10 @@ Updated October 28, 2026.
 
 ## Implemented integration and scope
 
-TaskWarrior uses the {fmt}-based FmtColor extension from the sibling fmt project,
-installed locally at revision `11b9f99d27fb61c26728d578f267102761975ac5`
-from branch `feat/EmphFactories`.
+TaskWarrior uses the {fmt}-based FmtColor extension pinned at
+`5b3f49ff7599df5beb651c3ccc8a403d7a7386a1` in libshared's `ext/fmt` submodule,
+from tjgolubi/fmt color-dev. Both consumers build that source with add_subdirectory.
+They no longer consume the sibling checkout through a local package installation.
 This is not the proposed independent C++23 library. Application and standalone
 libshared builds use C++17. Exact repository revisions are in README.md.
 
@@ -87,7 +88,8 @@ was discussed but not changed.
 libshared's Color test expected values now use single-attribute factories and
 selected fluent chains alongside existing constructors. Parser inputs and all
 1,097 assertions remain intact. Parse's emphasis accumulator was not refactored.
-These changes are committed in TaskWarrior `53edaec24` and libshared `c0b0a47f3`.
+These changes are now squashed into TaskWarrior `a12924577` and libshared
+`58ae81d0a`, including the pinned dependency setup. Both are on color-dev.
 
 The current text_style is one uint64_t; fluent emphasis setters update its bits
 without allocation and return text_style&. A chain on a factory temporary is
@@ -154,7 +156,7 @@ A shared cache accessor is a future possibility, not an implemented redesign.
 ## Formatting and stream output
 
 Use fmt/color.h for styles and fmt/color-ostream.h for styled stream insertion
-and styled ostream print/println. The installed header supports narrow and wide
+and styled ostream print/println. The pinned header supports narrow and wide
 streams. Preserve the existing destination: std::cout, std::cerr, or the command's
 stringstream. Unqualified print/println default to stdout and are not replacements
 for a stream argument. Do not mix output destinations incidentally.
@@ -243,18 +245,19 @@ The temporary ten view assertions were removed; shared.t is back to 211 checks.
 
 ## To-do and open questions
 
-- [ ] Decide portable acquisition and pinning for FmtColor. A single root fmt
-  submodule (e.g. external/fmt) was discussed, not implemented; current CMake uses
-  the workspace-local installation built from ../fmt. Share one dependency
-  between TaskWarrior and libshared rather than embedding duplicate copies.
-- [ ] When Terry is ready, prepare proposed upstream work on develop. The rebase
-  rehearsal succeeded and was deliberately undone; preserve the original branches
-  until explicitly told to redo it. See README.md for revisions and missing
-  upstream libshared subprocess changes.
-- [ ] Prepare publication deliberately: fmt first, then libshared, then TaskWarrior.
-  Terry plans to squash local changes before pushing. Update the parent gitlink
-  after any libshared rewrite and settle the .gitmodules fork URL. Verify remote
-  state; do not assume these branches or commits have been pushed.
+- [x] Pin one shared FmtColor dependency: libshared owns ext/fmt from Terry's fork;
+  both consumers build it directly. The path is ext, not external. Keep this
+  spelling and use recursive submodule initialization.
+- [x] Rebase onto upstream bases and squash integration work. TaskWarrior is on
+  develop 61e542918 plus separate MSYS support and one integration commit.
+  Libshared is on master d899eba6d plus the ctime fix and one combined integration.
+- [x] Point the parent gitlink at the final libshared commit and its URL at
+  tjgolubi/libshared. Terry reported everything pushed. No fresh remote or CI
+  verification is claimed; future publication checks need their own scope.
+- [x] Update INSTALL for recursive submodule initialization and the pinned
+  src/libshared/ext/fmt build. Separate FmtColor installation and fmt_DIR
+  instructions were removed; source distributions must include submodule sources.
+  Terry amended the integration commit and reported force-pushing it.
 - [ ] Update TaskWarrior's user-facing color documentation for implemented keywords,
   aliases, canonical order, and independent brightness. Consider blink, conceal,
   and strikethrough spelling separately; they are not implemented parser features.

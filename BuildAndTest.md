@@ -6,223 +6,163 @@ Updated October 28, 2026.
 
 ## Environment and dependency
 
-The verified environment is MSYS2, not UCRT64 or MSVC. Tool versions inspected
-October 28: GCC 16.2.0, CMake 4.4.4, Ninja 1.13.2, Rust/Cargo 1.99.1, and
-Python 3.12.15. Application and standalone libshared use C++17 and Release builds.
-The current clean source revisions and separate dirty coordination tree are recorded
-in README.md.
+Use MSYS2 tools and objects, not UCRT64 or MSVC. Inspected after Terry ran
+`pacman -Syu` and rebooted: GCC 16.2.0, CMake 4.4.4, Ninja 1.13.2, Rust 1.99.1.
+Previously recorded Cargo 1.99.1 and Python 3.12.15 were not freshly rechecked.
+Both consumers use C++17, Release, and `FMT_COLOR_COMPACT_SGR=1` publicly through
+their libshared targets, which link `fmt::fmt` publicly.
 
-The installed dependency comes from the clean sibling fmt feat/EmphFactories branch at
-`11b9f99d27fb61c26728d578f267102761975ac5`. The workspace-local static installation
-is `^/build/fmtcolor-install`; CMake explicitly selects its lib/cmake/fmt package.
-The current installed revision already contains the noexcept assert/clamp
-constructors and the conditional emphasis factories. It was reconfigured,
-rebuilt, and installed locally on October 28 before rebuilding both consumers.
-This is a local override, not portable acquisition or an automatically enforced
-pin. Do not silently substitute another system fmt or mix MSYS and MSVC objects.
+Fmt is now pinned at `5b3f49ff7599df5beb651c3ccc8a403d7a7386a1` in libshared's
+`ext/fmt` submodule (TaskWarrior path src/libshared/ext/fmt), from tjgolubi/fmt's
+color-dev. Both projects add it directly through CMake; no local install or
+fmt_DIR is required. Compiler commands were checked to confirm this path.
+The separate ../fmt checkout and old build/fmtcolor-install are not consumed.
+Do not silently substitute ordinary upstream/system fmt: the integration uses
+custom color APIs. Constructors assert on invalid values with assertions enabled
+and clamp when disabled. The verified builds are Release.
 
-Both selected library targets publicly link fmt::fmt and define
-`FMT_COLOR_COMPACT_SGR=1`, so consumers inherit a consistent compact-SGR mode.
-TaskWarrior builds its selected libshared sources through src/CMakeLists.txt;
-standalone libshared uses src/libshared/src/CMakeLists.txt. No FMT_HEADER_ONLY or
-global CXX flag override is needed. Installed headers include color-ostream.h,
-with styled stream insertion and narrow/wide ostream print/println support.
-The installed color.h SHA-256 was verified against ../fmt on October 28:
-`ad85891c28bfadd7dfd4e8728f973fea859497ec7b55fdcc5fe24ffe52b46728`.
-Constructors assert on invalid values when assertions are enabled, and clamp
-when assertions are disabled. Both consumer builds here are Release.
+## Directories and MSYS fixes
 
-## Build directories and retained fixes
+- `^/build/color-dev-baseline`: current TaskWarrior build and tests. The name
+  reflects its initial upstream-only purpose; it now contains the integration.
+- `^/build/libshared-installed-fresh`: current standalone libshared build. Despite
+  the historical name, it now builds the ext/fmt submodule directly.
+- `^/build/libshared-upstream-post-update`: historical upstream-only tests.
+- `^/build/msys-gcc16`, fmtcolor-package, fmtcolor-install, and color-cxx17-check:
+  older builds, probes, and logs; do not confuse them with current validation.
+- `^/coord`: persistent worktree, never place it under disposable build/.
 
-- `^/build/fmtcolor-package`: fmt package build from the sibling source.
-- `^/build/fmtcolor-install`: headers, lib/libfmt.a, and CMake package files.
-- `^/build/msys-gcc16`: TaskWarrior application and CTest suite.
-- `^/build/libshared-installed-fresh`: standalone libshared and its own tests.
-- `^/build/color-cxx17-check`: disposable probes and validation logs.
-- `^/coord`: persistent coordination working tree; never put it under build.
+TaskWarrior commit `101261b26` provides HAVE_TIMEGM detection and cmake.h output,
+selects patched ring 0.17.14 through Cargo's patch.crates-io section, and exposes
+POSIX declarations privately to test_runner on MSYS. The full vendor/ring tree
+is intentional build support, separate from FmtColor. The small Cygwin randomness
+and Win64 ABI patch and provenance are documented in vendor/. Retain it unless
+Terry authorizes a different dependency solution. Upgrading Rust alone did not
+address the observed missing ring Cygwin implementation.
 
-Terry may delete all of build to force a clean rebuild. These directories, logs,
-probes, and local dependency installation then need recreation; coordination
-documents remain in coord. Preserve experiments unless deletion is requested.
+TaskWarrior's integration also defines `_POSIX_C_SOURCE=200809L` privately for
+fmt on MSYS because its strict C++17 build otherwise hides declarations needed
+by fmt/os.cc. Libshared's separate `<ctime>` include fix in test/test.h is commit
+`3e94fdc5f`; without it upstream test executables failed to compile.
 
-MSYS build fixes include HAVE_TIMEGM detection, the local vendor/ring patch
-selected by Cargo.toml's patch.crates-io section, and
-`_POSIX_C_SOURCE=200809L` private to test_runner on MSYS. Keep the vendored
-ring 0.17.14 Cygwin support and existing TaskChampion/Corrosion integration.
-Rust currently emits ring lifetime-syntax warnings; the verified builds succeed.
+Unmodified upstream TaskWarrior failed on ring's SystemRandom trait support and
+Datetime's timegm fallback (setenv/tzset/unsetenv undeclared). These have been
+resolved in the current build. Ring lifetime-syntax warnings remain nonfatal.
 
 ## Configure and build
 
-Run from `^/` in MSYS Bash with the MSYS compiler and Terry's Cargo bin directory
-on PATH. In tool automation use bash --noprofile --norc, not a login shell.
-The following makes the development source override explicit; verify its HEAD
-against the recorded revision first; it is an inspected snapshot, not an enforced
-portable pin. A deleted build needs the configure steps again.
+From TaskWarrior root in MSYS Bash (automation uses bash --noprofile --norc):
 
 ```bash
-fmt_prefix="$PWD/build/fmtcolor-install"
-cmake -S ../fmt -B build/fmtcolor-package -G Ninja \
-  -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++ \
-  -DFMT_TEST=OFF -DFMT_DOC=OFF -DFMT_INSTALL=ON \
-  -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_LIBDIR=lib \
-  -DCMAKE_INSTALL_PREFIX="$fmt_prefix"
-cmake --build build/fmtcolor-package --parallel 8
-cmake --install build/fmtcolor-package
+export PATH=/usr/bin:/home/tjgolubi/.cargo/bin:$PATH
+# First inspect git status and recorded gitlinks. Only initialize/update when
+# appropriate: this checks out the parent's pinned revisions.
+git submodule update --init --recursive
 
-cmake -S . -B build/msys-gcc16 -G Ninja \
+cmake -S . -B build/color-dev-baseline -G Ninja \
   -DCMAKE_BUILD_TYPE=Release \
-  -DCMAKE_INSTALL_PREFIX="$PWD/build/msys-gcc16/local-install" \
-  -Dfmt_DIR="$fmt_prefix/lib/cmake/fmt"
-cmake --build build/msys-gcc16 \
+  -DCMAKE_INSTALL_PREFIX="$PWD/build/color-dev-baseline/local-install" \
+  -Ufmt_DIR
+cmake --build build/color-dev-baseline \
   --target task_executable test_runner --parallel 8
 
 cmake -S src/libshared -B build/libshared-installed-fresh -G Ninja \
-  -DCMAKE_BUILD_TYPE=Release -Dfmt_DIR="$fmt_prefix/lib/cmake/fmt"
+  -DCMAKE_BUILD_TYPE=Release -Ufmt_DIR
 cmake --build build/libshared-installed-fresh --parallel 8
 ```
 
-Only fmt is installed by these commands, under the workspace. Do not run a
-standalone libshared install to its cached /usr/local prefix. The experimental
-application is `^/build/msys-gcc16/src/task.exe`; do not overwrite Terry's normal
-installation. Configuration can regenerate cmake.h files in the source trees.
+-Ufmt_DIR removes an obsolete installed-package cache entry when reusing a build.
+No package installation is required. Do not run standalone libshared install to
+its cached /usr/local prefix. Do not overwrite Terry's normal task executable.
+The current test executable is build/color-dev-baseline/src/task.exe.
+Configuration can regenerate cmake.h files in source trees.
 
-For a header-only API change, refresh the local fmt installation and rebuild
-consumers. A CMake reconfigure is not intrinsically needed, but is appropriate
-when package configuration or build definitions change. A new header must be
-listed in the library's install rules to reach the application.
+## TaskWarrior tests and evidence
 
-## TaskWarrior tests
-
-Use temporary test configuration/data. Set TMPDIR to a workspace-local directory.
-Run C++ tests serially because some share a fixed temporary directory. Script
-tests can run concurrently; ids.test.py usually takes around 100 seconds.
+A fresh build needs themes/resources under its workspace-local install prefix.
+Check that prefix before running the doc-only resource install:
 
 ```bash
-mkdir -p build/msys-gcc16/test-tmp
-export TMPDIR="$PWD/build/msys-gcc16/test-tmp"
-ctest --test-dir build/msys-gcc16 --output-on-failure -j1 -R '[.]cpp$'
-ctest --test-dir build/msys-gcc16 --output-on-failure -j8 -E '[.]cpp$'
+cmake -P build/color-dev-baseline/doc/cmake_install.cmake
+mkdir -p build/color-dev-baseline/test-tmp
+export TMPDIR="$PWD/build/color-dev-baseline/test-tmp"
+ctest --test-dir build/color-dev-baseline --output-on-failure -j1 -R '[.]cpp$'
+ctest --test-dir build/color-dev-baseline --output-on-failure -j8 -E '[.]cpp$'
 ```
 
-For a fresh build, script tests may need the documentation/theme resources under
-the configured workspace-local install prefix. They were installed locally with
-`cmake -P build/msys-gcc16/doc/cmake_install.cmake`. Inspect the prefix before
-repeating this resource-install step; do not install globally.
+Use isolated test configuration/data. Never use Terry's real task database.
+C++ tests share temporary paths and run serially; scripts may run concurrently.
+ids.test.py commonly takes around 100 seconds.
 
-Latest full TaskWarrior verification, October 28, after Terry's final review
-edits: all 178 CTest entries passed (31 C++ and 147 script tests). Standalone
-Color also passed all 1,097 assertions. The tested source was subsequently
-committed by Terry as TaskWarrior `53edaec240e40f6e523e7d149e5e9d3c876328a0`
-and libshared `c0b0a47f37393eae8fdd4ff0b54fb28f55efa637`; the current source
-trees are clean and the parent gitlink matches. This was an incremental rebuild
-against the refreshed library, not a clean rebuild or another reconfigure.
-The earlier October 28 library-update run reconfigured and rebuilt both consumers.
+Latest validation is TaskWarrior `3272705b95583d9fc5689d10d3f5487fdf6fde59`,
+libshared `58ae81d0a90b93839c1157f0cac3e85f888154cb`, fmt
+`5b3f49ff7599df5beb651c3ccc8a403d7a7386a1`, and Corrosion
+`2522f7abad9eaa88b05d07fd492841c529ca2bf1`. The incremental build succeeded and
+all 179 tests passed: 32 C++ in 0.99 seconds, 147 scripts in 107.41 seconds.
+Git remained clean. The current TaskWarrior commit is now
+`a129245774249abcb0ad26b89220ddd7f1bd5303`: only INSTALL differs from the tested
+3272705b9. Terry amended the installation instructions and force-pushed. No new
+build or tests were run after that documentation-only amendment. INSTALL now
+documents recursive submodule initialization and direct use of ext/fmt.
+Logs in build/color-dev-baseline:
 
-Evidence under `^/build/color-cxx17-check/`:
+- final-build.log
+- final-cpp-tests.log
+- final-script-tests.log
 
-- `emph-update-fmt-configure.log`, `emph-update-fmt-build.log`, and
-  `emph-update-fmt-install.log`: the refreshed local dependency installation.
-- `emph-update-task-configure.log`, `emph-update-task-build.log`,
-  `emph-update-shared-configure.log`, and `emph-update-shared-build.log`:
-  both consumers reconfigured/rebuilt after the library update.
-- `emph-update-shared-tests.log`: full standalone libshared run before the
-  Color test construction edits, described below.
-- `emph-review-task-build.log`: latest TaskWarrior build succeeded, with ring
-  lifetime-syntax warnings. The earlier `emph-factories-task-build.log` also
-  records CmdHistory's existing unused label variable warning.
-- `emph-review-task-cpp-tests.log`: 31 passed, zero failed (0.95 seconds).
-- `emph-review-task-script-tests.log`: 147 passed, zero failed (97.00 seconds).
-- `emph-review-color-build.log` and `emph-review-color-tests.log`: standalone
-  Color target was up to date and all 1,097 assertions passed, no skips.
+Earlier fmt-submodule-* logs cover the first nested-fmt build/test. Its initial
+run failed because default.theme resources were absent; after the doc resource
+install both suites passed. ext-rename-build.log verifies the subsequent rename.
+The final-* results supersede these intermediate results. The previous 178-test
+baseline used the older upstream base; current upstream adds a C++ entry.
 
-Earlier October 28 logs prefixed `emph-update-` and `emph-factories-` document
-intermediate validation. October 27 `restored-` logs describe the pre-factory
-baseline at TaskWarrior `7f2dd3536`, libshared `47d599c40`, and fmt `eb044402`.
+Earlier manual color rendering and CmdNews/CmdColor output comparisons remain
+historical evidence only. Do not claim fresh byte comparisons, clean builds,
+or CI results from the current incremental build and tests.
 
-Logs prefixed `trydevelop-` and `rebased-shared-` belong to the successful,
-subsequently undone rebase rehearsal. That newer upstream base passed 179
-TaskWarrior tests (32 C++ plus 147 scripts). Do not confuse its extra C++ test
-or newer Corrosion revision with the current restored checkout. Future rebases
-may rebuild substantial Rust dependencies even when an incremental build was
-previously quick. Building the new base does not itself authorize source fixes.
-
-This documentation update reads existing evidence; it is not another test run
-or a CI result. No application CI run is claimed.
-
-The earlier formatting pass exposed a dashed-header rule emitting spaces.
-Table.cpp now uses `"{:-<{}}"`; fontunderline.test.py and the affected table,
-report, and C++ tests were rerun successfully before the latest full pass.
-Earlier CmdNews output comparisons covered colored/uncolored interactive news
-and up-to-date cases. CmdColor comparisons covered all swatches, a sample, and a
-legend byte for byte before Terry's subsequent manual review edits. Do not claim
-those older exact-byte comparisons describe every later edit. Terry manually
-confirmed the current color command renders correctly and bold works with
-indexed colors in his terminal.
-
-## Standalone libshared tests and known limitations
-
-TaskWarrior's CTest suite does not replace libshared's own tests. The default
-standalone build excludes test executables; build specific targets or target test.
+## Standalone libshared tests and evidence
 
 ```bash
-cmake --build build/libshared-installed-fresh \
-  --target color.t palette.t table.t composite.t fs.t --parallel 8
-# Full suite, including building the remaining test targets:
+mkdir -p build/libshared-installed-fresh/test-tmp
+export TMPDIR="$PWD/build/libshared-installed-fresh/test-tmp"
 cmake --build build/libshared-installed-fresh --target test --parallel 8
 ```
 
-The latest full standalone suite, October 28 with fmt `11b9f99d` and libshared
-`47d599c400ce5734bb6c4d1fe2c8a56c91612e1e`, reports **11,891 assertions passed,
-ten failed, and four skipped**. This preceded the Color test construction edits.
-Its nonzero exit reflects seven known emoji failures plus three next-weekday
-date failures, not a compilation failure. The previous October 27 full run
-reported 11,894 passed, seven failed, and four skipped. After the factory edits
-and Terry's review, only the standalone Color target was rerun; all 1,097
-assertions passed, including the existing 39 emphasis assertions. Do not report
-the full libshared suite as rerun at the new commit.
+The test target builds the otherwise excluded test executables and runs the full
+suite. Latest run at `58ae81d0a`, using fmt `5b3f49ff` under ext/fmt, reports
+**11,894 passed, seven failed, four skipped**. The library build was already up
+to date after configuration; tests were rebuilt as necessary and rerun. Logs in
+build/libshared-installed-fresh are truck-configure.log, truck-build.log, and
+truck-tests.log (the filenames retain an intermediate branch name; checkout at
+this run was color-dev). Git remained clean.
 
-| Suite | Current recorded result |
+| Suite | Latest result |
 | --- | --- |
 | Color | 1097 passed, 0 failed |
 | Shared utilities | 211 passed, 0 failed |
 | Palette | 3 passed, 0 failed |
 | Table | 3 passed, 0 failed |
 | Composite | 5 passed, 1 known emoji-width failure |
-| Filesystem | 125 passed, 0 failed, 3 explicitly skipped |
-| UTF-8 | 86 passed, 6 emoji-width failures |
-| Date/time | 6637 passed, 3 next-weekday failures |
-
-The fourth overall skip is pre-existing elsewhere; do not describe all four
-as newly gated filesystem tests. The temporarily added split() view tests were
-reverted with that refactor, so shared utilities are back to 211 assertions.
+| Filesystem | 125 passed, 0 failed, 3 skipped |
+| UTF-8 | 86 passed, 6 known emoji-width failures |
+| Date/time | 6640 passed, 0 failed |
 
 Filesystem skips are guarded by __MSYS__ and limited to the observed file-owner
-execute bit and directory other-read/other-execute bit assertions. Other
-platforms retain the assertions; all other filesystem tests remain active.
-Observed permission differences are documented, but their precise mount/ACL
-cause was not established. Do not describe them as a proven universal MSYS2 bug.
+execute and directory other-read/other-execute checks. Their mount/ACL cause is
+not established. The fourth skip is pre-existing elsewhere. The upstream-only
+checkout with just the ctime fix reported 11,841 passed, ten failed, one skipped:
+those same seven emoji cases plus the three permission cases still asserted.
+Do not mistake that baseline for the integration's latest result.
 
-Terry agreed to leave the seven emoji-related failures alone for now, not to
-disable their assertions. The six UTF-8 cases return width 1 where width 2 is
-expected; Composite has a related overlap/layout mismatch. The inspected
-upstream libshared master `d899eba6d1a863f78f15e5e82d45d857278e9471` has identical
-utf8.cpp, utf8.h, and utf8.t.cpp, and the last inspected TaskWarrior develop
-selects that revision. Earlier upstream emoji/Composite fixes are already present.
+Keep the seven emoji assertions: Terry agreed to leave their failures alone,
+not disable them. UTF-8 returns width 1 where 2 is expected; Composite has a
+related layout mismatch. Earlier upstream emoji changes are already included.
+Previously observed next-weekday failures did not recur in the latest run; their
+cause was not established. datetime.t and utf8.t still report obsolete planned
+counts, separately from failed assertions. Do not adjust expectations merely to
+make a suite green.
 
-The October 28 full run failed "monday -> next monday", "tuesday -> next tuesday",
-and "wednesday -> next wednesday". An earlier October 27 run failed the first
-two, while the final October 27 restored-baseline run passed them. Their cause
-was not established; do not attribute them to FmtColor or silently adjust
-expectations. Investigate only if requested.
-
-datetime.t and utf8.t also report obsolete planned assertion counts. Record these
-separately from failed assertions. Do not infer a fix or change expectations
-merely to make the suite green.
-
-## Verification discipline
-
-Record the full application/submodule/fmt revisions, dirty state, toolchain,
-commands, results, and skips. Preserve distinctions between baseline problems,
-new failures, historical logs, and checks after current edits. Re-run applicable
-checks after source or dependency changes; do not cite earlier library CI as
-application validation. No integration CI has been triggered or claimed here.
+This documentation update reads existing evidence; it runs no new tests. Terry
+reported everything pushed; no network publication check or integration CI run
+is claimed. Preserve exact source/dependency revisions, skips, and distinctions
+between historical failures and current verification.

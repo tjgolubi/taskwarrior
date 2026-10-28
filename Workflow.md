@@ -6,12 +6,13 @@ Updated October 28, 2026.
 
 ## Authorization and scope
 
-Modify files when Terry gives an implementation instruction, normally in the
-imperative mood. Questions about capability and statements such as "we should"
-or "I am considering" are discussion, not edit authorization. Terry has
-repeatedly corrected premature edits in this chat. Do not treat every "can you"
-question as permission; explicit contextual authorization, such as "I'm asking",
-can make the request clear. Read-only inspection needed to answer is allowed.
+Change things only when Terry uses an imperative instruction. Statements such as
+"I want", "we should", and "I plan" express intent, not authorization. Questions
+may authorize read-only inspection, not changes. This explicit preference applies
+to files, dependency layout, and Git history. Terry repeatedly corrected premature
+actions; do not infer edit authorization from an intended outcome. Ask about
+meaningful choices such as dependency folder placement before implementing them.
+Terry prefers ext, not external. Read-only inspection needed to answer is allowed.
 
 A request to review or check a file authorizes inspection, not fixes or an
 unsolicited build/test run. Explain findings and leave the source unchanged.
@@ -40,7 +41,7 @@ In discussion, `^` and `taskwarrior:` mean the TaskWarrior root,
 sibling `^/../fmt`. Expand these to real paths in executable commands; they are
 not shell syntax. `.` is the shell's current working directory.
 
-The source tree at `^/` is on FmtColor. Coordination documents are on doc/Coord
+The source tree at `^/` is on color-dev. Coordination documents are on doc/Coord
 in the separate working tree `^/coord/`. Each worktree has its own checkout and
 index while sharing repository history. Changing directories changes which
 worktree Git reports; it does not switch the other worktree's branch.
@@ -62,12 +63,12 @@ separately, then record its resulting commit in the parent gitlink when instruct
 `git commit -a` picks up changed tracked gitlinks but does not commit the
 submodule's dirty files or add untracked files.
 
-Both TryDevelop branches were deliberately deleted after a successful rebase
-rehearsal. FmtColor / MyColor are the current baseline again; exact revisions and
-rehearsal results are in README.md. Do not recreate, rebase, or merge automatically.
-On any branch restoration, inspect `git submodule status --recursive`: changing
-the parent branch does not necessarily restore the checked-out submodule commits.
-Corrosion was restored to c4786e7ae, then CMake was regenerated and tests rerun.
+The real rebases and squashes have now been completed on color-dev in both
+repositories. Earlier FmtColor/MyColor and TryDevelop states are historical.
+Current revisions are in README.md. Inspect git submodule status --recursive
+before switching or updating: a parent branch switch does not automatically align
+submodule checkouts, and update checks out the parent's recorded revisions.
+Do not silently replace newer submodule work with an older staged gitlink.
 
 A stale empty `.git/index.lock` previously blocked commits and was removed only
 after inspection and Terry's approval. It is not a current blocker. A reboot
@@ -77,13 +78,16 @@ commit editor is using it.
 FmtColor is maintained in the separate fmt project. Its source, release policy,
 user guide, website, and docs/Coord branch belong there. Report missing library
 capabilities rather than implementing them incidentally here. Use exact source
-and installed revisions; the library version or branch name does not identify
+and selected dependency revisions; the library version or branch name does not identify
 our custom API sufficiently.
 
-The current dependency is still a locally installed package from ../fmt. A root
-fmt submodule was discussed but not added. Publishing requires accessible
-library commits and correct submodule URLs; see README.md. Preserve MyColor and
-FmtColor history until Terry explicitly chooses the next Git operation.
+Both consumers now build the nested fmt submodule at src/libshared/ext/fmt.
+Libshared owns that submodule, pinned to a commit from tjgolubi/fmt color-dev.
+TaskWarrior also adds it explicitly because it compiles selected libshared
+sources without invoking libshared's top-level CMake. No local installation is
+needed. The sibling ../fmt checkout remains separate development work.
+The committed libshared URL points to Terry's fork. Terry reported everything
+pushed; this does not authorize additional pushes or rewriting published history.
 
 ## Tools and verification
 
@@ -104,10 +108,12 @@ command. Run TaskWarrior C++ tests serially; script tests can run concurrently.
 Check whole logs before claiming completed tests all pass, not just the tail.
 Report known failures honestly; ignore-for-now is not permission to disable them.
 
-Changing a library header in ../fmt does not update installed headers. Refresh
-build/fmtcolor-install before testing new APIs. Reconfigure when requested or
-when build definitions change, and rebuild consumers. Record which installed
-revision was actually tested. A library CI pass is not application validation.
+Changing ../fmt does not change the pinned ext/fmt checkout. Update the dependency
+revision only when instructed, and record the resulting gitlink in libshared and
+then TaskWarrior as appropriate. Reconfigure when build definitions or dependency
+paths change, rebuild consumers, and test the actual selected revision. A library
+CI pass is not application validation. No fmt_DIR or refresh of the old installed
+package is needed for current builds.
 
 ## Handoff
 
