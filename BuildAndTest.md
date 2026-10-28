@@ -1,22 +1,23 @@
 # TaskWarrior build and validation
 
-[Document map](README.md) · [Workflow](Workflow.md) · [Integration design](CppDesign.md) · [Documentation](Website.md)
+[Document map](README.md) · [Workflow](Workflow.md) · [Integration design](CppDesign.md)
 
-Updated October 27, 2026.
+Updated October 28, 2026.
 
 ## Environment and dependency
 
 The verified environment is MSYS2, not UCRT64 or MSVC. Tool versions inspected
-October 26: GCC 16.2.0, CMake 4.4.4, Ninja 1.13.2, Rust/Cargo 1.99.1, and
+October 28: GCC 16.2.0, CMake 4.4.4, Ninja 1.13.2, Rust/Cargo 1.99.1, and
 Python 3.12.15. Application and standalone libshared use C++17 and Release builds.
 The current clean source revisions and separate dirty coordination tree are recorded
 in README.md.
 
-The installed dependency comes from the clean sibling fmt TaskWarrior branch at
-`eb0444023168fbe79f68f2c032bf1ca67ebd47b8`. The workspace-local static installation
+The installed dependency comes from the clean sibling fmt feat/EmphFactories branch at
+`11b9f99d27fb61c26728d578f267102761975ac5`. The workspace-local static installation
 is `^/build/fmtcolor-install`; CMake explicitly selects its lib/cmake/fmt package.
 The current installed revision already contains the noexcept assert/clamp
-constructors; an earlier libshared run before refreshing that installation did not.
+constructors and the conditional emphasis factories. It was reconfigured,
+rebuilt, and installed locally on October 28 before rebuilding both consumers.
 This is a local override, not portable acquisition or an automatically enforced
 pin. Do not silently substitute another system fmt or mix MSYS and MSVC objects.
 
@@ -26,7 +27,8 @@ TaskWarrior builds its selected libshared sources through src/CMakeLists.txt;
 standalone libshared uses src/libshared/src/CMakeLists.txt. No FMT_HEADER_ONLY or
 global CXX flag override is needed. Installed headers include color-ostream.h,
 with styled stream insertion and narrow/wide ostream print/println support.
-The installed color.h SHA-256 was verified against ../fmt on October 27.
+The installed color.h SHA-256 was verified against ../fmt on October 28:
+`ad85891c28bfadd7dfd4e8728f973fea859497ec7b55fdcc5fe24ffe52b46728`.
 Constructors assert on invalid values when assertions are enabled, and clamp
 when assertions are disabled. Both consumer builds here are Release.
 
@@ -107,19 +109,35 @@ the configured workspace-local install prefix. They were installed locally with
 `cmake -P build/msys-gcc16/doc/cmake_install.cmake`. Inspect the prefix before
 repeating this resource-install step; do not install globally.
 
-Latest full verification, October 27, after deliberately restoring the original
-FmtColor / MyColor baseline and the recorded Corrosion checkout: all 178 CTest
-entries passed (31 C++ and 147 script tests). Both projects were reconfigured,
-rebuilt, and tested after restoration. These results correspond to the current
-committed source revisions in README.md, not the discarded rebase branches.
+Latest full TaskWarrior verification, October 28, after Terry's final review
+edits: all 178 CTest entries passed (31 C++ and 147 script tests). Standalone
+Color also passed all 1,097 assertions. The tested source was subsequently
+committed by Terry as TaskWarrior `53edaec240e40f6e523e7d149e5e9d3c876328a0`
+and libshared `c0b0a47f37393eae8fdd4ff0b54fb28f55efa637`; the current source
+trees are clean and the parent gitlink matches. This was an incremental rebuild
+against the refreshed library, not a clean rebuild or another reconfigure.
+The earlier October 28 library-update run reconfigured and rebuilt both consumers.
 
 Evidence under `^/build/color-cxx17-check/`:
 
-- `restored-task-configure.log` and `restored-task-build.log`.
-- `restored-task-cpp-tests.log`: 31 passed, zero failed.
-- `restored-task-script-tests.log`: 147 passed, zero failed.
-- `restored-shared-configure.log`, `restored-shared-build.log`, and
-  `restored-shared-tests.log`: the standalone run described below.
+- `emph-update-fmt-configure.log`, `emph-update-fmt-build.log`, and
+  `emph-update-fmt-install.log`: the refreshed local dependency installation.
+- `emph-update-task-configure.log`, `emph-update-task-build.log`,
+  `emph-update-shared-configure.log`, and `emph-update-shared-build.log`:
+  both consumers reconfigured/rebuilt after the library update.
+- `emph-update-shared-tests.log`: full standalone libshared run before the
+  Color test construction edits, described below.
+- `emph-review-task-build.log`: latest TaskWarrior build succeeded, with ring
+  lifetime-syntax warnings. The earlier `emph-factories-task-build.log` also
+  records CmdHistory's existing unused label variable warning.
+- `emph-review-task-cpp-tests.log`: 31 passed, zero failed (0.95 seconds).
+- `emph-review-task-script-tests.log`: 147 passed, zero failed (97.00 seconds).
+- `emph-review-color-build.log` and `emph-review-color-tests.log`: standalone
+  Color target was up to date and all 1,097 assertions passed, no skips.
+
+Earlier October 28 logs prefixed `emph-update-` and `emph-factories-` document
+intermediate validation. October 27 `restored-` logs describe the pre-factory
+baseline at TaskWarrior `7f2dd3536`, libshared `47d599c40`, and fmt `eb044402`.
 
 Logs prefixed `trydevelop-` and `rebased-shared-` belong to the successful,
 subsequently undone rebase rehearsal. That newer upstream base passed 179
@@ -153,10 +171,15 @@ cmake --build build/libshared-installed-fresh \
 cmake --build build/libshared-installed-fresh --target test --parallel 8
 ```
 
-The latest restored-baseline full suite reports **11,894 assertions passed,
-seven failed, and four skipped**. Its nonzero exit is caused by the seven known
-emoji assertions, not a compilation failure. Color contains 1,097 passing
-assertions, including the 39 added emphasis assertions.
+The latest full standalone suite, October 28 with fmt `11b9f99d` and libshared
+`47d599c400ce5734bb6c4d1fe2c8a56c91612e1e`, reports **11,891 assertions passed,
+ten failed, and four skipped**. This preceded the Color test construction edits.
+Its nonzero exit reflects seven known emoji failures plus three next-weekday
+date failures, not a compilation failure. The previous October 27 full run
+reported 11,894 passed, seven failed, and four skipped. After the factory edits
+and Terry's review, only the standalone Color target was rerun; all 1,097
+assertions passed, including the existing 39 emphasis assertions. Do not report
+the full libshared suite as rerun at the new commit.
 
 | Suite | Current recorded result |
 | --- | --- |
@@ -167,6 +190,7 @@ assertions, including the 39 added emphasis assertions.
 | Composite | 5 passed, 1 known emoji-width failure |
 | Filesystem | 125 passed, 0 failed, 3 explicitly skipped |
 | UTF-8 | 86 passed, 6 emoji-width failures |
+| Date/time | 6637 passed, 3 next-weekday failures |
 
 The fourth overall skip is pre-existing elsewhere; do not describe all four
 as newly gated filesystem tests. The temporarily added split() view tests were
@@ -185,10 +209,11 @@ upstream libshared master `d899eba6d1a863f78f15e5e82d45d857278e9471` has identic
 utf8.cpp, utf8.h, and utf8.t.cpp, and the last inspected TaskWarrior develop
 selects that revision. Earlier upstream emoji/Composite fixes are already present.
 
-An earlier October 27 run also failed the existing "monday -> next monday" and
-"tuesday -> next tuesday" assertions, giving nine failures. Those two checks
-passed in the latest run. Their cause was not established; do not attribute
-them to FmtColor or silently adjust expectations. Investigate only if requested.
+The October 28 full run failed "monday -> next monday", "tuesday -> next tuesday",
+and "wednesday -> next wednesday". An earlier October 27 run failed the first
+two, while the final October 27 restored-baseline run passed them. Their cause
+was not established; do not attribute them to FmtColor or silently adjust
+expectations. Investigate only if requested.
 
 datetime.t and utf8.t also report obsolete planned assertion counts. Record these
 separately from failed assertions. Do not infer a fix or change expectations

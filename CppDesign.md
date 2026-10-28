@@ -1,13 +1,14 @@
 # TaskWarrior integration design
 
-[Document map](README.md) · [Workflow](Workflow.md) · [Build and test](BuildAndTest.md) · [Documentation](Website.md)
+[Document map](README.md) · [Workflow](Workflow.md) · [Build and test](BuildAndTest.md)
 
-Updated October 27, 2026.
+Updated October 28, 2026.
 
 ## Implemented integration and scope
 
 TaskWarrior uses the {fmt}-based FmtColor extension from the sibling fmt project,
-installed locally at revision `eb0444023168fbe79f68f2c032bf1ca67ebd47b8`.
+installed locally at revision `11b9f99d27fb61c26728d578f267102761975ac5`
+from branch `feat/EmphFactories`.
 This is not the proposed independent C++23 library. Application and standalone
 libshared builds use C++17. Exact repository revisions are in README.md.
 
@@ -58,9 +59,42 @@ formatting cleanup without Terry's instruction.
   specified colors replace the corresponding existing channels. Free
   fmt::overlay(base, overrides) returns a changed copy. No promotion to RGB or
   averaging is required. Do not substitute color bitwise OR for this policy.
-- Fluent emphasis setters mutate and return a reference. The eight free setters
-  return changed copies, useful with const base styles; util.cpp uses
-  fmt::underline(header_style). fmt::emphasis now supports operator|=, used by Parse.
+- Fluent emphasis setters mutate and return a reference. Each free emphasis
+  helper now has a factory overload taking an optional bool (default true):
+  `fmt::bold()` creates a bold-only style, and `fmt::bold(false)` creates an empty
+  style. The overload taking a text_style returns a changed copy, useful with
+  const base styles; util.cpp retains `fmt::underline(header_style)`.
+  fmt::emphasis supports operator|=, used by Parse.
+
+Prefer fluent composition over `|` in this project's code and examples when
+all else is equal. For example, `fmt::fg(Term::white).bg(Term::red).bold()` and
+`fmt::italic().faint().reverse()` read naturally. Enum combinations and
+constructors may be clearer for some cases; preserve that variety in Color
+tests. `using enum fmt::emphasis` would make enum expressions concise, but it
+requires C++20 and is not available in the current C++17 builds. Keep factory
+calls qualified with fmt:: when using enumerator names in newer-language examples.
+
+TaskWarrior's conditional bold styles in CmdDiagnostics, CmdHistory, CmdTags,
+and CmdVersion now use `fmt::bold(Context::getContext().color())`. CLI2's dump
+title and CmdNews's unconditional heading use `fmt::bold()`. CmdColor's three
+constexpr bold primary-color styles use `fmt::fg(Term::red).bold()` and the
+corresponding green/blue forms. NewsItem::render deliberately retains its
+default-constructed bold/underline styles and member setters inside the existing
+color-enabled branch after Terry's review. Do not reapply the earlier proposal
+to move those initializers outside that branch. Table's test single_cell style
+was discussed but not changed.
+
+libshared's Color test expected values now use single-attribute factories and
+selected fluent chains alongside existing constructors. Parser inputs and all
+1,097 assertions remain intact. Parse's emphasis accumulator was not refactored.
+These changes are committed in TaskWarrior `53edaec24` and libshared `c0b0a47f3`.
+
+The current text_style is one uint64_t; fluent emphasis setters update its bits
+without allocation and return text_style&. A chain on a factory temporary is
+copied into the owning expected value within the same full expression.
+Constant arguments allow compiler folding, and constexpr initialization requires
+constant evaluation; an ordinary initializer does not require it merely because
+the functions are constexpr. No assembly comparison or runtime speedup was measured.
 
 ## Numeric interfaces and parser validation
 

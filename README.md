@@ -1,6 +1,6 @@
 # TaskWarrior / FmtColor coordination
 
-Updated October 27, 2026.
+Updated October 28, 2026.
 
 ## Start here in a new conversation
 
@@ -23,7 +23,6 @@ integration without disparaging TaskWarrior's original implementation.
 | [Workflow.md](Workflow.md) | Authorization, path notation, Git, and working trees. |
 | [CppDesign.md](CppDesign.md) | Implemented interfaces, output conventions, and remaining work. |
 | [BuildAndTest.md](BuildAndTest.md) | Dependency installation, commands, and validation evidence. |
-| [Website.md](Website.md) | Documentation ownership and external references. |
 
 ## Paths
 
@@ -34,26 +33,27 @@ directory. On this PC that is `C:/msys64/home/tjgolubi/prj/taskwarrior`, or
 - `^/`: TaskWarrior source working tree, branch `FmtColor`.
 - `^/coord/`: coordination working tree, branch `doc/Coord`.
 - `libshared:`: separate repository/submodule at `^/src/libshared`, branch `MyColor`.
-- `fmt:`: sibling repository at `^/../fmt`, branch `TaskWarrior`.
+- `fmt:`: sibling repository at `^/../fmt`, currently branch `feat/EmphFactories`.
 
 ## Verified current baseline
 
-Inspected October 27 after restoring the pre-rebase branches. TaskWarrior,
-libshared, and fmt are clean; the five coordination documents have uncommitted
-updates on `doc/Coord`. No documentation commit or push is authorized by this
-update. The parent repository locally ignores `/coord/` through `.git/info/exclude`.
+Inspected October 28 after Terry committed the emphasis-factory integration,
+libshared first and then TaskWarrior. TaskWarrior, libshared, and fmt are clean;
+this coordination update remains uncommitted on `doc/Coord`. No documentation
+commit or push is authorized by this update. The parent repository locally
+ignores `/coord/` through `.git/info/exclude`.
 
 | Repository                    | Current HEAD                               |
 | ----------------------------- | ------------------------------------------ |
-| TaskWarrior, `FmtColor`       | `7f2dd35364f2037899acc9996cd219cc54f909d9` |
-| libshared, `MyColor`          | `47d599c400ce5734bb6c4d1fe2c8a56c91612e1e` |
-| fmt, `TaskWarrior`            | `eb0444023168fbe79f68f2c032bf1ca67ebd47b8` |
+| TaskWarrior, `FmtColor`       | `53edaec240e40f6e523e7d149e5e9d3c876328a0` |
+| libshared, `MyColor`          | `c0b0a47f37393eae8fdd4ff0b54fb28f55efa637` |
+| fmt, `feat/EmphFactories`     | `11b9f99d27fb61c26728d578f267102761975ac5` |
 | Corrosion, detached submodule | `c4786e7ae2d5ade784aca29448df362c874ed04e` |
 
-TaskWarrior's recorded submodule revisions match both checkouts. Corrosion had
-remained at the newer develop revision after the rehearsal; it was explicitly
-restored and both application and standalone-libshared CMake configurations were
-regenerated. The current build directories now describe this original baseline.
+TaskWarrior's recorded submodule revisions match both checkouts. The parent
+commit records the new libshared commit. Corrosion remains at the restored
+pre-rebase revision. Both consumer builds were reconfigured against the refreshed
+FmtColor installation on October 28; no new rebase was performed.
 
 The TaskWarrior base remains v3.5.0, `3419d5ba1e6a780fbbb0a8d68d8fd31e675c1bf8`,
 followed by the MSYS build fix `772905203fac096cbcaaa1aa324688e7826629f6` and
@@ -66,17 +66,24 @@ have been committed by Terry. Do not restart the old fresh-checkout assessment.
 Application helpers are in namespace `Style`: Parse, Spec, strip_sgr, and colorize.
 The namespaces and aliases have already been migrated; do not rename them again.
 
-The local fmt installation is `^/build/fmtcolor-install`. It contains the signed
-numeric interfaces, `emphasis::operator|=`, styled ostream insertion, and the
-assert/clamp constructors from `eb044402`. The installed color.h hash matches
-the sibling source. Both projects use C++17 and compact SGR mode.
+The local fmt installation is `^/build/fmtcolor-install`, refreshed from
+`11b9f99d`. It contains conditional emphasis factories in addition to the signed
+numeric interfaces, `emphasis::operator|=`, styled ostream insertion, and
+assert/clamp constructors. The installed color.h hash matches the sibling source.
+Both projects use C++17 and compact SGR mode. TaskWarrior now uses factories for
+conditional bold styles and fluent setters for fixed bold colors; libshared's
+Color tests demonstrate a mixture of factories, fluent chains, and constructors.
+Prefer fluent composition over `|` when all else is equal; see CppDesign.md.
 
-Latest full verification on the restored baseline:
+Latest verification, October 28:
 
 - TaskWarrior: all 178 tests passed (31 C++ and 147 script entries).
-- libshared: 11,894 assertions passed, seven known emoji-related failures,
-  four skips. All 1,097 Color assertions passed.
-- No new test failures. See BuildAndTest.md for logs and limitations.
+- libshared Color: all 1,097 assertions passed after the final source edits.
+- Earlier full libshared run with the updated library, before the Color test
+  construction edits: 11,891 passed, ten failed, four skipped. Failures were the
+  seven known emoji checks and three next-weekday date checks. The date failure
+  cause was not investigated. The full libshared suite was not rerun after those edits.
+- See BuildAndTest.md for logs, source revisions, and verification limits.
 
 ## Rebase rehearsal: completed, then deliberately undone
 

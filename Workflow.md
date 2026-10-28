@@ -1,8 +1,8 @@
 # Workflow
 
-[Document map](README.md) · [Integration design](CppDesign.md) · [Build and test](BuildAndTest.md) · [Documentation](Website.md)
+[Document map](README.md) · [Integration design](CppDesign.md) · [Build and test](BuildAndTest.md)
 
-Updated October 27, 2026.
+Updated October 28, 2026.
 
 ## Authorization and scope
 
@@ -23,6 +23,10 @@ Explain an authorized change before editing, keep it focused, and verify it.
 When Terry fixes an error blocking an already-requested build/test and says
 "Fixed", resume that authorized operation. Generating a commit message only
 means supplying text. Terry normally commits and pushes himself.
+
+In this project's code and examples, prefer fluent style composition over `|`
+when all else is equal. Constructors and enum combinations remain appropriate
+where clearer; do not mechanically replace them. See CppDesign.md for examples.
 
 Commits, pushes, merges, branch switches, rebases, deletions, stashes, and network
 fetches need authorization for the relevant operation. Editing permission alone
