@@ -28,7 +28,7 @@
 // cmake.h include header must come first
 
 #include <CmdColumns.h>
-#include <Color.h>
+
 #include <Context.h>
 #include <Table.h>
 #include <shared.h>

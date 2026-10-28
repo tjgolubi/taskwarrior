@@ -68,7 +68,7 @@ class TestColorCommand(TestCase):
     def test_colors_legend(self):
         """Verify 'task colors legend' shows theme colors"""
         code, out, err = self.t("colors rc._forcecolor:on legend")
-        self.assertRegex(out, r"color.debug\s+.\[0m\s.\[38;5;4mcolor4\s+.\[0m")
+        self.assertRegex(out, r"color.debug\s+.\[0m\s.\[34mcolor4\s+.\[0m")
 
     def test_colors_legend_override(self):
         """Verify 'task colors legend' obeys rc overrides"""

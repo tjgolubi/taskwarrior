@@ -27,6 +27,8 @@
 #include <cmake.h>
 // cmake.h include header must come first
 
+#include <Color.h>
+
 #include <format.h>
 #include <shared.h>
 // If <iostream> is included, put it after <stdio.h>, because it includes
@@ -236,20 +238,23 @@ const char* optionalBlankLine() {
 ////////////////////////////////////////////////////////////////////////////////
 void setHeaderUnderline(Table& table) {
   // If an alternating row color is specified, notify the table.
+  auto fontunderline = Context::getContext().config.getBoolean("fontunderline");
   if (Context::getContext().color()) {
-    Color alternate(Context::getContext().config.get("color.alternate"));
+    Color alternate = Style::Parse(Context::getContext().config.get("color.alternate"));
     table.colorOdd(alternate);
     table.intraColorOdd(alternate);
 
-    if (Context::getContext().config.getBoolean("fontunderline")) {
-      table.colorHeader(Color("underline " + Context::getContext().config.get("color.label")));
+    const auto header_style =
+                  Style::Parse(Context::getContext().config.get("color.label"));
+    if (fontunderline) {
+      table.colorHeader(fmt::underline(header_style));
     } else {
-      table.colorHeader(Color(Context::getContext().config.get("color.label")));
+      table.colorHeader(header_style);
       table.underlineHeaders();
     }
   } else {
-    if (Context::getContext().config.getBoolean("fontunderline"))
-      table.colorHeader(Color("underline"));
+    if (fontunderline)
+      table.colorHeader(fmt::emphasis::underline);
     else
       table.underlineHeaders();
   }
@@ -260,5 +265,5 @@ void setHeaderUnderline(Table& table) {
 //
 bool extractLongInteger(const std::string& input, long& output) {
   output = strtol(input.c_str(), nullptr, 10);
-  return (format("{1}", output) == input);
+  return (fmt::format("{}", output) == input);
 }

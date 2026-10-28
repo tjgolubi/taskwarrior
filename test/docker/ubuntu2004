@@ -26,8 +26,7 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs > rustup.sh && \
 
 # Setup taskwarrior
 RUN git clean -dfx
-RUN git submodule init
-RUN git submodule update
+RUN git submodule update --init --recursive
 RUN cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug .
 RUN cmake --build build -j 8
 RUN cmake --install build

@@ -30,9 +30,17 @@ if (EXISTS ${CMAKE_SOURCE_DIR}/src/libshared/src AND EXISTS ${CMAKE_SOURCE_DIR}/
   message ("-- Found git submodules")
 else (EXISTS ${CMAKE_SOURCE_DIR}/src/libshared/src)
   message ("-- Cloning git submodules")
-  execute_process (COMMAND git submodule update --init
+  execute_process (COMMAND git submodule update --init --recursive
                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 endif (EXISTS ${CMAKE_SOURCE_DIR}/src/libshared/src AND EXISTS ${CMAKE_SOURCE_DIR}/src/taskchampion-cpp/corrosion)
+
+if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/libshared/ext/fmt/CMakeLists.txt")
+  message (FATAL_ERROR "Initialize FmtColor with: git submodule update --init --recursive")
+endif ()
+add_subdirectory (src/libshared/ext/fmt ext/fmt)
+if (CMAKE_SYSTEM_NAME STREQUAL "MSYS")
+  target_compile_definitions (fmt PRIVATE _POSIX_C_SOURCE=200809L)
+endif ()
 
 message ("-- Looking for SHA1 references")
 if (EXISTS ${CMAKE_SOURCE_DIR}/.git/index)
@@ -166,6 +174,6 @@ endforeach (doc_FILE)
 
 set (CPACK_SOURCE_GENERATOR "TGZ")
 set (CPACK_SOURCE_PACKAGE_FILE_NAME ${PACKAGE_NAME}-${PACKAGE_VERSION})
-set (CPACK_SOURCE_IGNORE_FILES  "build" "target" "test" "misc/*" "performance" "swp$" "src/lex$" "task-.*.tar.gz"
+set (CPACK_SOURCE_IGNORE_FILES  "/build/" "/target/" "/test/" "misc/*" "performance" "swp$" "src/lex$" "task-.*.tar.gz"
                                 "commit.h" "cmake.h$" "\\\\.gitmodules" "src/libshared/\\\\.git" ".github/" ".*\\\\.gitignore$" "docker-compose.yml" "\\\\.git/")
 include (CPack)

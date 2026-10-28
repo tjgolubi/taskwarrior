@@ -27,6 +27,8 @@
 #include <cmake.h>
 // cmake.h include header must come first
 
+#include <Color.h>
+
 #include <CmdVersion.h>
 #include <Context.h>
 #include <Datetime.h>
@@ -78,11 +80,10 @@ int CmdVersion::execute(std::string& output) {
 
   Datetime now;
 
-  Color bold;
-  if (Context::getContext().color()) bold = Color("bold");
+  auto bold = fmt::bold(Context::getContext().color());
 
   out << '\n'
-      << format("{1} {2} built for ", bold.colorize(PACKAGE), bold.colorize(VERSION)) << osName()
+      << fmt::format("{} {} built for ", fmt::styled(PACKAGE, bold), fmt::styled(VERSION, bold)) << osName()
       << '\n'
       << "Copyright (C) 2006 - " << now.year() << " T. Babej, P. Beckingham, F. Hernandez." << '\n'
       << '\n'

@@ -27,6 +27,8 @@
 #include <cmake.h>
 // cmake.h include header must come first
 
+#include <Color.h>
+
 #include <CmdHistory.h>
 #include <Context.h>
 #include <Datetime.h>
@@ -34,6 +36,8 @@
 #include <Table.h>
 #include <format.h>
 #include <util.h>
+
+#include <fmt/color-ostream.h>
 
 #include <sstream>
 
@@ -76,10 +80,10 @@ void CmdHistoryBase<HistoryStrategy>::outputGraphical(std::string& output) {
 
   view.add("Number Added/Completed/Deleted", true, false);  // Fixed.
 
-  Color color_add(Context::getContext().config.get("color.history.add"));
-  Color color_done(Context::getContext().config.get("color.history.done"));
-  Color color_delete(Context::getContext().config.get("color.history.delete"));
-  Color label(Context::getContext().config.get("color.label"));
+  auto color_add    = Style::Parse(Context::getContext().config.get("color.history.add"));
+  auto color_done   = Style::Parse(Context::getContext().config.get("color.history.done"));
+  auto color_delete = Style::Parse(Context::getContext().config.get("color.history.delete"));
+  auto label        = Style::Parse(Context::getContext().config.get("color.label"));
 
   // Determine the longest line, and the longest "added" line.
   auto maxAddedLine = 0;
@@ -128,9 +132,9 @@ void CmdHistoryBase<HistoryStrategy>::outputGraphical(std::string& output) {
         }
 
         bar += std::string(leftOffset - aBar.length(), ' ');
-        bar += color_add.colorize(aBar);
-        bar += color_done.colorize(cBar);
-        bar += color_delete.colorize(dBar);
+        bar += fmt::wrap_sgr(color_add,    aBar);
+        bar += fmt::wrap_sgr(color_done,   cBar);
+        bar += fmt::wrap_sgr(color_delete, dBar);
       } else {
         std::string aBar;
         while (aBar.length() < addedBar) aBar += '+';
@@ -152,10 +156,11 @@ void CmdHistoryBase<HistoryStrategy>::outputGraphical(std::string& output) {
     out << optionalBlankLine() << view.render() << '\n';
 
     if (Context::getContext().color())
-      out << format("Legend: {1}, {2}, {3}", color_add.colorize(STRING_CMD_HISTORY_ADDED),
-                    color_done.colorize(STRING_CMD_HISTORY_COMP),
-                    color_delete.colorize(STRING_CMD_HISTORY_DEL))
-          << optionalBlankLine() << '\n';
+      fmt::print(out, "Legend: {}, {}, {}{}\n",
+                 fmt::styled(STRING_CMD_HISTORY_ADDED, color_add),
+                 fmt::styled(STRING_CMD_HISTORY_COMP , color_done),
+                 fmt::styled(STRING_CMD_HISTORY_DEL  , color_delete),
+                 optionalBlankLine());
     else
       out << "Legend: + Added, X Completed, - Deleted\n";
   } else {
@@ -215,7 +220,7 @@ void CmdHistoryBase<HistoryStrategy>::outputTabular(std::string& output) {
 
     Color net_color;
     if (Context::getContext().color() && net)
-      net_color = net > 0 ? Color(Color::red) : Color(Color::green);
+      net_color = fmt::fg((net > 0) ? fmt::term_color::red : fmt::term_color::green);
 
     view.set(row, HistoryStrategy::dateFieldCount + 3, net, net_color);
   }
@@ -225,9 +230,7 @@ void CmdHistoryBase<HistoryStrategy>::outputTabular(std::string& output) {
     view.set(row, 1, " ");
     row = view.addRow();
 
-    Color row_color;
-    if (Context::getContext().color())
-      row_color = Color(Color::nocolor, Color::nocolor, false, true, false);
+    auto row_color = fmt::bold(Context::getContext().color());
 
     view.set(row, HistoryStrategy::dateFieldCount - 1, "Average", row_color);
     view.set(row, HistoryStrategy::dateFieldCount + 0, totalAdded / (view.rows() - 2), row_color);

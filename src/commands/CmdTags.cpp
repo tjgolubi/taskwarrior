@@ -27,6 +27,8 @@
 #include <cmake.h>
 // cmake.h include header must come first
 
+#include <Color.h>
+
 #include <CmdTags.h>
 #include <Context.h>
 #include <Filter.h>
@@ -90,8 +92,7 @@ int CmdTags::execute(std::string& output) {
     view.add("Count", false);
     setHeaderUnderline(view);
 
-    Color bold;
-    if (Context::getContext().color()) bold = Color("bold");
+    auto bold = fmt::bold(Context::getContext().color());
 
     bool special = false;
     for (auto& i : unique) {
@@ -102,8 +103,8 @@ int CmdTags::execute(std::string& output) {
                     : false;
 
       int row = view.addRow();
-      view.set(row, 0, i.first, special ? bold : Color());
-      view.set(row, 1, i.second, special ? bold : Color());
+      view.set(row, 0, i.first , special ? bold : Color{});
+      view.set(row, 1, i.second, special ? bold : Color{});
     }
 
     out << optionalBlankLine() << view.render() << optionalBlankLine();
@@ -111,12 +112,12 @@ int CmdTags::execute(std::string& output) {
     if (unique.size() == 1)
       Context::getContext().footnote("1 tag");
     else
-      Context::getContext().footnote(format("{1} tags", unique.size()));
+      Context::getContext().footnote(fmt::format("{} tags", unique.size()));
 
     if (quantity == 1)
       Context::getContext().footnote("(1 task)");
     else
-      Context::getContext().footnote(format("({1} tasks)", quantity));
+      Context::getContext().footnote(fmt::format("({} tasks)", quantity));
 
     out << '\n';
   } else {

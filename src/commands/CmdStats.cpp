@@ -27,6 +27,8 @@
 #include <cmake.h>
 // cmake.h include header must come first
 
+#include <Color.h>
+
 #include <CmdStats.h>
 #include <Context.h>
 #include <Datetime.h>
@@ -255,13 +257,13 @@ int CmdStats::execute(std::string& output) {
   if (totalT) {
     row = view.addRow();
     view.set(row, 0, "Average desc length");
-    view.set(row, 1, format("{1} characters", (int)(descLength / totalT)));
+    view.set(row, 1, fmt::format("{} characters", (int)(descLength / totalT)));
   }
 
   // If an alternating row color is specified, notify the table.
   if (Context::getContext().color()) {
-    Color alternate(Context::getContext().config.get("color.alternate"));
-    if (alternate.nontrivial()) {
+    Color alternate = Style::Parse(Context::getContext().config.get("color.alternate"));
+    if (!alternate.empty()) {
       view.colorOdd(alternate);
       view.intraColorOdd(alternate);
       view.extraColorOdd(alternate);

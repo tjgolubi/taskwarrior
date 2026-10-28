@@ -48,7 +48,7 @@ class ViewTask {
   void leftMargin(int margin) { _left_margin = margin; }
   void colorHeader(Color& c) {
     _header = c;
-    if (!_sort_header) _sort_header = c;
+    if (_sort_header.empty()) _sort_header = c;
   }
   void colorSortHeader(Color& c) { _sort_header = c; }
   void colorOdd(Color& c) { _odd = c; }

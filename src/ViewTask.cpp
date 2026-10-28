@@ -40,16 +40,16 @@
 ViewTask::ViewTask()
     : _width(0),
       _left_margin(0),
-      _header(0),
-      _sort_header(0),
-      _odd(0),
-      _even(0),
+      _header(),
+      _sort_header(),
+      _odd(),
+      _even(),
       _intra_padding(1),
-      _intra_odd(0),
-      _intra_even(0),
+      _intra_odd(),
+      _intra_even(),
       _extra_padding(0),
-      _extra_odd(0),
-      _extra_even(0),
+      _extra_odd(),
+      _extra_even(),
       _truncate_lines(0),
       _truncate_rows(0),
       _lines(0),
@@ -175,7 +175,7 @@ std::string ViewTask::render(std::vector<Task>& data, std::vector<int>& sequence
 
   // Calculate final column widths.
   int overage = _width - sum_minimal - all_extra;
-  Context::getContext().debug(format("ViewTask::render min={1} ideal={2} overage={3} width={4}",
+  Context::getContext().debug(fmt::format("ViewTask::render min={} ideal={} overage={} width={}",
                                      sum_minimal + all_extra, sum_ideal + all_extra, overage,
                                      _width));
 
@@ -222,8 +222,8 @@ std::string ViewTask::render(std::vector<Task>& data, std::vector<int>& sequence
         widths[second_longest] += half_overage;
       } else
         // If reducing two of the longest solumns to 2 characters is not sufficient, then give up.
-        Context::getContext().error(format(
-            "The report has a minimum width of {1} and does not fit in the available width of {2}.",
+        Context::getContext().error(fmt::format(
+            "The report has a minimum width of {} and does not fit in the available width of {}.",
             sum_minimal + all_extra, _width));
     }
   }
@@ -266,12 +266,13 @@ std::string ViewTask::render(std::vector<Task>& data, std::vector<int>& sequence
   std::string extra = std::string(_extra_padding, ' ');
   std::string intra = std::string(_intra_padding, ' ');
 
-  std::string extra_odd = Context::getContext().color() ? _extra_odd.colorize(extra) : extra;
-  std::string extra_even = Context::getContext().color() ? _extra_even.colorize(extra) : extra;
-  std::string intra_odd = Context::getContext().color() ? _intra_odd.colorize(intra) : intra;
-  std::string intra_even = Context::getContext().color() ? _intra_even.colorize(intra) : intra;
+  std::string extra_odd  = Context::getContext().color() ? fmt::wrap_sgr(_extra_odd , extra) : extra;
+  std::string extra_even = Context::getContext().color() ? fmt::wrap_sgr(_extra_even, extra) : extra;
+  std::string intra_odd  = Context::getContext().color() ? fmt::wrap_sgr(_intra_odd , intra) : intra;
+  std::string intra_even = Context::getContext().color() ? fmt::wrap_sgr(_intra_even, intra) : intra;
 
   std::string out;
+  auto append = std::back_inserter(out);
   _lines = 0;
   for (unsigned int i = 0; i < max_lines; ++i) {
     out += left_margin + extra;
@@ -280,7 +281,7 @@ std::string ViewTask::render(std::vector<Task>& data, std::vector<int>& sequence
       if (c) out += intra;
 
       if (headers[c].size() < max_lines - i)
-        out += _header.colorize(std::string(widths[c], ' '));
+        fmt::format_to(append, _header, "{:{}}", "", widths[c]);
       else
         out += headers[c][i];
     }
@@ -289,7 +290,7 @@ std::string ViewTask::render(std::vector<Task>& data, std::vector<int>& sequence
 
     // Trim right.
     out.erase(out.find_last_not_of(' ') + 1);
-    out += "\n";
+    out += '\n';
 
     // Stop if the line limit is exceeded.
     if (++_lines >= _truncate_lines && _truncate_lines != 0) {
@@ -312,8 +313,7 @@ std::string ViewTask::render(std::vector<Task>& data, std::vector<int>& sequence
     bool odd = (s % 2) ? true : false;
     Color row_color;
     if (Context::getContext().color()) {
-      row_color = odd ? _odd : _even;
-      row_color.blend(rule_color);
+      row_color = overlay(odd ? _odd : _even, rule_color);
     }
 
     for (unsigned int c = 0; c < _columns.size(); ++c) {
@@ -332,7 +332,7 @@ std::string ViewTask::render(std::vector<Task>& data, std::vector<int>& sequence
     if (s > 0 && _breaks.size() > 0) {
       for (const auto& b : _breaks) {
         if (data[sequence[s - 1]].get(b) != data[sequence[s]].get(b)) {
-          out += "\n";
+          out += '\n';
           ++_lines;
 
           // Only want one \n, regardless of how many values change.
@@ -346,8 +346,8 @@ std::string ViewTask::render(std::vector<Task>& data, std::vector<int>& sequence
 
       for (unsigned int c = 0; c < _columns.size(); ++c) {
         if (c) {
-          if (row_color.nontrivial())
-            row_color._colorize(out, intra);
+          if (!row_color.empty())
+            fmt::format_to(append, row_color, "{}", intra);
           else
             out += (odd ? intra_odd : intra_even);
         }
@@ -355,14 +355,14 @@ std::string ViewTask::render(std::vector<Task>& data, std::vector<int>& sequence
         if (i < cells[c].size())
           out += cells[c][i];
         else
-          row_color._colorize(out, std::string(widths[c], ' '));
+          fmt::format_to(append, row_color, "{:{}}", "", widths[c]);
       }
 
       out += (odd ? extra_odd : extra_even);
 
       // Trim right.
       out.erase(out.find_last_not_of(' ') + 1);
-      out += "\n";
+      out += '\n';
 
       // Stop if the line limit is exceeded.
       if (++_lines >= _truncate_lines && _truncate_lines != 0) {

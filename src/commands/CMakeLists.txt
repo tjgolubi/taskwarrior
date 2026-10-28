@@ -60,7 +60,7 @@ set (commands_SRCS Command.cpp        Command.h
                    CmdVersion.cpp     CmdVersion.h)
 
 add_library (commands STATIC ${commands_SRCS})
-target_link_libraries(commands taskchampion-cpp)
+target_link_libraries(commands taskchampion-cpp libshared)
 
 #SET(CMAKE_BUILD_TYPE gcov)
 #SET(CMAKE_CXX_FLAGS_GCOV "--coverage")

@@ -28,7 +28,7 @@ add_library (task STATIC CLI2.cpp
                   rules.cpp
                   sort.cpp
                   util.cpp)
-target_link_libraries(task taskchampion-cpp)
+target_link_libraries(task taskchampion-cpp libshared)
 
 add_library (libshared STATIC libshared/src/Color.cpp
                        libshared/src/Configuration.cpp
@@ -46,6 +46,10 @@ add_library (libshared STATIC libshared/src/Color.cpp
                        libshared/src/shared.cpp
                        libshared/src/unicode.cpp
                        libshared/src/utf8.cpp)
+
+# Shared rendering interfaces expose fmt styles to consumers.
+target_link_libraries (libshared PUBLIC fmt::fmt)
+target_compile_definitions (libshared PUBLIC FMT_COLOR_COMPACT_SGR=1)
 
 add_executable (task_executable main.cpp)
 add_executable (calc_executable calc.cpp)

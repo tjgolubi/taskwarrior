@@ -39,6 +39,7 @@
 #include <utf8.h>
 
 #include <algorithm>
+#include <iterator>
 #include <sstream>
 
 // Overridden by rc.abbreviation.minimum.
@@ -249,7 +250,7 @@ void CLI2::applyOverrides(int argc, const char** argv) {
     context.config.set(name, value);
   };
   auto display_overrides = [&](std::string raw) {
-    if (is_override(raw)) context.footnote(format("Configuration override {1}", raw));
+    if (is_override(raw)) context.footnote(fmt::format("Configuration override {}", raw));
   };
   std::for_each(argv, last, override_settings);
   if (context.verbose("override")) std::for_each(argv, last, display_overrides);
@@ -551,7 +552,7 @@ void CLI2::addContext(bool readable, bool writeable) {
       if (a._lextype == Lexer::Type::uuid || a._lextype == Lexer::Type::number ||
           a._lextype == Lexer::Type::set) {
         Context::getContext().debug(
-            format("UUID/ID argument found '{1}', not applying context.", a.attribute("raw")));
+            fmt::format("UUID/ID argument found '{}', not applying context.", a.attribute("raw")));
         return;
       }
     }
@@ -566,7 +567,7 @@ void CLI2::addContext(bool readable, bool writeable) {
 
   // Inform the user about the application of context
   if (Context::getContext().verbose("context"))
-    Context::getContext().footnote(format("Context '{1}' set. Use 'task context none' to remove.",
+    Context::getContext().footnote(fmt::format("Context '{}' set. Use 'task context none' to remove.",
                                           Context::getContext().config.get("context")));
 }
 
@@ -613,9 +614,10 @@ const std::vector<std::string> CLI2::getWords() {
     if (a.hasTag("MISCELLANEOUS")) words.push_back(a.attribute("raw"));
 
   if (Context::getContext().config.getInteger("debug.parser") >= 2) {
-    Color colorOrigArgs("gray10 on gray4");
+    auto colorOrigArgs = Color{fmt::gray_color{10}, fmt::gray_color{4}};
     std::string message = " ";
-    for (const auto& word : words) message += colorOrigArgs.colorize(word) + ' ';
+    for (const auto& word : words)
+      fmt::format_to(std::back_inserter(message), colorOrigArgs, "{} ", word);
     Context::getContext().debug("CLI2::getWords" + message);
   }
 
@@ -691,49 +693,48 @@ std::string CLI2::getCommand(bool canonical) const {
 
 ////////////////////////////////////////////////////////////////////////////////
 const std::string CLI2::dump(const std::string& title) const {
-  std::stringstream out;
+  auto out = std::string{};
+  auto append = std::back_inserter(out);
+  fmt::format_to(append, "{}\n  _original_args\n    ",
+                 fmt::styled(title, fmt::bold()));
 
-  out << "\033[1m" << title << "\033[0m\n"
-      << "  _original_args\n    ";
-
-  Color colorArgs("gray10 on gray4");
-  Color colorFilter("black on rgb311");
+  auto colorArgs   = Color{fmt::gray_color{10}, fmt::gray_color{4}};
+  auto colorFilter = Color{fmt::term_color::black, fmt::cube_color{3,1,1}};
   for (auto i = _original_args.begin(); i != _original_args.end(); ++i) {
-    if (i != _original_args.begin()) out << ' ';
+    if (i != _original_args.begin()) out += ' ';
 
-    if (i->hasTag("ORIGINAL"))
-      out << colorArgs.colorize(i->attribute("raw"));
-    else
-      out << colorFilter.colorize(i->attribute("raw"));
+    auto ts = i->hasTag("ORIGINAL") ? colorArgs : colorFilter;
+    fmt::format_to(append, ts, "{}", i->attribute("raw"));
   }
 
-  out << '\n';
+  out += '\n';
 
   if (_args.size()) {
-    out << "  _args\n";
-    for (const auto& a : _args) out << "    " << a.dump() << '\n';
+    out += "  _args\n";
+    for (const auto& a : _args) fmt::format_to(append, "    {}\n", a.dump());
   }
 
   if (_id_ranges.size()) {
-    out << "  _id_ranges\n    ";
+    out += "  _id_ranges\n    ";
     for (const auto& range : _id_ranges) {
       if (range.first != range.second)
-        out << colorArgs.colorize(range.first + "-" + range.second) << ' ';
+        fmt::format_to(append, colorArgs, "{}-{} ", range.first, range.second);
       else
-        out << colorArgs.colorize(range.first) << ' ';
+        fmt::format_to(append, colorArgs, "{} ", range.first);
     }
 
-    out << '\n';
+    out += '\n';
   }
 
   if (_uuid_list.size()) {
-    out << "  _uuid_list\n    ";
-    for (const auto& uuid : _uuid_list) out << colorArgs.colorize(uuid) << ' ';
+    out += "  _uuid_list\n    ";
+    for (const auto& uuid : _uuid_list)
+      fmt::format_to(append, colorArgs, "{} ", uuid);
 
-    out << '\n';
+    out += '\n';
   }
 
-  return out.str();
+  return out;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -791,7 +792,7 @@ void CLI2::aliasExpansion() {
   } while (action && counter++ < safetyValveDefault);
 
   if (counter >= safetyValveDefault)
-    Context::getContext().debug(format("Nested alias limit of {1} reached.", safetyValveDefault));
+    Context::getContext().debug(fmt::format("Nested alias limit of {} reached.", safetyValveDefault));
 
   if (changes && Context::getContext().config.getInteger("debug.parser") >= 2)
     Context::getContext().debug(dump("CLI2::analyze aliasExpansion"));
@@ -875,7 +876,7 @@ void CLI2::categorizeArgs() {
     else if (cmd && !cmd->accepts_filter() && !cmd->accepts_modifications() &&
              !cmd->accepts_miscellaneous()) {
       // No commands were expected --> error.
-      throw format("The '{1}' command does not allow '{2}'.", command, a.attribute("raw"));
+      throw fmt::format("The '{}' command does not allow '{}'.", command, a.attribute("raw"));
     } else if (cmd && !cmd->accepts_filter() && !cmd->accepts_modifications() &&
                cmd->accepts_miscellaneous()) {
       a.tag("MISCELLANEOUS");
@@ -1209,7 +1210,7 @@ void CLI2::desugarFilterAttributes() {
           rhs.attribute("raw", "\\b" + value + "\\b");
 #endif
         } else
-          throw format("Error: unrecognized attribute modifier '{1}'.", mod);
+          throw fmt::format("Error: unrecognized attribute modifier '{}'.", mod);
 
         reconstructed.push_back(lhs);
         reconstructed.push_back(op);
