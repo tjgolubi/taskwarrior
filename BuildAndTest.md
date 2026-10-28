@@ -94,17 +94,16 @@ Use isolated test configuration/data. Never use Terry's real task database.
 C++ tests share temporary paths and run serially; scripts may run concurrently.
 ids.test.py commonly takes around 100 seconds.
 
-Latest validation is TaskWarrior `3272705b95583d9fc5689d10d3f5487fdf6fde59`,
+The latest full local test-suite validation is TaskWarrior `3272705b95583d9fc5689d10d3f5487fdf6fde59`,
 libshared `58ae81d0a90b93839c1157f0cac3e85f888154cb`, fmt
 `5b3f49ff7599df5beb651c3ccc8a403d7a7386a1`, and Corrosion
 `2522f7abad9eaa88b05d07fd492841c529ca2bf1`. The incremental build succeeded and
 all 179 tests passed: 32 C++ in 0.99 seconds, 147 scripts in 107.41 seconds.
-Git remained clean. The current TaskWarrior commit is now
-`a129245774249abcb0ad26b89220ddd7f1bd5303`: only INSTALL differs from the tested
-3272705b9. Terry amended the installation instructions and force-pushed. No new
-build or tests were run after that documentation-only amendment. INSTALL now
-documents recursive submodule initialization and direct use of ext/fmt.
-Logs in build/color-dev-baseline:
+Git remained clean. Current TaskWarrior HEAD is now
+`9e3f918894727b0e20d979a222fd10706f5cf613`. The later amendments update INSTALL
+and CI setup/packaging. The full local suite was not rerun after those amendments;
+the extracted source archive was built on MSYS2 and all enabled CI jobs passed.
+Logs for the last full local suite in build/color-dev-baseline:
 
 - final-build.log
 - final-cpp-tests.log
@@ -118,7 +117,8 @@ baseline used the older upstream base; current upstream adds a C++ entry.
 
 Earlier manual color rendering and CmdNews/CmdColor output comparisons remain
 historical evidence only. Do not claim fresh byte comparisons, clean builds,
-or CI results from the current incremental build and tests.
+or fresh byte comparisons from the local incremental build and tests. CI evidence
+for the amended commit is recorded separately below.
 
 ## Standalone libshared tests and evidence
 
@@ -162,7 +162,52 @@ cause was not established. datetime.t and utf8.t still report obsolete planned
 counts, separately from failed assertions. Do not adjust expectations merely to
 make a suite green.
 
-This documentation update reads existing evidence; it runs no new tests. Terry
-reported everything pushed; no network publication check or integration CI run
-is claimed. Preserve exact source/dependency revisions, skips, and distinctions
-between historical failures and current verification.
+This documentation update reads existing logs and inspected CI job summaries;
+it runs no new tests. Preserve exact revisions, skips, and distinctions between
+historical failures, local validation, and CI evidence.
+
+## CI fixes and successful runs
+
+For TaskWarrior `9e3f918894727b0e20d979a222fd10706f5cf613`, inspected GitHub
+Actions job summaries confirm all enabled jobs passed:
+
+- [tests run 40767779629](https://github.com/tjgolubi/taskwarrior/actions/runs/40767779629):
+  Basic test run, Cargo Test, and Docker builds/tests for Fedora 40, Fedora 41,
+  Debian Testing, Ubuntu 20.04, Ubuntu 22.04, OpenSUSE Tumbleweed, and Archlinux.
+- [release-tests run 40767779355](https://github.com/tjgolubi/taskwarrior/actions/runs/40767779355):
+  check-tarball passed, including building TaskWarrior from the source archive.
+- The Mac OS 12 and 13 jobs are disabled by the workflow and skipped. No macOS
+  validation is claimed. The separate security workflow passed on older 3272705b9;
+  no new security run at current HEAD was observed.
+
+Previous CI failures were setup/packaging failures. Docker initialized only the
+first-level submodules, leaving libshared/ext/fmt absent. All eight Dockerfiles,
+including debianstable outside the current matrix, now use a single recursive
+initialization/update command. Debianstable was edited but not exercised by this
+seven-platform matrix. Basic Linux and Cargo had already passed before this fix.
+
+CPACK_SOURCE_IGNORE_FILES formerly used substring patterns build, target, and
+test. The release archive dropped ring/build.rs. Local extracted-source validation
+also exposed missing crypto/constant_time_test.c; the broad target pattern could
+drop ring-core/target.h. Patterns are now /build/, /target/, and /test/, retaining
+these source files while excluding the corresponding directory trees.
+
+The regenerated archive was inspected for those three ring files and nested fmt's
+CMakeLists.txt, then TaskWarrior built successfully from the extracted source on
+MSYS2. Initial archive build failed on constant_time_test.c before the final test
+pattern fix; the subsequent build succeeded. Docker was unavailable locally.
+
+Local evidence:
+
+- build/color-dev-baseline/ci-package-source.log: final source package generation.
+- build/ci-tarball-check/configure.log: extracted-source configuration.
+- build/ci-tarball-check/build.log: intermediate missing-file failure.
+- build/ci-tarball-check/build-retry.log: successful build with final packaging fix.
+- build/ci-tarball-check/task-3.5.0: extracted sources; its sibling build directory
+  contains the validation executable. Nothing was installed globally.
+
+Terry amended the integration and force-pushed these changes. The source trees
+and recursive gitlinks were clean/matching at the subsequent documentation check.
+The agent inspected CI and made authorized local edits, but did not push or rerun
+remote jobs. Use the run links to recheck future status rather than treating this
+record as live monitoring.

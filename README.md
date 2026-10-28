@@ -49,13 +49,13 @@ TaskWarrior through `.git/info/exclude`.
 
 | Repository | Current revision |
 | --- | --- |
-| TaskWarrior `color-dev` | `a129245774249abcb0ad26b89220ddd7f1bd5303` |
+| TaskWarrior `color-dev` | `9e3f918894727b0e20d979a222fd10706f5cf613` |
 | libshared `color-dev` | `58ae81d0a90b93839c1157f0cac3e85f888154cb` |
 | nested fmt `color-dev` | `5b3f49ff7599df5beb651c3ccc8a403d7a7386a1` |
 | Corrosion detached | `2522f7abad9eaa88b05d07fd492841c529ca2bf1` |
 
 TaskWarrior history is upstream develop `61e542918`, then MSYS build support
-`101261b26`, then the single squashed FmtColor integration `a12924577`.
+`101261b26`, then the single squashed FmtColor integration `9e3f91889`.
 Libshared history is upstream master `d899eba6d`, then the missing `<ctime>`
 fix `3e94fdc5f`, then the single combined integration `58ae81d0a`. The latter
 includes the fmt submodule and CMake setup. Truck and color-tjg were intermediate
@@ -83,14 +83,20 @@ latest branch tip. Initialization is `git submodule update --init --recursive`.
 Before running it, check the parent's gitlink: update checks out that recorded
 revision and can detach a submodule from its development branch.
 
-Terry reported everything pushed, then amended the integration with the updated
-INSTALL instructions and force-pushed it. Only INSTALL differs between the
-tested TaskWarrior commit 3272705b9 and current a12924577. INSTALL now describes
-recursive submodule initialization instead of a separate fmt installation.
-Current local tracking displays
-color-dev aligned with origin/color-dev for all three repositories. No fresh
-network verification or CI result is claimed, and the agent did not push.
-The forks are tjgolubi/taskwarrior, tjgolubi/libshared, and tjgolubi/fmt.
+Terry reported everything pushed, then amended and force-pushed the INSTALL and
+CI fixes. Current local color-dev tracking matches origin/color-dev. The agent
+did not push. Forks are tjgolubi/taskwarrior, tjgolubi/libshared, and tjgolubi/fmt.
+
+INSTALL now documents recursive initialization and the pinned nested fmt source.
+All eight test/docker recipes now use git submodule update --init --recursive.
+CPack source exclusions for build, target, and test now match directory paths
+rather than substrings, preserving required ring sources such as build.rs,
+target.h, and constant_time_test.c. These fixes are included in current HEAD.
+
+GitHub Actions was inspected for 9e3f91889: all enabled jobs passed, including
+the basic Linux tests, Cargo tests, seven Docker builds/tests, and release
+tarball build. Both macOS jobs are disabled by the workflow and skipped.
+Links and verification limits are in BuildAndTest.md.
 
 ## Current implementation and validation
 
@@ -102,8 +108,9 @@ integrated. Prefer fluent composition over `|` when all else is equal.
 Latest October 28 validation:
 
 - TaskWarrior at `3272705b9`: rebuilt successfully; all 179 CTest entries passed
-  (32 C++ and 147 scripts). Git remained clean. Current a12924577 differs only
-  in INSTALL; no build or tests were rerun after that documentation-only amendment.
+  (32 C++ and 147 scripts). This is the last full local suite, before the INSTALL
+  and CI setup amendments. Current 9e3f91889 passed all enabled CI jobs; its
+  regenerated source archive also built locally on MSYS2.
 - Libshared at `58ae81d0a`: configured/built successfully using ext/fmt; the full
   suite reports 11,894 passed, seven known emoji failures, four skipped.
 - All 1,097 Color assertions passed. Date/time assertions passed this run.

@@ -88,7 +88,7 @@ was discussed but not changed.
 libshared's Color test expected values now use single-attribute factories and
 selected fluent chains alongside existing constructors. Parser inputs and all
 1,097 assertions remain intact. Parse's emphasis accumulator was not refactored.
-These changes are now squashed into TaskWarrior `a12924577` and libshared
+These changes are now squashed into TaskWarrior `9e3f91889` and libshared
 `58ae81d0a`, including the pinned dependency setup. Both are on color-dev.
 
 The current text_style is one uint64_t; fluent emphasis setters update its bits
@@ -252,12 +252,15 @@ The temporary ten view assertions were removed; shared.t is back to 211 checks.
   develop 61e542918 plus separate MSYS support and one integration commit.
   Libshared is on master d899eba6d plus the ctime fix and one combined integration.
 - [x] Point the parent gitlink at the final libshared commit and its URL at
-  tjgolubi/libshared. Terry reported everything pushed. No fresh remote or CI
-  verification is claimed; future publication checks need their own scope.
+  tjgolubi/libshared. Terry reported everything pushed; all enabled GitHub Actions
+  jobs passed for TaskWarrior 9e3f91889. See BuildAndTest.md for run links.
 - [x] Update INSTALL for recursive submodule initialization and the pinned
   src/libshared/ext/fmt build. Separate FmtColor installation and fmt_DIR
   instructions were removed; source distributions must include submodule sources.
   Terry amended the integration commit and reported force-pushing it.
+- [x] Repair CI dependency acquisition and source packaging: Docker initializes
+  nested submodules recursively; CPack excludes build/target/test directories
+  without dropping required ring source filenames. All enabled CI jobs passed.
 - [ ] Update TaskWarrior's user-facing color documentation for implemented keywords,
   aliases, canonical order, and independent brightness. Consider blink, conceal,
   and strikethrough spelling separately; they are not implemented parser features.
