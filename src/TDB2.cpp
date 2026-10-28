@@ -27,7 +27,7 @@
 #include <cmake.h>
 // cmake.h include header must come first
 
-#include <Color.h>
+
 #include <Context.h>
 #include <Datetime.h>
 #include <TDB2.h>

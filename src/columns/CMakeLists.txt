@@ -37,7 +37,7 @@ set (columns_SRCS Column.cpp Column.h
                   ColWait.cpp ColWait.h)
 
 add_library (columns STATIC ${columns_SRCS})
-target_link_libraries(columns taskchampion-cpp)
+target_link_libraries(columns taskchampion-cpp libshared)
 
 #SET(CMAKE_BUILD_TYPE gcov)
 #SET(CMAKE_CXX_FLAGS_GCOV "--coverage")

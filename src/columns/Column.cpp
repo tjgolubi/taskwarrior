@@ -130,7 +130,7 @@ Column* Column::factory(const std::string& name, const std::string& report) {
     c = Column::uda(column_name);
 
   else
-    throw format("Unrecognized column name '{1}'.", column_name);
+    throw fmt::format("Unrecognized column name '{}'.", column_name);
 
   c->setReport(report);
   c->setStyle(column_style);
@@ -208,7 +208,7 @@ void Column::uda(std::map<std::string, Column*>& all) {
 
   for (const auto& uda : udas) {
     if (all.find(uda) != all.end())
-      throw format("The UDA named '{1}' is the same as a core attribute, and is not permitted.",
+      throw fmt::format("The UDA named '{}' is the same as a core attribute, and is not permitted.",
                    uda);
 
     Column* c = Column::uda(uda);
@@ -283,11 +283,11 @@ void Column::renderHeader(std::vector<std::string>& lines, int width, Color& col
 
     // Now underline the header, or add a dashed line.
     if (Context::getContext().color() && Context::getContext().config.getBoolean("fontunderline")) {
-      c.blend(Color(Color::nocolor, Color::nocolor, true, false, false));
-      lines.push_back(c.colorize(leftJustify(header, width)));
+      c.underline();
+      lines.push_back(fmt::wrap_sgr(c, leftJustify(header, width)));
     } else {
-      lines.push_back(c.colorize(leftJustify(header, width)));
-      lines.push_back(c.colorize(std::string(width, '-')));
+      lines.push_back(fmt::wrap_sgr(c, leftJustify(header, width)));
+      lines.push_back(fmt::format(c, "{:-<{}}", "", width));
     }
   }
 }
@@ -295,7 +295,7 @@ void Column::renderHeader(std::vector<std::string>& lines, int width, Color& col
 ////////////////////////////////////////////////////////////////////////////////
 void Column::setStyle(const std::string& style) {
   if (style != "default" && std::find(_styles.begin(), _styles.end(), style) == _styles.end())
-    throw format("Unrecognized column format '{1}.{2}'", _name, style);
+    throw fmt::format("Unrecognized column format '{}.{}'", _name, style);
 
   _style = style;
 }
@@ -303,25 +303,25 @@ void Column::setStyle(const std::string& style) {
 ////////////////////////////////////////////////////////////////////////////////
 // All integer values are right-justified.
 void Column::renderInteger(std::vector<std::string>& lines, int width, Color& color, int value) {
-  lines.push_back(color.colorize(rightJustify(value, width)));
+  lines.push_back(fmt::wrap_sgr(color, rightJustify(value, width)));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // All floating point values are right-justified.
 void Column::renderDouble(std::vector<std::string>& lines, int width, Color& color, double value) {
-  lines.push_back(color.colorize(rightJustify(format(value, 4, 3), width)));
+  lines.push_back(fmt::wrap_sgr(color, rightJustify(format(value, 4, 3), width)));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void Column::renderStringLeft(std::vector<std::string>& lines, int width, Color& color,
                               const std::string& value) {
-  lines.push_back(color.colorize(leftJustify(value, width)));
+  lines.push_back(fmt::wrap_sgr(color, leftJustify(value, width)));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void Column::renderStringRight(std::vector<std::string>& lines, int width, Color& color,
                                const std::string& value) {
-  lines.push_back(color.colorize(rightJustify(value, width)));
+  lines.push_back(fmt::wrap_sgr(color, rightJustify(value, width)));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

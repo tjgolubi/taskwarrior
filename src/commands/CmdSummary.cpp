@@ -27,6 +27,8 @@
 #include <cmake.h>
 // cmake.h include header must come first
 
+#include <Color.h>
+
 #include <CmdSummary.h>
 #include <Context.h>
 #include <Duration.h>
@@ -36,6 +38,8 @@
 #include <sort.h>
 #include <stdlib.h>
 #include <util.h>
+
+#include <fmt/color-ostream.h>
 
 #include <list>
 #include <sstream>
@@ -133,8 +137,8 @@ int CmdSummary::execute(std::string& output) {
   view.withColor(Context::getContext().color());
 
   if (Context::getContext().color()) {
-    bar_color = Color(Context::getContext().config.get("color.summary.bar"));
-    bg_color = Color(Context::getContext().config.get("color.summary.background"));
+    bar_color = Style::Parse(Context::getContext().config.get("color.summary.bar"));
+    bg_color  = Style::Parse(Context::getContext().config.get("color.summary.background"));
   }
 
   // sort projects into sorted list
@@ -159,8 +163,8 @@ int CmdSummary::execute(std::string& output) {
     std::string bar;
     std::string subbar;
     if (Context::getContext().color()) {
-      bar += bar_color.colorize(std::string(completedBar, ' '));
-      bar += bg_color.colorize(std::string(barWidth - completedBar, ' '));
+      bar += fmt::wrap_sgr(bar_color, std::string(completedBar, ' '));
+      bar += fmt::wrap_sgr(bg_color, std::string(barWidth - completedBar, ' '));
     } else {
       bar += std::string(completedBar, '=') + std::string(barWidth - completedBar, ' ');
     }
@@ -175,7 +179,7 @@ int CmdSummary::execute(std::string& output) {
   if (view.rows()) {
     out << optionalBlankLine() << view.render() << optionalBlankLine();
 
-    out << format("{1} projects\n", view.rows());
+    fmt::println(out, "{} projects", view.rows());
   } else {
     out << "No projects.\n";
     rc = 1;

@@ -27,6 +27,8 @@
 #include <cmake.h>
 // cmake.h include header must come first
 
+#include <Color.h>
+
 #include <CmdCalendar.h>
 #include <Context.h>
 #include <Lexer.h>
@@ -36,6 +38,8 @@
 #include <stdlib.h>
 #include <utf8.h>
 #include <util.h>
+
+#include <fmt/color-ostream.h>
 
 #include <iomanip>
 #include <sstream>
@@ -135,18 +139,18 @@ int CmdCalendar::execute(std::string& output) {
     // MM.
     else if (Lexer::isAllDigits(arg) && arg.length() <= 2) {
       argMonth = strtol(arg.c_str(), nullptr, 10);
-      if (argMonth < 1 || argMonth > 12) throw format("Argument '{1}' is not a valid month.", arg);
+      if (argMonth < 1 || argMonth > 12) throw fmt::format("Argument '{}' is not a valid month.", arg);
     }
 
     // "January" etc.
     else if (autoComplete(Lexer::lowerCase(arg), monthNames, matches,
                           config.getInteger("abbreviation.minimum")) == 1) {
       argMonth = Datetime::monthOfYear(matches[0]);
-      if (argMonth == -1) throw format("Argument '{1}' is not a valid month.", arg);
+      if (argMonth == -1) throw fmt::format("Argument '{}' is not a valid month.", arg);
     }
 
     else
-      throw format("Could not recognize argument '{1}'.", arg);
+      throw fmt::format("Could not recognize argument '{}'.", arg);
   }
 
   // Supported combinations:
@@ -263,29 +267,33 @@ int CmdCalendar::execute(std::string& output) {
     }
   }
 
-  Color color_today(config.get("color.calendar.today"));
-  Color color_due(config.get("color.calendar.due"));
-  Color color_duetoday(config.get("color.calendar.due.today"));
-  Color color_overdue(config.get("color.calendar.overdue"));
-  Color color_weekend(config.get("color.calendar.weekend"));
-  Color color_holiday(config.get("color.calendar.holiday"));
-  Color color_scheduled(config.get("color.calendar.scheduled"));
-  Color color_weeknumber(config.get("color.calendar.weeknumber"));
+  auto color_today      = Style::Parse(config.get("color.calendar.today"));
+  auto color_due        = Style::Parse(config.get("color.calendar.due"));
+  auto color_duetoday   = Style::Parse(config.get("color.calendar.due.today"));
+  auto color_overdue    = Style::Parse(config.get("color.calendar.overdue"));
+  auto color_weekend    = Style::Parse(config.get("color.calendar.weekend"));
+  auto color_holiday    = Style::Parse(config.get("color.calendar.holiday"));
+  auto color_scheduled  = Style::Parse(config.get("color.calendar.scheduled"));
+  auto color_weeknumber = Style::Parse(config.get("color.calendar.weeknumber"));
 
   if (Context::getContext().color() && config.getBoolean("calendar.legend")) {
-    out << "Legend: " << color_today.colorize("today") << ", " << color_weekend.colorize("weekend")
-        << ", ";
+    fmt::print(out, "Legend: {}, {}, ", fmt::styled("today"  , color_today),
+                                        fmt::styled("weekend", color_weekend));
 
     // If colorizing due dates, print legend
     if (config.get("calendar.details") != "none")
-      out << color_due.colorize("due") << ", " << color_duetoday.colorize("due-today") << ", "
-          << color_overdue.colorize("overdue") << ", " << color_scheduled.colorize("scheduled")
-          << ", ";
+      fmt::print(out, "{}, {}, {}, {}, ",
+                 fmt::styled("due"      , color_due),
+                 fmt::styled("due-today", color_duetoday),
+                 fmt::styled("overdue"  , color_overdue),
+                 fmt::styled("scheduled", color_scheduled));
 
     // If colorizing holidays, print legend
-    if (config.get("calendar.holidays") != "none") out << color_holiday.colorize("holiday") << ", ";
+    if (config.get("calendar.holidays") != "none")
+      fmt::print(out, "{}, ", fmt::styled("holiday", color_holiday));
 
-    out << color_weeknumber.colorize("weeknumber") << '.' << optionalBlankLine() << '\n';
+    fmt::print(out, "{}.{}\n", fmt::styled("weeknumber", color_weeknumber),
+                               optionalBlankLine());
   }
 
   if (config.get("calendar.details") == "full" || config.get("calendar.holidays") == "full") {
@@ -459,14 +467,14 @@ std::string CmdCalendar::renderMonths(int firstMonth, int firstYear, const Datet
 
   auto row = 0;
 
-  Color color_today(config.get("color.calendar.today"));
-  Color color_due(config.get("color.calendar.due"));
-  Color color_duetoday(config.get("color.calendar.due.today"));
-  Color color_overdue(config.get("color.calendar.overdue"));
-  Color color_weekend(config.get("color.calendar.weekend"));
-  Color color_holiday(config.get("color.calendar.holiday"));
-  Color color_scheduled(config.get("color.calendar.scheduled"));
-  Color color_weeknumber(config.get("color.calendar.weeknumber"));
+  auto color_today      = Style::Parse(config.get("color.calendar.today"));
+  auto color_due        = Style::Parse(config.get("color.calendar.due"));
+  auto color_duetoday   = Style::Parse(config.get("color.calendar.due.today"));
+  auto color_overdue    = Style::Parse(config.get("color.calendar.overdue"));
+  auto color_weekend    = Style::Parse(config.get("color.calendar.weekend"));
+  auto color_holiday    = Style::Parse(config.get("color.calendar.holiday"));
+  auto color_scheduled  = Style::Parse(config.get("color.calendar.scheduled"));
+  auto color_weeknumber = Style::Parse(config.get("color.calendar.weeknumber"));
 
   // Loop through months to be added on this line.
   for (int mpl = 0; mpl < monthsPerLine; mpl++) {
@@ -482,7 +490,7 @@ std::string CmdCalendar::renderMonths(int firstMonth, int firstYear, const Datet
       if (config.getBoolean("displayweeknumber"))
         view.set(row, (8 * mpl),
                  // Make sure the week number is always 4 columns, space-padded.
-                 format((woy < 10 ? "   {1}" : "  {1}"), woy), color_weeknumber);
+                 fmt::format("{:>4}", woy), color_weeknumber);
 
       // Calculate column id.
       auto thisCol = dow +                       // 0 = Sunday
@@ -497,7 +505,7 @@ std::string CmdCalendar::renderMonths(int firstMonth, int firstYear, const Datet
         Color cellColor;
 
         // colorize weekends
-        if (dow == 0 || dow == 6) cellColor.blend(color_weekend);
+        if (dow == 0 || dow == 6) cellColor.overlay(color_weekend);
 
         // colorize holidays
         if (config.get("calendar.holidays") != "none") {
@@ -507,7 +515,7 @@ std::string CmdCalendar::renderMonths(int firstMonth, int firstYear, const Datet
               if (hol.first.substr(hol.first.size() - 4) == "date") {
                 auto value = hol.second;
                 Datetime holDate(value.c_str(), dateFormat);
-                if (holDate.sameDay(date)) cellColor.blend(color_holiday);
+                if (holDate.sameDay(date)) cellColor.overlay(color_holiday);
               }
 
               if (hol.first.substr(hol.first.size() - 5) == "start" &&
@@ -517,14 +525,14 @@ std::string CmdCalendar::renderMonths(int firstMonth, int firstYear, const Datet
                     config.get("holiday." + hol.first.substr(8, hol.first.size() - 14) + ".end");
                 Datetime holStart(start.c_str(), dateFormat);
                 Datetime holEnd(end.c_str(), dateFormat);
-                if (holStart <= date && date <= holEnd) cellColor.blend(color_holiday);
+                if (holStart <= date && date <= holEnd) cellColor.overlay(color_holiday);
               }
             }
           }
         }
 
         // colorize today
-        if (today.sameDay(date)) cellColor.blend(color_today);
+        if (today.sameDay(date)) cellColor.overlay(color_today);
 
         // colorize due and scheduled tasks
         if (config.get("calendar.details") != "none") {
@@ -541,7 +549,7 @@ std::string CmdCalendar::renderMonths(int firstMonth, int firstYear, const Datet
                 Datetime scheduleddmy(strtoll(scheduled.c_str(), nullptr, 10));
 
                 if (scheduleddmy.sameDay(date)) {
-                  cellColor.blend(color_scheduled);
+                  cellColor.overlay(color_scheduled);
                 }
               }
               if (task.has("due")) {
@@ -555,16 +563,16 @@ std::string CmdCalendar::renderMonths(int firstMonth, int firstYear, const Datet
                       break;
 
                     case Task::dateAfterToday:
-                      cellColor.blend(color_due);
+                      cellColor.overlay(color_due);
                       break;
 
                     case Task::dateLaterToday:
-                      cellColor.blend(color_duetoday);
+                      cellColor.overlay(color_duetoday);
                       break;
 
                     case Task::dateEarlierToday:
                     case Task::dateBeforeToday:
-                      cellColor.blend(color_overdue);
+                      cellColor.overlay(color_overdue);
                       break;
                   }
                 }

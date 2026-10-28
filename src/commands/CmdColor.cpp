@@ -34,6 +34,8 @@
 #include <format.h>
 #include <shared.h>
 
+#include <fmt/color-ostream.h>
+
 #include <sstream>
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -79,7 +81,7 @@ int CmdColor::execute(std::string& output) {
         // Skip items with 'color' in their name, that are not referring to
         // actual colors.
         if (item.first != "_forcecolor" && item.first != "color" && item.first.find("color") == 0) {
-          Color color(Context::getContext().config.get(item.first));
+          auto color = Style::Parse(Context::getContext().config.get(item.first));
           int row = view.addRow();
           view.set(row, 0, item.first, color);
           view.set(row, 1, item.second, color);
@@ -92,12 +94,18 @@ int CmdColor::execute(std::string& output) {
     // If there is something in the description, then assume that is a color,
     // and display it as a sample.
     else if (words.size()) {
-      Color one("black on bright yellow");
-      Color two("underline cyan on bright blue");
-      Color three("color214 on color202");
-      Color four("rgb150 on rgb020");
-      Color five("underline grey10 on grey3");
-      Color six("red on color173");
+      const auto spec1 = std::string{"black on bright yellow"};
+      const auto spec2 = std::string{"underline cyan on bright blue"};
+      const auto spec3 = std::string{"color214 on color202"};
+      const auto spec4 = std::string{"rgb150 on rgb020"};
+      const auto spec5 = std::string{"underline grey10 on grey3"};
+      const auto spec6 = std::string{"red on color173"};
+      const auto style1 = Style::Parse(spec1);
+      const auto style2 = Style::Parse(spec2);
+      const auto style3 = Style::Parse(spec3);
+      const auto style4 = Style::Parse(spec4);
+      const auto style5 = Style::Parse(spec5);
+      const auto style6 = Style::Parse(spec6);
 
       std::string swatch;
       for (auto word = words.begin(); word != words.end(); ++word) {
@@ -106,59 +114,83 @@ int CmdColor::execute(std::string& output) {
         swatch += *word;
       }
 
-      Color sample(swatch);
-
-      out << '\n'
-          << "Use this command to see how colors are displayed by your terminal.\n"
-          << "\n\n"
-          << "16-color usage (supports underline, bold text, bright background):\n"
-          << "  " << one.colorize("task color black on bright yellow") << '\n'
-          << "  " << two.colorize("task color underline cyan on bright blue") << '\n'
-          << '\n'
-          << "256-color usage (supports underline):\n"
-          << "  " << three.colorize("task color color214 on color202") << '\n'
-          << "  " << four.colorize("task color rgb150 on rgb020") << '\n'
-          << "  " << five.colorize("task color underline grey10 on grey3") << '\n'
-          << "  " << six.colorize("task color red on color173") << '\n'
-          << '\n'
-          << "Your sample:\n\n"
-          << "  " << sample.colorize("task color " + swatch) << "\n\n";
+      fmt::print(out,
+"\nUse this command to see how colors are displayed by your terminal.\n"
+"\n\n"
+"16-color usage (supports underline, bold text, bright foreground/background):\n"
+"  {}\n"
+"  {}\n"
+"\n"
+"256-color usage (supports underline):\n"
+"  {}\n"
+"  {}\n"
+"  {}\n"
+"  {}\n"
+"\n"
+"Your sample:\n\n"
+"  {}\n\n", fmt::styled("task color " + spec1 , style1),
+            fmt::styled("task color " + spec2 , style2),
+            fmt::styled("task color " + spec3 , style3),
+            fmt::styled("task color " + spec4 , style4),
+            fmt::styled("task color " + spec5 , style5),
+            fmt::styled("task color " + spec6 , style6),
+            fmt::styled("task color " + swatch, Style::Parse(swatch)));
     }
 
     // Show all supported colors.  Possibly show some unsupported ones too.
     else {
-      out << '\n'
-          << "Basic colors\n"
-          << ' ' << Color::colorize(" black ", "black") << ' ' << Color::colorize(" red ", "red")
-          << ' ' << Color::colorize(" blue ", "blue") << ' ' << Color::colorize(" green ", "green")
-          << ' ' << Color::colorize(" magenta ", "magenta") << ' '
-          << Color::colorize(" cyan ", "cyan") << ' ' << Color::colorize(" yellow ", "yellow")
-          << ' ' << Color::colorize(" white ", "white") << '\n'
-          << ' ' << Color::colorize(" black ", "white on black") << ' '
-          << Color::colorize(" red ", "white on red") << ' '
-          << Color::colorize(" blue ", "white on blue") << ' '
-          << Color::colorize(" green ", "black on green") << ' '
-          << Color::colorize(" magenta ", "black on magenta") << ' '
-          << Color::colorize(" cyan ", "black on cyan") << ' '
-          << Color::colorize(" yellow ", "black on yellow") << ' '
-          << Color::colorize(" white ", "black on white") << "\n\n";
+      using Term     = fmt::term_color;
 
-      out << "Effects\n"
-          << ' ' << Color::colorize(" red ", "red") << ' '
-          << Color::colorize(" bold red ", "bold red") << ' '
-          << Color::colorize(" underline on blue ", "underline on blue") << ' '
-          << Color::colorize(" on green ", "black on green") << ' '
-          << Color::colorize(" on bright green ", "black on bright green") << ' '
-          << Color::colorize(" inverse ", "inverse") << "\n\n";
+      constexpr auto bold_red   = fmt::fg(Term::red)  .bold();
+      constexpr auto bold_green = fmt::fg(Term::green).bold();
+      constexpr auto bold_blue  = fmt::fg(Term::blue) .bold();
+
+      constexpr std::string_view color_names[8] = {
+        "black", "red", "blue", "green", "magenta", "cyan", "yellow", "white"
+      };
+
+      constexpr Term colors[8] = {
+        Term::black,   Term::red,  Term::blue,   Term::green,
+        Term::magenta, Term::cyan, Term::yellow, Term::white
+      };
+
+      out << "\nBasic colors\n";
+      for (int i = 0; i < 8; ++i) {
+        out << ' ';
+        fmt::print(out, Color{colors[i]}, " {} ", color_names[i]);
+      }
+      out << '\n';
+
+      auto base = Color{Term::white};
+      for (int i = 0; i < 8; ++i) {
+        // Use white text before green, then black text for the remaining backgrounds.
+        if (i == 3) base.fg(Term::black);
+        out << ' ';
+        fmt::print(out, overlay(base, bg(colors[i])), " {} ", color_names[i]);
+      }
+      out << "\n\n";
+
+      const std::string color_specs[6] = {
+        "red", "bold red", "underline on blue", "on green", "on bright green",
+        "inverse"
+      };
+
+      out << "Effects\n";
+      for (int i = 0; i < 6; ++i) {
+        out << ' ';
+        base = (i == 3 || i == 4) ? Color{Term::black} : Color{};
+        fmt::print(out, overlay(base, Style::Parse(color_specs[i])),
+                   " {} ", color_specs[i]);
+      }
+      out << "\n\n";
 
       // 16 system colors.
       out << "color0 - color15" << '\n' << "  0 1 2 . . .\n";
       for (int r = 0; r < 2; ++r) {
         out << "  ";
-        for (int c = 0; c < 8; ++c) {
-          std::stringstream s;
-          s << "on color" << (r * 8 + c);
-          out << Color::colorize("  ", s.str());
+        for (int i = 0; i < 8; ++i) {
+          auto background = static_cast<Term>(r * 8 + i);
+          fmt::print(out, fmt::bg(background), "  ");
         }
 
         out << '\n';
@@ -167,42 +199,32 @@ int CmdColor::execute(std::string& output) {
       out << "          . . . 15\n\n";
 
       // Color cube.
-      out << "Color cube rgb" << Color::colorize("0", "bold red")
-          << Color::colorize("0", "bold green") << Color::colorize("0", "bold blue") << " - rgb"
-          << Color::colorize("5", "bold red") << Color::colorize("5", "bold green")
-          << Color::colorize("5", "bold blue") << " (also color16 - color231)" << '\n'
+      out << "Color cube rgb" << fmt::styled("0", bold_red)
+          << fmt::styled("0", bold_green) << fmt::styled("0", bold_blue) << " - rgb"
+          << fmt::styled("5", bold_red)   << fmt::styled("5", bold_green)
+          << fmt::styled("5", bold_blue)  << " (also color16 - color231)" << '\n'
           << "  "
-          << Color::colorize(
-                 "0            "
-                 "1            "
-                 "2            "
-                 "3            "
-                 "4            "
-                 "5",
-                 "bold red")
+          << fmt::styled("0            "
+                         "1            "
+                         "2            "
+                         "3            "
+                         "4            "
+                         "5", bold_red)
           << '\n'
           << "  "
-          << Color::colorize(
-                 "0 1 2 3 4 5  "
-                 "0 1 2 3 4 5  "
-                 "0 1 2 3 4 5  "
-                 "0 1 2 3 4 5  "
-                 "0 1 2 3 4 5  "
-                 "0 1 2 3 4 5",
-                 "bold blue")
+          << fmt::styled("0 1 2 3 4 5  "
+                         "0 1 2 3 4 5  "
+                         "0 1 2 3 4 5  "
+                         "0 1 2 3 4 5  "
+                         "0 1 2 3 4 5  "
+                         "0 1 2 3 4 5", bold_blue)
           << '\n';
 
-      char label[12];
       for (int g = 0; g < 6; ++g) {
-        snprintf(label, 12, " %d", g);
-        out << Color::colorize(label, "bold green");
+        fmt::print(out, bold_green, " {}", g);
         for (int r = 0; r < 6; ++r) {
-          for (int b = 0; b < 6; ++b) {
-            std::stringstream s;
-            s << "on rgb" << r << g << b;
-            out << Color::colorize("  ", s.str());
-          }
-
+          for (int b = 0; b < 6; ++b)
+            out << fmt::styled("  ", bg(fmt::cube_color{r, g, b}));
           out << ' ';
         }
 
@@ -215,11 +237,8 @@ int CmdColor::execute(std::string& output) {
       out << "Gray ramp gray0 - gray23 (also color232 - color255)\n"
           << "  0 1 2 . . .                             . . . 23\n"
           << "  ";
-      for (int g = 0; g < 24; ++g) {
-        std::stringstream s;
-        s << "on gray" << g;
-        out << Color::colorize("  ", s.str());
-      }
+      for (int g = 0; g < 24; ++g)
+        out << fmt::styled("  ", bg(fmt::gray_color{g}));
 
       out << "\n\n"
           << "Try running 'task color white on red'.\n"

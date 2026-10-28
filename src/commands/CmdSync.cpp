@@ -28,7 +28,7 @@
 // cmake.h include header must come first
 
 #include <CmdSync.h>
-#include <Color.h>
+
 #include <Context.h>
 #include <Filter.h>
 #include <format.h>

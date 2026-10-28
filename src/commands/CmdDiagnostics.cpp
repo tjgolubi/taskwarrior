@@ -27,6 +27,8 @@
 #include <cmake.h>
 // cmake.h include header must come first
 
+#include <Color.h>
+
 #include <CmdDiagnostics.h>
 #include <Context.h>
 #include <RX.h>
@@ -34,6 +36,8 @@
 #include <shared.h>
 #include <stdlib.h>
 #include <time.h>
+
+#include <fmt/color-ostream.h>
 
 #include <algorithm>
 #include <iomanip>
@@ -64,16 +68,15 @@ CmdDiagnostics::CmdDiagnostics() {
 // Although this will change over time, initially this command will answer the
 // kind of questions we always have to ask whenever something is wrong.
 int CmdDiagnostics::execute(std::string& output) {
-  Color bold;
-  if (Context::getContext().color()) bold = Color("bold");
+  auto bold = fmt::bold(Context::getContext().color());
 
   std::stringstream out;
-  out << '\n' << bold.colorize(PACKAGE_STRING) << '\n';
+  out << '\n' << fmt::styled(PACKAGE_STRING, bold) << '\n';
 
   out << "   Platform: " << osName() << "\n\n";
 
   // Compiler.
-  out << bold.colorize("Compiler") << '\n'
+  out << fmt::styled("Compiler", bold) << '\n'
 #ifdef __VERSION__
       << "    Version: " << __VERSION__ << '\n'
 #endif
@@ -105,7 +108,7 @@ int CmdDiagnostics::execute(std::string& output) {
   // Compiler compliance level.
   out << " Compliance: " << cppCompliance() << "\n\n";
 
-  out << bold.colorize("Build Features") << '\n'
+  out << fmt::styled("Build Features", bold) << '\n'
 
 #ifdef HAVE_COMMIT
       << "     Commit: " << COMMIT << '\n'
@@ -130,7 +133,7 @@ int CmdDiagnostics::execute(std::string& output) {
 
   // Config: .taskrc found, readable, writable
   File rcFile(Context::getContext().config.file());
-  out << bold.colorize("Configuration") << '\n'
+  out << fmt::styled("Configuration", bold) << '\n'
       << "       File: " << rcFile._data << ' ' << (rcFile.exists() ? "(found)" : "(missing)")
       << ", " << rcFile.size() << ' ' << "bytes"
       << ", mode " << std::setbase(8) << rcFile.mode() << '\n';
@@ -168,7 +171,7 @@ int CmdDiagnostics::execute(std::string& output) {
     hookLocation += "hooks";
   }
 
-  out << bold.colorize("Hooks") << '\n'
+  out << fmt::styled("Hooks", bold) << '\n'
       << "     System: "
       << (Context::getContext().config.getBoolean("hooks") ? "Enabled" : "Disabled") << '\n'
       << "   Location: " << static_cast<std::string>(hookLocation) << '\n';
@@ -231,7 +234,7 @@ int CmdDiagnostics::execute(std::string& output) {
   out << '\n';
 
   // Verify UUIDs are all unique.
-  out << bold.colorize("Tests") << '\n';
+  out << fmt::styled("Tests", bold) << '\n';
 
   // Report terminal dimensions.
   out << "   Terminal: " << Context::getContext().getWidth() << 'x'
@@ -241,14 +244,13 @@ int CmdDiagnostics::execute(std::string& output) {
   auto all = Context::getContext().tdb2.all_tasks();
 
   bool noBrokenRefs = true;
-  out << " Broken ref: " << format("Scanned {1} tasks for broken references:", all.size()) << '\n';
+  fmt::println(out, " Broken ref: Scanned {} tasks for broken references:", all.size());
 
   for (auto& task : all) {
     // Check dependencies
     for (auto& uuid : task.getDependencyUUIDs()) {
       if (!Context::getContext().tdb2.has(uuid)) {
-        out << "             "
-            << format("Task {1} depends on nonexistent task: {2}", task.get("uuid"), uuid) << '\n';
+        fmt::println(out, "             Task {} depends on nonexistent task: {}", task.get("uuid"), uuid);
         noBrokenRefs = false;
       }
     }
@@ -257,10 +259,8 @@ int CmdDiagnostics::execute(std::string& output) {
     auto parentUUID = task.get("parent");
 
     if (parentUUID != "" && !Context::getContext().tdb2.has(parentUUID)) {
-      out << "             "
-          << format("Task {1} has nonexistent recurrence template {2}", task.get("uuid"),
-                    parentUUID)
-          << '\n';
+      fmt::println(out, "             Task {} has nonexistent recurrence template {}", task.get("uuid"),
+                   parentUUID);
       noBrokenRefs = false;
     }
   }

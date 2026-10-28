@@ -25,6 +25,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <cmake.h>
+#include <Color.h>
 // cmake.h include must come first.
 #include <CmdBurndown.h>
 #include <Context.h>
@@ -448,9 +449,9 @@ std::string Chart::render() {
   // Scan the grid char-by-char and replace the PP/SS/DD markers with
   // colored or plain equivalents. Non-marker characters are copied.
   const bool use_color = Context::getContext().color();
-  Color color_pending(Context::getContext().config.get("color.burndown.pending"));
-  Color color_done(Context::getContext().config.get("color.burndown.done"));
-  Color color_started(Context::getContext().config.get("color.burndown.started"));
+  Color color_pending = Style::Parse(Context::getContext().config.get("color.burndown.pending"));
+  Color color_done    = Style::Parse(Context::getContext().config.get("color.burndown.done"));
+  Color color_started = Style::Parse(Context::getContext().config.get("color.burndown.started"));
 
   std::string result;
   result.reserve(grid.size() * 2);
@@ -459,17 +460,17 @@ std::string Chart::render() {
     if (pos + 1 < grid.size()) {
       char c1 = grid[pos], c2 = grid[pos + 1];
       if (c1 == 'P' && c2 == 'P') {
-        result += use_color ? color_pending.colorize("  ") : " X";
+        result += use_color ? fmt::wrap_sgr(color_pending, "  ") : " X";
         pos += 2;
         continue;
       }
       if (c1 == 'S' && c2 == 'S') {
-        result += use_color ? color_started.colorize("  ") : " +";
+        result += use_color ? fmt::wrap_sgr(color_started, "  ") : " +";
         pos += 2;
         continue;
       }
       if (c1 == 'D' && c2 == 'D') {
-        result += use_color ? color_done.colorize("  ") : " .";
+        result += use_color ? fmt::wrap_sgr(color_done, "  ") : " .";
         pos += 2;
         continue;
       }

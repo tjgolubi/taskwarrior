@@ -27,6 +27,8 @@
 #include <cmake.h>
 // cmake.h include header must come first
 
+#include <Color.h>
+
 #include <CmdCustom.h>
 #include <CmdNews.h>
 #include <Context.h>
@@ -36,6 +38,7 @@
 #include <ViewTask.h>
 #include <feedback.h>
 #include <format.h>
+#include <fmt/color-ostream.h>
 #include <legacy.h>
 #include <shared.h>
 #include <sort.h>
@@ -93,7 +96,7 @@ int CmdCustom::execute(std::string& output) {
   auto labels = split(reportLabels, ',');
 
   if (columns.size() != labels.size() && labels.size() != 0)
-    throw format("There are different numbers of columns and labels for report '{1}'.", _keyword);
+    throw fmt::format("There are different numbers of columns and labels for report '{}'.", _keyword);
 
   auto sortOrder = split(reportSort, ',');
   if (sortOrder.size() != 0 && sortOrder[0] != "none") validateSortColumns(sortOrder);
@@ -132,15 +135,15 @@ int CmdCustom::execute(std::string& output) {
   view.intraPadding(Context::getContext().config.getInteger("column.padding"));
 
   if (Context::getContext().color()) {
-    Color label(Context::getContext().config.get("color.label"));
+    auto label = Style::Parse(Context::getContext().config.get("color.label"));
     view.colorHeader(label);
 
-    Color label_sort(Context::getContext().config.get("color.label.sort"));
+    auto label_sort = Style::Parse(Context::getContext().config.get("color.label.sort"));
     view.colorSortHeader(label_sort);
 
     // If an alternating row color is specified, notify the table.
-    Color alternate(Context::getContext().config.get("color.alternate"));
-    if (alternate.nontrivial()) {
+    auto alternate = Style::Parse(Context::getContext().config.get("color.alternate"));
+    if (!alternate.empty()) {
       view.colorOdd(alternate);
       view.intraColorOdd(alternate);
     }
@@ -205,12 +208,12 @@ int CmdCustom::execute(std::string& output) {
 
     // Print the number of rendered tasks
     if (Context::getContext().verbose("affected")) {
-      out << (filtered.size() == 1 ? "1 task" : format("{1} tasks", filtered.size()));
+      out << (filtered.size() == 1 ? "1 task" : fmt::format("{} tasks", filtered.size()));
 
-      if (maxrows && maxrows < (int)filtered.size()) out << ", " << format("{1} shown", maxrows);
+      if (maxrows && maxrows < (int)filtered.size()) fmt::print(out, ", {} shown", maxrows);
 
       if (maxlines && maxlines < (int)filtered.size())
-        out << ", " << format("truncated to {1} lines", maxlines - table_header);
+        fmt::print(out, ", truncated to {} lines", maxlines - table_header);
 
       out << '\n';
     }
@@ -235,8 +238,8 @@ int CmdCustom::execute(std::string& output) {
   std::string location = (Context::getContext().data_dir);
   File pending_data = File(location + "/pending.data");
   if (pending_data.exists()) {
-    Color warning = Color(Context::getContext().config.get("color.warning"));
-    std::cerr << warning.colorize(format("Found existing '*.data' files in {1}", location)) << "\n";
+    auto warning = Style::Parse(Context::getContext().config.get("color.warning"));
+    fmt::println(std::cerr, warning, "Found existing '*.data' files in {}", location);
     std::cerr << "  Taskwarrior's storage format changed in 3.0, requiring a manual migration.\n";
     std::cerr << "  See https://taskwarrior.org/docs/upgrade-3/. Run `task import-v2` to import\n";
     std::cerr << "  the tasks into the Taskwarrior-3.x format\n";

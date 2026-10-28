@@ -36,6 +36,8 @@
 #include <rules.h>
 #include <util.h>
 
+#include <fmt/color-ostream.h>
+
 #include <algorithm>
 #include <sstream>
 
@@ -168,7 +170,7 @@ int CmdTimesheet::execute(std::string& output) {
       row = table.addRowEven();
 
     // If the data doesn't change, it doesn't get shown.
-    table.set(row, 0, (week != previous_week ? format("W{1}", week) : ""));
+    table.set(row, 0, (week != previous_week ? fmt::format("W{}", week) : ""));
     table.set(row, 1, (date != previous_date ? date : ""));
     table.set(row, 2, (day != previous_day ? day : ""));
     table.set(row, 3, task.identifier(true));
@@ -187,7 +189,7 @@ int CmdTimesheet::execute(std::string& output) {
   if (table.rows()) out << optionalBlankLine() << table.render() << '\n';
 
   if (Context::getContext().verbose("affected"))
-    out << format("{1} completed, {2} started.", num_completed, num_started) << '\n';
+    fmt::println(out, "{} completed, {} started.", num_completed, num_started);
 
   output = out.str();
   return rc;

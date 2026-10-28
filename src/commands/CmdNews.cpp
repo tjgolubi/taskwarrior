@@ -27,6 +27,8 @@
 #include <cmake.h>
 // cmake.h include header must come first
 
+#include <Color.h>
+
 #include <CmdNews.h>
 #include <Context.h>
 #include <Datetime.h>
@@ -36,9 +38,22 @@
 #include <shared.h>
 #include <util.h>
 
+#include <fmt/color-ostream.h>
+
 #include <cmath>
 #include <csignal>
 #include <iostream>
+#include <iterator>
+
+namespace { // Color alias and escape constants
+
+constexpr auto ansi_erase_right = std::string_view{"\x1b[K"};
+constexpr auto ansi_erase_left  = std::string_view{"\x1b[1K"};
+constexpr auto ansi_erase_line  = std::string_view{"\x1b[2K"};
+constexpr auto ansi_up          = std::string_view{"\x1b[A"};
+
+} // local
+
 
 /* Adding a new version:
  *
@@ -70,14 +85,14 @@ static void signal_handler(int s) {
     Color footnote;
     if (Context::getContext().color()) {
       if (Context::getContext().config.has("color.footnote"))
-        footnote = Color(Context::getContext().config.get("color.footnote"));
+        footnote = Style::Parse(Context::getContext().config.get("color.footnote"));
     }
 
     std::cout << "\n\nCome back and read about new features later!\n";
 
-    std::cout << footnote.colorize(
+    fmt::println(std::cout, footnote, "{}",
         "\nIf you enjoy Taskwarrior, please consider supporting the project at:\n"
-        "    https://github.com/sponsors/GothenburgBitFactory/\n");
+        "    https://github.com/sponsors/GothenburgBitFactory/");
     exit(1);
   }
 }
@@ -86,9 +101,9 @@ void wait_for_enter() {
   signal(SIGINT, signal_handler);
 
   std::string dummy;
-  std::cout << "\nPress enter to continue..";
+  std::cout << "\nPress enter to continue.." << std::flush;
   std::getline(std::cin, dummy);
-  std::cout << "\33[2K\033[A\33[2K";  // Erase current line, move up, and erase again
+  std::cout << ansi_erase_line << ansi_up << ansi_erase_line;
 
   signal(SIGINT, SIG_DFL);
 }
@@ -117,38 +132,39 @@ void NewsItem::render() {
   Color bold;
   Color underline;
   if (Context::getContext().color()) {
-    bold = Color("bold");
-    underline = Color("underline");
-    if (config.has("color.header")) header = Color(config.get("color.header"));
-    if (config.has("color.footnote")) footnote = Color(config.get("color.footnote"));
+    bold.bold();
+    underline.underline();
+    if (config.has("color.header"))   header   = Style::Parse(config.get("color.header"));
+    if (config.has("color.footnote")) footnote = Style::Parse(config.get("color.footnote"));
   }
 
-  // TODO: For some reason, bold cannot be blended in 256-color terminals
-  // Apply this workaround of colorizing twice.
-  std::cout << bold.colorize(header.colorize(format("{1} ({2})\n", _title, _version)));
+  fmt::println(std::cout, fmt::overlay(header, bold), "{} ({})", _title,
+                                                         std::string(_version));
   if (_background.size()) {
     if (_bg_title.empty()) _bg_title = "Background";
 
-    std::cout << "\n  " << underline.colorize(_bg_title) << std::endl << _background << std::endl;
+    fmt::println(std::cout, "\n  {}\n{}", fmt::styled(_bg_title, underline), _background);
   }
 
   wait_for_enter();
 
-  std::cout << "  " << underline.colorize(format("What changed in {1}?\n", _version));
-  if (_punchline.size()) std::cout << footnote.colorize(format("{1}\n", _punchline));
+  std::cout << "  ";
+  fmt::println(std::cout, underline, "What changed in {}?", std::string(_version));
+  if (_punchline.size()) fmt::println(std::cout, footnote, "{}", _punchline);
 
-  if (_update.size()) std::cout << format("{1}\n", _update);
+  if (_update.size()) std::cout << _update << '\n';
 
   wait_for_enter();
 
   if (_reasoning.size()) {
-    std::cout << "  " << underline.colorize("What was the motivation behind this feature?\n")
-              << _reasoning << std::endl;
+    fmt::println(std::cout, "  {}", fmt::styled("What was the motivation behind this feature?", underline));
+    std::cout << _reasoning << '\n';
     wait_for_enter();
   }
 
   if (_actions.size()) {
-    std::cout << "  " << underline.colorize("What do I have to do?\n") << _actions << std::endl;
+    fmt::println(std::cout, "  {}", fmt::styled("What do I have to do?", underline));
+    std::cout << _actions << '\n';
     wait_for_enter();
   }
 }
@@ -186,7 +202,8 @@ void NewsItem::version2_6_0(std::vector<NewsItem>& items) {
 
   // Detect whether user uses any contexts
   auto config = Context::getContext().config;
-  std::stringstream advice;
+  auto advice = std::string{};
+  auto append = std::back_inserter(advice);
 
   auto defined = CmdContext::getContexts();
   if (defined.size()) {
@@ -196,37 +213,36 @@ void NewsItem::version2_6_0(std::vector<NewsItem>& items) {
                  [&](auto& name) { return config.has("context." + name); });
 
     if (old_style.size()) {
-      advice << format("  You have {1} defined contexts, out of which {2} are old-style:\n",
+      fmt::format_to(append, "  You have {} defined contexts, out of which {} are old-style:\n",
                        defined.size(),
                        std::count_if(defined.begin(), defined.end(),
                                      [&](auto& name) { return config.has("context." + name); }));
 
       for (auto context : defined) {
         std::string old_definition = config.get("context." + context);
-        if (old_definition != "") advice << format("  * {1}: {2}\n", context, old_definition);
+        if (old_definition != "") fmt::format_to(append, "  * {}: {}\n", context, old_definition);
       }
 
-      advice << "\n"
+      advice += "\n"
                 "  These need to be migrated to new-style, which uses context.<name>.read and\n"
                 "  context.<name>.write config variables. Please run the following commands:\n";
 
       for (auto context : defined) {
         std::string old_definition = config.get("context." + context);
         if (old_definition != "")
-          advice << format("  $ task context define {1} '{2}'\n", context, old_definition);
+          fmt::format_to(append, "  $ task context define {} '{}'\n", context, old_definition);
       }
 
-      advice
-          << "\n"
+      advice += "\n"
              "  Please check these filters are also valid modifications. If a context filter is "
              "not\n"
              "  a valid modification, you can set the context.<name>.write configuration variable "
              "to\n"
              "  specify the write context explicitly. Read more in CONTEXT section of man taskrc.";
     } else
-      advice << "  You don't have any old-style contexts defined, so you're good to go as is!";
+      advice += "  You don't have any old-style contexts defined, so you're good to go as is!";
   } else
-    advice << "  You don't have any contexts defined, so you're good to go as is!\n"
+    advice += "  You don't have any contexts defined, so you're good to go as is!\n"
               "  Read more about how to use contexts in CONTEXT section of 'man task'.";
 
   NewsItem writeable_context(
@@ -263,7 +279,7 @@ void NewsItem::version2_6_0(std::vector<NewsItem>& items) {
       "  Note that project attribute was set to 'Work' automatically.",
       "  This was a popular feature request. Now, if you have a context active,\n"
       "  newly added tasks no longer \"fall outside\" of the context by default.",
-      advice.str());
+      advice);
   items.push_back(writeable_context);
 
   /////////////////////////////////////////////////////////////////////////////
@@ -585,20 +601,19 @@ int CmdNews::execute(std::string& output) {
                              [&](const NewsItem& n) { return n._version <= news_version; }),
               items.end());
 
-  Color bold = Color("bold");
+  auto bold = fmt::bold();
   if (items.empty()) {
-    std::cout << bold.colorize("You are up to date!\n");
+    fmt::println(std::cout, bold, "You are up to date!");
   } else {
     // Print release notes
-    std::cout << bold.colorize(
-        format("\n"
+    fmt::println(std::cout, bold, "\n"
                "================================================\n"
-               "Taskwarrior {1} through {2} Release Highlights\n"
-               "================================================\n",
-               news_version, current_version));
+               "Taskwarrior {} through {} Release Highlights\n"
+               "================================================",
+               std::string{news_version}, std::string{current_version});
 
     for (unsigned short i = 0; i < items.size(); i++) {
-      std::cout << format("\n({1}/{2}) ", i + 1, items.size());
+      fmt::print(std::cout, "\n({}/{}) ", i + 1, items.size());
       items[i].render();
     }
     std::cout << "Thank you for catching up on the new features!\n";

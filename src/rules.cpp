@@ -27,6 +27,8 @@
 #include <cmake.h>
 // cmake.h include header must come first
 
+#include <Color.h>
+
 #include <Context.h>
 #include <Datetime.h>
 #include <rules.h>
@@ -50,7 +52,7 @@ void initializeColorRules() {
     std::vector<std::string> rules;
     for (const auto& v : Context::getContext().config) {
       if (!v.first.compare(0, 6, "color.", 6)) {
-        Color c(v.second);
+        Color c = Style::Parse(v.second);
         gsColor[v.first] = c;
 
         rules.push_back(v.first);
@@ -79,7 +81,7 @@ void initializeColorRules() {
 ////////////////////////////////////////////////////////////////////////////////
 static void applyColor(const Color& base, Color& c, bool merge) {
   if (merge)
-    c.blend(base);
+    c.overlay(base);
   else
     c = base;
 }
@@ -231,7 +233,7 @@ void autoColorize(Task& task, Color& c) {
 
   for (auto r = gsPrecedence.rbegin(); r != gsPrecedence.rend(); ++r) {
     Color base = gsColor[*r];
-    if (base.nontrivial()) {
+    if (!base.empty()) {
       if (*r == "color.blocked")
         colorizeBlocked(task, base, c, merge);
       else if (*r == "color.blocking")
@@ -276,28 +278,28 @@ void autoColorize(Task& task, Color& c) {
 
 ////////////////////////////////////////////////////////////////////////////////
 std::string colorizeHeader(const std::string& input) {
-  if (gsColor["color.header"].nontrivial()) return gsColor["color.header"].colorize(input);
+  if (!gsColor["color.header"].empty()) return fmt::wrap_sgr(gsColor["color.header"], input);
 
   return input;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 std::string colorizeFootnote(const std::string& input) {
-  if (gsColor["color.footnote"].nontrivial()) return gsColor["color.footnote"].colorize(input);
+  if (!gsColor["color.footnote"].empty()) return fmt::wrap_sgr(gsColor["color.footnote"], input);
 
   return input;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 std::string colorizeError(const std::string& input) {
-  if (gsColor["color.error"].nontrivial()) return gsColor["color.error"].colorize(input);
+  if (!gsColor["color.error"].empty()) return fmt::wrap_sgr(gsColor["color.error"], input);
 
   return input;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 std::string colorizeDebug(const std::string& input) {
-  if (gsColor["color.debug"].nontrivial()) return gsColor["color.debug"].colorize(input);
+  if (!gsColor["color.debug"].empty()) return fmt::wrap_sgr(gsColor["color.debug"], input);
 
   return input;
 }

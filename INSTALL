@@ -17,6 +17,23 @@ You will need a C++ compiler that supports full C++17, which includes:
 You will need the following libraries:
   - libuuid (not needed for OSX)
 
+FmtColor (the extended {fmt} library) is supplied as libshared's ext/fmt
+submodule, at src/libshared/ext/fmt within Taskwarrior. CMake builds this pinned
+source with the same toolchain as Taskwarrior; no separate FmtColor installation
+or fmt_DIR setting is required.
+
+For a Git checkout, initialize all submodules before configuring:
+```shell
+git submodule update --init --recursive
+```
+Run this from the Taskwarrior repository root. It checks out the dependency
+revisions recorded by the repository, including the nested FmtColor submodule.
+Source distributions must include these submodule sources; an archive that
+omits them is not sufficient to build this integration.
+
+Taskwarrior links fmt::fmt and enables FMT_COLOR_COMPACT_SGR=1 through its
+libshared target; no manual include flags or FMT_HEADER_ONLY definition are needed.
+
 You will need a Rust toolchain of the Minimum Supported Rust Version (MSRV):
   - rust 1.88.0
 

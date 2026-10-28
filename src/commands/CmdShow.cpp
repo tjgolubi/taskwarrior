@@ -27,11 +27,14 @@
 #include <cmake.h>
 // cmake.h include header must come first
 
+#include <Color.h>
+
 #include <CmdShow.h>
 #include <Context.h>
 #include <FS.h>
 #include <Table.h>
 #include <format.h>
+#include <fmt/color-ostream.h>
 #include <legacy.h>
 #include <util.h>
 
@@ -39,9 +42,9 @@
 #include <sstream>
 #include <vector>
 
-#define STRING_CMD_SHOW_DIFFER_COLOR "These are highlighted in {1} above."
+#define STRING_CMD_SHOW_DIFFER_COLOR "These are highlighted in {} above."
 #define STRING_CMD_SHOW_CONFIG_ERROR \
-  "Configuration error: {1} contains an unrecognized value '{2}'."
+  "Configuration error: {} contains an unrecognized value '{}'."
 
 extern std::string configurationDefaults;
 
@@ -287,8 +290,8 @@ int CmdShow::execute(std::string& output) {
   Color error;
   Color warning;
   if (Context::getContext().color()) {
-    error = Color(Context::getContext().config.get("color.error"));
-    warning = Color(Context::getContext().config.get("color.warning"));
+    error   = Style::Parse(Context::getContext().config.get("color.error"));
+    warning = Style::Parse(Context::getContext().config.get("color.warning"));
   }
 
   bool issue_error = false;
@@ -336,8 +339,8 @@ int CmdShow::execute(std::string& output) {
   if (issue_warning) {
     out << "Some of your .taskrc variables differ from the default values.\n";
 
-    if (Context::getContext().color() && warning.nontrivial())
-      out << "  " << format(STRING_CMD_SHOW_DIFFER_COLOR, warning.colorize("color")) << "\n\n";
+    if (Context::getContext().color() && !warning.empty())
+      out << "  " << fmt::format(STRING_CMD_SHOW_DIFFER_COLOR, fmt::styled("color", warning)) << "\n\n";
   }
 
   // Display the unrecognized variables.
@@ -351,8 +354,8 @@ int CmdShow::execute(std::string& output) {
       out << "urgency.uda.<name> coefficients only apply to UDAs. For tags, use "
              "urgency.user.tag.<tag>.coefficient.\n";
 
-    if (Context::getContext().color() && error.nontrivial())
-      out << '\n' << format(STRING_CMD_SHOW_DIFFER_COLOR, error.colorize("color"));
+    if (Context::getContext().color() && !error.empty())
+      out << '\n' << fmt::format(STRING_CMD_SHOW_DIFFER_COLOR, fmt::styled("color", error));
 
     out << "\n\n";
   }
@@ -366,12 +369,12 @@ int CmdShow::execute(std::string& output) {
   // Check for bad values in rc.calendar.details.
   std::string calendardetails = Context::getContext().config.get("calendar.details");
   if (calendardetails != "full" && calendardetails != "sparse" && calendardetails != "none")
-    out << format(STRING_CMD_SHOW_CONFIG_ERROR, "calendar.details", calendardetails) << '\n';
+    fmt::println(out, STRING_CMD_SHOW_CONFIG_ERROR, "calendar.details", calendardetails);
 
   // Check for bad values in rc.calendar.holidays.
   std::string calendarholidays = Context::getContext().config.get("calendar.holidays");
   if (calendarholidays != "full" && calendarholidays != "sparse" && calendarholidays != "none")
-    out << format(STRING_CMD_SHOW_CONFIG_ERROR, "calendar.holidays", calendarholidays) << '\n';
+    fmt::println(out, STRING_CMD_SHOW_CONFIG_ERROR, "calendar.holidays", calendarholidays);
 
   // Verify installation.  This is mentioned in the documentation as the way
   // to ensure everything is properly installed.

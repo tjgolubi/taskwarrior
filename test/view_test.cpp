@@ -27,6 +27,8 @@
 #include <cmake.h>
 // cmake.h include header must come first
 
+#include <Color.h>
+
 #include <Column.h>
 #include <Context.h>
 #include <Task.h>
@@ -116,9 +118,9 @@ int TEST_NAME(int, char**) {
     sort_tasks(data, sequence, "description+,id-");
 
     // Create colors.
-    Color header_color(Color(Color::yellow, Color::nocolor, false, false, false));
-    Color odd_color("on gray1");
-    Color even_color("on gray0");
+    Color header_color = fmt::fg(fmt::term_color::yellow);
+    Color odd_color    = fmt::bg(fmt::gray_color{1});
+    Color even_color   = fmt::bg(fmt::gray_color{0});
 
     // Create a view.
     std::string report = "view.t";
@@ -155,7 +157,6 @@ int TEST_NAME(int, char**) {
 
     // Now render a string-only grid.
     context.config.set("fontunderline", false);
-    Color single_cell("bold white on red");
   }
 
   catch (const std::string& e) {

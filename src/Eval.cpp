@@ -218,7 +218,7 @@ void Eval::evaluatePostfixStack(const std::vector<std::pair<std::string, Lexer::
       Variant result = !right;
       values.push_back(result);
       if (_debug)
-        Context::getContext().debug(format("Eval {1} ↓'{2}' → ↑'{3}'", token.first,
+        Context::getContext().debug(fmt::format("Eval {} ↓'{}' → ↑'{}'", token.first,
                                            (std::string)right, (std::string)result));
     } else if (token.second == Lexer::Type::op && token.first == "_neg_") {
       if (values.size() < 1) throw std::string("The expression could not be evaluated.");
@@ -231,12 +231,12 @@ void Eval::evaluatePostfixStack(const std::vector<std::pair<std::string, Lexer::
       values.push_back(result);
 
       if (_debug)
-        Context::getContext().debug(format("Eval {1} ↓'{2}' → ↑'{3}'", token.first,
+        Context::getContext().debug(fmt::format("Eval {} ↓'{}' → ↑'{}'", token.first,
                                            (std::string)right, (std::string)result));
     } else if (token.second == Lexer::Type::op && token.first == "_pos_") {
       // The _pos_ operator is a NOP.
       if (_debug)
-        Context::getContext().debug(format("[{1}] eval op {2} NOP", values.size(), token.first));
+        Context::getContext().debug(fmt::format("[{}] eval op {} NOP", values.size(), token.first));
     }
 
     // Binary operators.
@@ -301,14 +301,14 @@ void Eval::evaluatePostfixStack(const std::vector<std::pair<std::string, Lexer::
         else if (token.first == "_notag_")
           result = left.operator_notag(right, *contextTask);
         else
-          throw format("Unsupported operator '{1}'.", token.first);
+          throw fmt::format("Unsupported operator '{}'.", token.first);
       } else
-        throw format("Unsupported operator '{1}'.", token.first);
+        throw fmt::format("Unsupported operator '{}'.", token.first);
 
       values.push_back(result);
 
       if (_debug)
-        Context::getContext().debug(format("Eval ↓'{1}' {2} ↓'{3}' → ↑'{4}'", (std::string)left,
+        Context::getContext().debug(fmt::format("Eval ↓'{}' {} ↓'{}' → ↑'{}'", (std::string)left,
                                            token.first, (std::string)right, (std::string)result));
     }
 
@@ -320,11 +320,11 @@ void Eval::evaluatePostfixStack(const std::vector<std::pair<std::string, Lexer::
           if (Lexer::isAllDigits(token.first)) {
             v.cast(Variant::type_integer);
             if (_debug)
-              Context::getContext().debug(format("Eval literal number ↑'{1}'", (std::string)v));
+              Context::getContext().debug(fmt::format("Eval literal number ↑'{}'", (std::string)v));
           } else {
             v.cast(Variant::type_real);
             if (_debug)
-              Context::getContext().debug(format("Eval literal decimal ↑'{1}'", (std::string)v));
+              Context::getContext().debug(fmt::format("Eval literal decimal ↑'{}'", (std::string)v));
           }
           break;
 
@@ -339,7 +339,7 @@ void Eval::evaluatePostfixStack(const std::vector<std::pair<std::string, Lexer::
             if (source(token.first, v)) {
               if (_debug)
                 Context::getContext().debug(
-                    format("Eval identifier source '{1}' → ↑'{2}'", token.first, (std::string)v));
+                    fmt::format("Eval identifier source '{}' → ↑'{}'", token.first, (std::string)v));
               found = true;
               break;
             }
@@ -350,27 +350,27 @@ void Eval::evaluatePostfixStack(const std::vector<std::pair<std::string, Lexer::
             v.cast(Variant::type_string);
             if (_debug)
               Context::getContext().debug(
-                  format("Eval identifier source failed '{1}'", token.first));
+                  fmt::format("Eval identifier source failed '{}'", token.first));
           }
         } break;
 
         case Lexer::Type::date:
           v.cast(Variant::type_date);
           if (_debug)
-            Context::getContext().debug(format("Eval literal date ↑'{1}'", (std::string)v));
+            Context::getContext().debug(fmt::format("Eval literal date ↑'{}'", (std::string)v));
           break;
 
         case Lexer::Type::duration:
           v.cast(Variant::type_duration);
           if (_debug)
-            Context::getContext().debug(format("Eval literal duration ↑'{1}'", (std::string)v));
+            Context::getContext().debug(fmt::format("Eval literal duration ↑'{}'", (std::string)v));
           break;
 
         // Nothing to do.
         case Lexer::Type::string:
         default:
           if (_debug)
-            Context::getContext().debug(format("Eval literal string ↑'{1}'", (std::string)v));
+            Context::getContext().debug(fmt::format("Eval literal string ↑'{}'", (std::string)v));
           break;
       }
 
@@ -703,28 +703,30 @@ bool Eval::identifyOperator(const std::string& op, char& type, unsigned int& pre
 
 ////////////////////////////////////////////////////////////////////////////////
 std::string Eval::dump(std::vector<std::pair<std::string, Lexer::Type>>& tokens) const {
+  using Gray  = fmt::gray_color;
+  using Cube  = fmt::cube_color;
   // Set up a color mapping.
   std::map<Lexer::Type, Color> color_map;
-  color_map[Lexer::Type::op] = Color("gray14 on gray6");
-  color_map[Lexer::Type::number] = Color("rgb530 on gray6");
-  color_map[Lexer::Type::hex] = Color("rgb303 on gray6");
-  color_map[Lexer::Type::string] = Color("rgb550 on gray6");
-  color_map[Lexer::Type::dom] = Color("rgb045 on gray6");
-  color_map[Lexer::Type::identifier] = Color("rgb035 on gray6");
-  color_map[Lexer::Type::date] = Color("rgb150 on gray6");
-  color_map[Lexer::Type::duration] = Color("rgb531 on gray6");
+  color_map[Lexer::Type::op]         = Color{Gray{14}  , Gray{6}};
+  color_map[Lexer::Type::number]     = Color{Cube{5,3,0}, Gray{6}};
+  color_map[Lexer::Type::hex]        = Color{Cube{3,0,3}, Gray{6}};
+  color_map[Lexer::Type::string]     = Color{Cube{5,5,0}, Gray{6}};
+  color_map[Lexer::Type::dom]        = Color{Cube{0,4,5}, Gray{6}};
+  color_map[Lexer::Type::identifier] = Color{Cube{0,3,5}, Gray{6}};
+  color_map[Lexer::Type::date]       = Color{Cube{1,5,0}, Gray{6}};
+  color_map[Lexer::Type::duration]   = Color{Cube{5,3,1}, Gray{6}};
 
   std::string output;
   for (auto i = tokens.begin(); i != tokens.end(); ++i) {
     if (i != tokens.begin()) output += ' ';
 
     Color c;
-    if (color_map[i->second].nontrivial())
+    if (!color_map[i->second].empty())
       c = color_map[i->second];
     else
-      c = Color("rgb000 on gray6");
+      c = Color{Cube{0,0,0}, Gray{6}};
 
-    output += c.colorize(i->first);
+    output += fmt::wrap_sgr(c, i->first);
   }
 
   return output;

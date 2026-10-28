@@ -27,6 +27,8 @@
 #include <cmake.h>
 // cmake.h include header must come first
 
+#include <Color.h>
+
 #include <CmdInfo.h>
 #include <Context.h>
 #include <Datetime.h>
@@ -41,6 +43,8 @@
 #include <stdlib.h>
 #include <taskchampion-cpp/lib.h>
 #include <util.h>
+
+#include <fmt/color-ostream.h>
 
 #include <algorithm>
 #include <sstream>
@@ -407,7 +411,7 @@ int CmdInfo::execute(std::string& output) {
     if (task.urgency() != 0.0) {
       setHeaderUnderline(urgencyDetails);
       if (Context::getContext().color()) {
-        Color alternate(Context::getContext().config.get("color.alternate"));
+        Color alternate = Style::Parse(Context::getContext().config.get("color.alternate"));
         urgencyDetails.colorOdd(alternate);
         urgencyDetails.intraColorOdd(alternate);
       }
@@ -604,11 +608,11 @@ std::optional<std::string> CmdInfo::formatForInfo(const std::vector<Operation>& 
     // Handle property deletions
     if (!value && old_value) {
       if (Task::isAnnotationAttr(prop)) {
-        out << format("Annotation '{1}' deleted.\n", *old_value);
+        fmt::print(out, "Annotation '{}' deleted.\n", *old_value);
       } else if (Task::isTagAttr(prop)) {
-        out << format("Tag '{1}' deleted.\n", Task::attr2Tag(prop));
+        fmt::print(out, "Tag '{}' deleted.\n", Task::attr2Tag(prop));
       } else if (Task::isDepAttr(prop)) {
-        out << format("Dependency on '{1}' deleted.\n", Task::attr2Dep(prop));
+        fmt::print(out, "Dependency on '{}' deleted.\n", Task::attr2Dep(prop));
       } else if (prop == "start") {
         Datetime started(last_start);
         Datetime stopped = timestamp;
@@ -629,22 +633,21 @@ std::optional<std::string> CmdInfo::formatForInfo(const std::vector<Operation>& 
           }
         }
 
-        out << format("{1} deleted (duration: {2}).", Lexer::ucFirst(prop),
-                      Duration(stopped - started).format())
-            << "\n";
+        fmt::println(out, "{} deleted (duration: {}).", Lexer::ucFirst(prop),
+                      Duration(stopped - started).format());
       } else {
-        out << format("{1} deleted.\n", Lexer::ucFirst(prop));
+        fmt::print(out, "{} deleted.\n", Lexer::ucFirst(prop));
       }
     }
 
     // Handle property additions.
     if (value && !old_value) {
       if (Task::isAnnotationAttr(prop)) {
-        out << format("Annotation of '{1}' added.\n", *value);
+        fmt::print(out, "Annotation of '{}' added.\n", *value);
       } else if (Task::isTagAttr(prop)) {
-        out << format("Tag '{1}' added.\n", Task::attr2Tag(prop));
+        fmt::print(out, "Tag '{}' added.\n", Task::attr2Tag(prop));
       } else if (Task::isDepAttr(prop)) {
-        out << format("Dependency on '{1}' added.\n", Task::attr2Dep(prop));
+        fmt::print(out, "Dependency on '{}' added.\n", Task::attr2Dep(prop));
       } else {
         // Record the last start time for later duration calculation.
         if (prop == "start") {
@@ -655,9 +658,8 @@ std::optional<std::string> CmdInfo::formatForInfo(const std::vector<Operation>& 
           }
         }
 
-        out << format("{1} set to '{2}'.", Lexer::ucFirst(prop),
-                      renderAttribute(prop, *value, dateformat))
-            << "\n";
+        fmt::println(out, "{} set to '{}'.", Lexer::ucFirst(prop),
+                      renderAttribute(prop, *value, dateformat));
       }
     }
 
@@ -666,17 +668,16 @@ std::optional<std::string> CmdInfo::formatForInfo(const std::vector<Operation>& 
       if (Task::isTagAttr(prop) || Task::isDepAttr(prop)) {
         // Dependencies and tags do not have meaningful values.
       } else if (Task::isAnnotationAttr(prop)) {
-        out << format("Annotation changed to '{1}'.\n", *value);
+        fmt::print(out, "Annotation changed to '{}'.\n", *value);
       } else {
         // Record the last start time for later duration calculation.
         if (prop == "start") {
           last_start = Datetime(value.value()).toEpoch();
         }
 
-        out << format("{1} changed from '{2}' to '{3}'.", Lexer::ucFirst(prop),
+        fmt::println(out, "{} changed from '{}' to '{}'.", Lexer::ucFirst(prop),
                       renderAttribute(prop, *old_value, dateformat),
-                      renderAttribute(prop, *value, dateformat))
-            << "\n";
+                      renderAttribute(prop, *value, dateformat));
       }
     }
   }
