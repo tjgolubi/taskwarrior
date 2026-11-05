@@ -28,6 +28,7 @@
 // cmake.h include header must come first
 
 #include <Color.h>
+#include <fmt/strip_ansi.h>
 
 #include <ColUDA.h>
 #include <Context.h>
@@ -71,7 +72,7 @@ void ColumnUDAString::measure(Task& task, unsigned int& minimum, unsigned int& m
     if (_style == "default") {
       std::string value = task.get(_name);
       if (value != "") {
-        auto stripped = Style::strip_sgr(value);
+        auto stripped = fmt::strip_ansi(value);
         maximum = longestLine(stripped);
         minimum = longestWord(stripped);
       }
