@@ -79,7 +79,7 @@ int CmdStop::execute(std::string&) {
 
       // Stop the specified task.
       std::string question =
-          format("Stop task {1} '{2}'?", task.identifier(true), task.get("description"));
+          ::format("Stop task {1} '{2}'?", task.identifier(true), task.get("description"));
 
       task.modify(Task::modAnnotate);
       task.remove("start");
@@ -101,7 +101,7 @@ int CmdStop::execute(std::string&) {
         if (_permission_quit) break;
       }
     } else {
-      std::cout << format("Task {1} '{2}' not started.", task.identifier(true),
+      std::cout << ::format("Task {1} '{2}' not started.", task.identifier(true),
                           task.get("description"))
                 << '\n';
       rc = 1;

@@ -82,7 +82,7 @@ int CmdVersion::execute(std::string& output) {
   if (Context::getContext().color()) bold = Color("bold");
 
   out << '\n'
-      << format("{1} {2} built for ", bold.colorize(PACKAGE), bold.colorize(VERSION)) << osName()
+      << ::format("{1} {2} built for ", bold.colorize(PACKAGE), bold.colorize(VERSION)) << osName()
       << '\n'
       << "Copyright (C) 2006 - " << now.year() << " T. Babej, P. Beckingham, F. Hernandez." << '\n'
       << '\n'

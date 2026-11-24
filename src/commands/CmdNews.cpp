@@ -125,7 +125,7 @@ void NewsItem::render() {
 
   // TODO: For some reason, bold cannot be blended in 256-color terminals
   // Apply this workaround of colorizing twice.
-  std::cout << bold.colorize(header.colorize(format("{1} ({2})\n", _title, _version)));
+  std::cout << bold.colorize(header.colorize(::format("{1} ({2})\n", _title, _version)));
   if (_background.size()) {
     if (_bg_title.empty()) _bg_title = "Background";
 
@@ -134,10 +134,10 @@ void NewsItem::render() {
 
   wait_for_enter();
 
-  std::cout << "  " << underline.colorize(format("What changed in {1}?\n", _version));
-  if (_punchline.size()) std::cout << footnote.colorize(format("{1}\n", _punchline));
+  std::cout << "  " << underline.colorize(::format("What changed in {1}?\n", _version));
+  if (_punchline.size()) std::cout << footnote.colorize(::format("{1}\n", _punchline));
 
-  if (_update.size()) std::cout << format("{1}\n", _update);
+  if (_update.size()) std::cout << ::format("{1}\n", _update);
 
   wait_for_enter();
 
@@ -196,14 +196,14 @@ void NewsItem::version2_6_0(std::vector<NewsItem>& items) {
                  [&](auto& name) { return config.has("context." + name); });
 
     if (old_style.size()) {
-      advice << format("  You have {1} defined contexts, out of which {2} are old-style:\n",
+      advice << ::format("  You have {1} defined contexts, out of which {2} are old-style:\n",
                        defined.size(),
                        std::count_if(defined.begin(), defined.end(),
                                      [&](auto& name) { return config.has("context." + name); }));
 
       for (auto context : defined) {
         std::string old_definition = config.get("context." + context);
-        if (old_definition != "") advice << format("  * {1}: {2}\n", context, old_definition);
+        if (old_definition != "") advice << ::format("  * {1}: {2}\n", context, old_definition);
       }
 
       advice << "\n"
@@ -213,7 +213,7 @@ void NewsItem::version2_6_0(std::vector<NewsItem>& items) {
       for (auto context : defined) {
         std::string old_definition = config.get("context." + context);
         if (old_definition != "")
-          advice << format("  $ task context define {1} '{2}'\n", context, old_definition);
+          advice << ::format("  $ task context define {1} '{2}'\n", context, old_definition);
       }
 
       advice
@@ -591,14 +591,14 @@ int CmdNews::execute(std::string& output) {
   } else {
     // Print release notes
     std::cout << bold.colorize(
-        format("\n"
+        ::format("\n"
                "================================================\n"
                "Taskwarrior {1} through {2} Release Highlights\n"
                "================================================\n",
                news_version, current_version));
 
     for (unsigned short i = 0; i < items.size(); i++) {
-      std::cout << format("\n({1}/{2}) ", i + 1, items.size());
+      std::cout << ::format("\n({1}/{2}) ", i + 1, items.size());
       items[i].render();
     }
     std::cout << "Thank you for catching up on the new features!\n";

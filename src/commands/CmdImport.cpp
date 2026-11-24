@@ -61,7 +61,7 @@ int CmdImport::execute(std::string&) {
   // Get filenames from command line arguments.
   auto words = Context::getContext().cli2.getWords();
   if (!words.size() || (words.size() == 1 && words[0] == "-")) {
-    std::cout << format("Importing '{1}'\n", "STDIN");
+    std::cout << ::format("Importing '{1}'\n", "STDIN");
 
     std::string json;
     std::string line;
@@ -72,9 +72,9 @@ int CmdImport::execute(std::string&) {
     // Import tasks from all specified files.
     for (auto& word : words) {
       File incoming(word);
-      if (!incoming.exists()) throw format("File '{1}' not found.", word);
+      if (!incoming.exists()) throw ::format("File '{1}' not found.", word);
 
-      std::cout << format("Importing '{1}'\n", word);
+      std::cout << ::format("Importing '{1}'\n", word);
 
       // Load the file.
       std::string json;
@@ -83,7 +83,7 @@ int CmdImport::execute(std::string&) {
     }
   }
 
-  Context::getContext().footnote(format("Imported {1} tasks.", count));
+  Context::getContext().footnote(::format("Imported {1} tasks.", count));
 
   // Warn the user about multiple occurrences of the same UUID.
   auto duplicates = false;
@@ -91,7 +91,7 @@ int CmdImport::execute(std::string&) {
     if (occurrences > 1) {
       duplicates = true;
       Context::getContext().footnote(
-          format("Input contains UUID '{1}' {2} times.", uuid, occurrences));
+          ::format("Input contains UUID '{1}' {2} times.", uuid, occurrences));
     }
   }
   if (duplicates)
@@ -156,7 +156,7 @@ int CmdImport::import(const std::string& input) {
         if (root && root->type() == json::j_object)
           objects.push_back(std::unique_ptr<json::object>((json::object*)root));
         else
-          throw format("Invalid JSON: {1}", line);
+          throw ::format("Invalid JSON: {1}", line);
       }
     }
 
@@ -176,7 +176,7 @@ void CmdImport::importSingleTask(json::object* obj) {
   Task task(obj);
 
   // An empty task is probably not intentional - at least a UUID should be included.
-  if (task.is_empty()) throw format("Cannot import an empty task.");
+  if (task.is_empty()) throw ::format("Cannot import an empty task.");
 
   auto hasGeneratedEntry = not task.has("entry");
   auto hasExplicitEnd = task.has("end");

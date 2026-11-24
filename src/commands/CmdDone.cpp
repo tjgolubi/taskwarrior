@@ -83,7 +83,7 @@ int CmdDone::execute(std::string&) {
     if (task.is_open()) {
       // Complete the specified task.
       std::string question =
-          format("Complete task {1} '{2}'?", task.identifier(true), task.get("description"));
+          ::format("Complete task {1} '{2}'?", task.identifier(true), task.get("description"));
 
       task.modify(Task::modAnnotate);
       task.setStatus(Task::completed);
@@ -114,7 +114,7 @@ int CmdDone::execute(std::string&) {
         if (_permission_quit) break;
       }
     } else {
-      std::cout << format("Task {1} '{2}' is neither pending nor waiting.", task.identifier(true),
+      std::cout << ::format("Task {1} '{2}' is neither pending nor waiting.", task.identifier(true),
                           task.get("description"))
                 << '\n';
       rc = 1;

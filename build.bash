@@ -1,14 +1,16 @@
-#!/usr/bin/env bash
+#!/bin/bash
 set -euo pipefail
 
-cd -- "$(dirname -- "${BASH_SOURCE[0]}")"
+export PATH="/usr/bin:$HOME/.cargo/bin:$PATH"
+export TMPDIR="$PWD/build/test-tmp"
 
-target_flag="--target=aarch64-linux-android24"
-export CFLAGS_aarch64_linux_android="$target_flag"
-export CXXFLAGS_aarch64_linux_android="$target_flag"
+set -x
 
-cmake -S . -B build-termux -DCMAKE_INSTALL_PREFIX="$HOME/.local"
-cmake --build build-termux --parallel 2
-cmake --build build-termux --target test_runner --parallel 2
-./build-termux/src/task --version
-ctest --test-dir build-termux --output-on-failure --parallel 2
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_INSTALL_PREFIX="$PWD/build/local-install"
+cmake --build build --target task_executable test_runner
+
+cmake -P build/doc/cmake_install.cmake
+mkdir -p "${TMPDIR}"
+ctest --test-dir build --output-on-failure -j1 -R '[.]cpp$'
+ctest --test-dir build --output-on-failure -j8 -E '[.]cpp$'

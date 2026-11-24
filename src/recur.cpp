@@ -99,7 +99,7 @@ void handleRecurrence() {
           rec.set("uuid", uuid());           // New UUID.
           rec.set("parent", t.get("uuid"));  // Remember mom.
           rec.setAsNow("entry");             // New entry date.
-          rec.set("due", format(d.toEpoch()));
+          rec.set("due", ::format(d.toEpoch()));
 
           if (t.has("wait")) {
             Datetime old_wait(t.get_date("wait"));
@@ -107,7 +107,7 @@ void handleRecurrence() {
             Datetime due(d);
             auto wait = checked_add_datetime(due, old_wait - old_due);
             if (wait) {
-              rec.set("wait", format(wait->toEpoch()));
+              rec.set("wait", ::format(wait->toEpoch()));
             } else {
               rec.remove("wait");
             }
@@ -124,7 +124,7 @@ void handleRecurrence() {
             Datetime due(d);
             auto scheduled = checked_add_datetime(due, old_scheduled - old_due);
             if (scheduled)
-              rec.set("scheduled", format(scheduled->toEpoch()));
+              rec.set("scheduled", ::format(scheduled->toEpoch()));
             else
               rec.remove("scheduled");
           }
@@ -146,7 +146,7 @@ void handleRecurrence() {
 
         if (Context::getContext().verbose("recur"))
           Context::getContext().footnote(
-              format("Creating recurring task instance '{1}'", t.get("description")));
+              ::format("Creating recurring task instance '{1}'", t.get("description")));
       }
     }
   }
@@ -245,7 +245,7 @@ std::optional<Datetime> getNextRecurrence(Datetime& current, std::string& period
     int increment = strtol(period.substr(0, period.length() - 1).c_str(), nullptr, 10);
 
     if (increment <= 0)
-      throw format("Recurrence period '{1}' is equivalent to {2} and hence invalid.", period,
+      throw ::format("Recurrence period '{1}' is equivalent to {2} and hence invalid.", period,
                    increment);
 
     m += increment;
@@ -264,7 +264,7 @@ std::optional<Datetime> getNextRecurrence(Datetime& current, std::string& period
     int increment = strtol(period.substr(1, period.length() - 2).c_str(), nullptr, 10);
 
     if (increment <= 0)
-      throw format("Recurrence period '{1}' is equivalent to {2} and hence invalid.", period,
+      throw ::format("Recurrence period '{1}' is equivalent to {2} and hence invalid.", period,
                    increment);
 
     m += increment;
@@ -294,7 +294,7 @@ std::optional<Datetime> getNextRecurrence(Datetime& current, std::string& period
     int increment = strtol(period.substr(0, period.length() - 1).c_str(), nullptr, 10);
 
     if (increment <= 0) {
-      Context::getContext().footnote(format(
+      Context::getContext().footnote(::format(
           "Recurrence period '{1}' is equivalent to {2} and hence invalid.", period, increment));
       return std::nullopt;
     }
@@ -355,7 +355,7 @@ std::optional<Datetime> getNextRecurrence(Datetime& current, std::string& period
   Duration p;
   if (!p.parse(period, idx)) {
     Context::getContext().footnote(
-        format("Warning: The recurrence value '{1}' is not valid.", period));
+        ::format("Warning: The recurrence value '{1}' is not valid.", period));
     return std::nullopt;
   }
 
@@ -404,7 +404,7 @@ void handleUntil() {
     if (t.getStatus() == Task::pending && t.has("until")) {
       auto until = Datetime(t.get_date("until"));
       if (until < now) {
-        Context::getContext().debug(format("handleUntil: recurrence expired until {1} < now {2}",
+        Context::getContext().debug(::format("handleUntil: recurrence expired until {1} < now {2}",
                                            until.toISOLocalExtended(), now.toISOLocalExtended()));
         t.setStatus(Task::deleted);
         Context::getContext().tdb2.modify(t);

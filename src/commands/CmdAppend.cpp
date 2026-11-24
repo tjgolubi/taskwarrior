@@ -79,7 +79,7 @@ int CmdAppend::execute(std::string&) {
 
     // Append to the specified task.
     auto question =
-        format("Append to task {1} '{2}'?", task.identifier(true), task.get("description"));
+        ::format("Append to task {1} '{2}'?", task.identifier(true), task.get("description"));
 
     task.modify(Task::modAppend, true);
 

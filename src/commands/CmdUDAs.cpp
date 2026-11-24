@@ -110,8 +110,8 @@ int CmdUDAs::execute(std::string& output) {
     }
 
     out << optionalBlankLine() << table.render() << optionalBlankLine()
-        << (udas.size() == 1 ? format("{1} UDA defined", udas.size())
-                             : format("{1} UDAs defined", udas.size()))
+        << (udas.size() == 1 ? ::format("{1} UDA defined", udas.size())
+                             : ::format("{1} UDAs defined", udas.size()))
         << '\n';
   } else {
     out << "No UDAs defined.\n";
@@ -139,8 +139,8 @@ int CmdUDAs::execute(std::string& output) {
     }
 
     out << optionalBlankLine() << orphanTable.render() << optionalBlankLine()
-        << (udas.size() == 1 ? format("{1} Orphan UDA", orphans.size())
-                             : format("{1} Orphan UDAs", orphans.size()))
+        << (udas.size() == 1 ? ::format("{1} Orphan UDA", orphans.size())
+                             : ::format("{1} Orphan UDAs", orphans.size()))
         << '\n';
   }
 

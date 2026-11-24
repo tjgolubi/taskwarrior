@@ -1,16 +1,9 @@
-message ("-- Configuring C++17")
+message ("-- Configuring C++23")
 message ("-- System: ${CMAKE_SYSTEM_NAME}")
 
-include (CheckCXXCompilerFlag)
-
-CHECK_CXX_COMPILER_FLAG("-std=c++17"   _HAS_CXX17)
-
-if (_HAS_CXX17)
-  set (CMAKE_CXX_STANDARD 17)
-  set (CMAKE_CXX_EXTENSIONS OFF)
-else (_HAS_CXX17)
- message (FATAL_ERROR "C++17 support missing. Try upgrading your C++ compiler. If you have a good reason for using an outdated compiler, please let us know at support@gothenburgbitfactory.org.")
-endif (_HAS_CXX17)
+set (CMAKE_CXX_STANDARD 23)
+set (CMAKE_CXX_STANDARD_REQUIRED ON)
+set (CMAKE_CXX_EXTENSIONS OFF)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   set (LINUX true)

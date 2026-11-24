@@ -73,7 +73,7 @@ void ColumnDepends::measure(Task& task, unsigned int& minimum, unsigned int& max
     }
 
     else if (_style == "count") {
-      minimum = maximum = 2 + format((int)deptasks.size()).length();
+      minimum = maximum = 2 + ::format((int)deptasks.size()).length();
     }
 
     else if (_style == "default" || _style == "list") {
@@ -88,7 +88,7 @@ void ColumnDepends::measure(Task& task, unsigned int& minimum, unsigned int& max
 
       unsigned int length;
       for (auto& i : deptasks) {
-        length = format(i.id).length();
+        length = ::format(i.id).length();
         if (length > minimum) minimum = length;
       }
     }
@@ -106,7 +106,7 @@ void ColumnDepends::render(std::vector<std::string>& lines, Task& task, int widt
     }
 
     else if (_style == "count") {
-      renderStringRight(lines, width, color, '[' + format(static_cast<int>(deptasks.size())) + ']');
+      renderStringRight(lines, width, color, '[' + ::format(static_cast<int>(deptasks.size())) + ']');
     }
 
     else if (_style == "default" || _style == "list") {
@@ -156,7 +156,7 @@ void ColumnDepends::modify(Task& task, const std::string& value) {
           else
             task.addDependency(loaded_task.get("uuid"));
         else
-          throw format("Dependency could not be set - task with UUID '{1}' does not exist.", dep);
+          throw ::format("Dependency could not be set - task with UUID '{1}' does not exist.", dep);
       }
     }
     // ID range
@@ -176,7 +176,7 @@ void ColumnDepends::modify(Task& task, const std::string& value) {
       else
         task.addDependency(lower);
     else
-      throw format("Invalid dependency value: '{1}'", dep);
+      throw ::format("Invalid dependency value: '{1}'", dep);
   }
 }
 

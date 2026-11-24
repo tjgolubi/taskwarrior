@@ -77,7 +77,7 @@ int CmdImportV2::execute(std::string&) {
   auto count = import(task_data);
 
   Context::getContext().footnote(
-      format("Imported {1} tasks from `*.data` files. You may now delete these files.", count));
+      ::format("Imported {1} tasks from `*.data` files. You may now delete these files.", count));
   return 0;
 }
 

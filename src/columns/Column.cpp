@@ -139,7 +139,7 @@ Column* Column::factory(const std::string& name, const std::string& report) {
     c = Column::uda(column_name);
 
   else
-    throw format("Unrecognized column name '{1}'.", column_name);
+    throw ::format("Unrecognized column name '{1}'.", column_name);
 
   c->setReport(report);
   c->setStyle(column_style);
@@ -223,7 +223,7 @@ void Column::uda(std::map<std::string, Column*>& all) {
 
   for (const auto& uda : udas) {
     if (all.find(uda) != all.end())
-      throw format("The UDA named '{1}' is the same as a core attribute, and is not permitted.",
+      throw ::format("The UDA named '{1}' is the same as a core attribute, and is not permitted.",
                    uda);
 
     Column* c = Column::uda(uda);
@@ -310,7 +310,7 @@ void Column::renderHeader(std::vector<std::string>& lines, int width, Color& col
 ////////////////////////////////////////////////////////////////////////////////
 void Column::setStyle(const std::string& style) {
   if (style != "default" && std::find(_styles.begin(), _styles.end(), style) == _styles.end())
-    throw format("Unrecognized column format '{1}.{2}'", _name, style);
+    throw ::format("Unrecognized column format '{1}.{2}'", _name, style);
 
   _style = style;
 }
@@ -324,7 +324,7 @@ void Column::renderInteger(std::vector<std::string>& lines, int width, Color& co
 ////////////////////////////////////////////////////////////////////////////////
 // All floating point values are right-justified.
 void Column::renderDouble(std::vector<std::string>& lines, int width, Color& color, double value) {
-  lines.push_back(color.colorize(rightJustify(format(value, 4, 3), width)));
+  lines.push_back(color.colorize(rightJustify(::format(value, 4, 3), width)));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
