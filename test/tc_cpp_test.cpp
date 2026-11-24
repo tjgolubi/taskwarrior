@@ -27,6 +27,7 @@
 #include <cmake.h>
 // cmake.h include header must come first
 
+#include <Operation.h>
 #include <rust/cxx.h>
 #include <stdlib.h>
 #include <taskchampion-cpp/lib.h>
@@ -51,6 +52,8 @@ int TEST_NAME(int, char**) {
   t.is(uuid2str(uuid).size(), (size_t)36, "uuid string is the right length");
 
   rust::Vec<tc::Operation> ops;
+  t.ok(Operation::operations(ops).empty(), "empty Rust operation vector converts to an empty range");
+
   auto task = tc::create_task(uuid, ops);
   t.is(uuid2str(task->get_uuid()), uuid2str(uuid), "new task has correct uuid");
   task->update("status", "pending", ops);
@@ -58,6 +61,16 @@ int TEST_NAME(int, char**) {
   task->update("description", "a cool task", ops);
   tc::add_undo_point(ops);
   task->delete_task(ops);
+
+  const auto& operation_range = ops;
+  t.ok(operation_range.end() - operation_range.begin() == 6,
+       "Rust operation iterator distance matches the six operations");
+  const auto wrapped = Operation::operations(operation_range);
+  t.ok(wrapped.size() == 6 && wrapped[0].is_create() && wrapped[1].get_property() == "status" &&
+           wrapped[2].get_value().value_or("") == "a task" &&
+           wrapped[3].get_value().value_or("") == "a cool task" && wrapped[4].is_undo_point() &&
+           wrapped[5].is_delete(),
+       "Rust operation range conversion preserves operation order and values");
 
   t.is(ops[0].is_create(), true, "ops[0] is create");
   t.is(uuid2str(ops[0].get_uuid()), uuid2str(uuid), "ops[0] has correct uuid");
