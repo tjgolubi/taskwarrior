@@ -45,8 +45,9 @@
 #include <unistd.h>
 
 #include <algorithm>
+#include <cstdio>
 #include <iomanip>
-#include <iostream>
+#include <print>
 #include <regex>
 #include <sstream>
 
@@ -490,15 +491,15 @@ int Context::initialize(int argc, const char** argv) {
       const char* env_xdg_config_home = getenv("XDG_CONFIG_HOME");
 
       if (env_xdg_config_home)
-        xdg_config_home = format("{1}", env_xdg_config_home);
+        xdg_config_home = ::format("{1}", env_xdg_config_home);
       else
-        xdg_config_home = format("{1}/.config", home_dir);
+        xdg_config_home = ::format("{1}/.config", home_dir);
 
       // Ensure the path does not end with '/'
       if (xdg_config_home.back() == '/') xdg_config_home.pop_back();
 
       // https://github.com/GothenburgBitFactory/libshared/issues/32
-      std::string rcfile_path = format("{1}/task/taskrc", xdg_config_home);
+      std::string rcfile_path = ::format("{1}/task/taskrc", xdg_config_home);
 
       File maybe_rc_file = File(rcfile_path);
       if (maybe_rc_file.exists()) rc_file = maybe_rc_file;
@@ -520,13 +521,13 @@ int Context::initialize(int argc, const char** argv) {
       if (!haiku_task_dir.empty()) config.set("data.location", haiku_task_dir + "/data");
 #endif
       config.load(rc_file._data, 1, searchPaths);
-      debugTiming(format("Config::load ({1})", rc_file._data), timer);
+      debugTiming(::format("Config::load ({1})", rc_file._data), timer);
     }
 
     CLI2::applyOverrides(argc, argv);
 
     if (taskrc_overridden && verbose("override"))
-      header(format("TASKRC override: {1}", rc_file._data));
+      header(::format("TASKRC override: {1}", rc_file._data));
 
     ////////////////////////////////////////////////////////////////////////////
     //
@@ -551,7 +552,7 @@ int Context::initialize(int argc, const char** argv) {
     taskdata_overridden = CLI2::getDataLocation(argc, argv, data_dir) || taskdata_overridden;
 
     if (taskdata_overridden && verbose("override"))
-      header(format("TASKDATA override: {1}", data_dir._data));
+      header(::format("TASKDATA override: {1}", data_dir._data));
 
     createDefaultConfig();
 
@@ -668,7 +669,7 @@ int Context::initialize(int argc, const char** argv) {
   }
 
   catch (const std::regex_error& e) {
-    std::cout << "regex_error caught: " << e.what() << '\n';
+    std::println("regex_error caught: {}", e.what());
   } catch (...) {
     error("Unknown error. Please report.");
     rc = 3;
@@ -676,40 +677,41 @@ int Context::initialize(int argc, const char** argv) {
 
   // On initialization failure...
   if (rc) {
+    std::fflush(stdout);
     // Dump all debug messages, controlled by rc.debug.
     if (config.getBoolean("debug")) {
       for (auto& d : debugMessages)
         if (color())
-          std::cerr << colorizeDebug(d) << '\n';
+          std::println(stderr, "{}", colorizeDebug(d));
         else
-          std::cerr << d << '\n';
+          std::println(stderr, "{}", d);
     }
 
     // Dump all headers, controlled by 'header' verbosity token.
     if (verbose("header")) {
       for (auto& h : headers)
         if (color())
-          std::cerr << colorizeHeader(h) << '\n';
+          std::println(stderr, "{}", colorizeHeader(h));
         else
-          std::cerr << h << '\n';
+          std::println(stderr, "{}", h);
     }
 
     // Dump all footnotes, controlled by 'footnote' verbosity token.
     if (verbose("footnote")) {
       for (auto& f : footnotes)
         if (color())
-          std::cerr << colorizeFootnote(f) << '\n';
+          std::println(stderr, "{}", colorizeFootnote(f));
         else
-          std::cerr << f << '\n';
+          std::println(stderr, "{}", f);
     }
 
     // Dump all errors, non-maskable.
     // Colorized as footnotes.
     for (auto& e : errors)
       if (color())
-        std::cerr << colorizeFootnote(e) << '\n';
+        std::println(stderr, "{}", colorizeFootnote(e));
       else
-        std::cerr << e << '\n';
+        std::println(stderr, "{}", e);
   }
 
   time_init_us += timer_total.total_us();
@@ -768,43 +770,45 @@ int Context::run() {
     rc = 3;
   }
 
+  std::fflush(stdout);
   // Dump all debug messages, controlled by rc.debug.
   if (config.getBoolean("debug")) {
     for (auto& d : debugMessages)
       if (color())
-        std::cerr << colorizeDebug(d) << '\n';
+        std::println(stderr, "{}", colorizeDebug(d));
       else
-        std::cerr << d << '\n';
+        std::println(stderr, "{}", d);
   }
 
   // Dump all headers, controlled by 'header' verbosity token.
   if (verbose("header")) {
     for (auto& h : headers)
       if (color())
-        std::cerr << colorizeHeader(h) << '\n';
+        std::println(stderr, "{}", colorizeHeader(h));
       else
-        std::cerr << h << '\n';
+        std::println(stderr, "{}", h);
   }
 
   // Dump the report output.
-  std::cout << output;
+  std::print("{}", output);
+  std::fflush(stdout);
 
   // Dump all footnotes, controlled by 'footnote' verbosity token.
   if (verbose("footnote")) {
     for (auto& f : footnotes)
       if (color())
-        std::cerr << colorizeFootnote(f) << '\n';
+        std::println(stderr, "{}", colorizeFootnote(f));
       else
-        std::cerr << f << '\n';
+        std::println(stderr, "{}", f);
   }
 
   // Dump all errors, non-maskable.
   // Colorized as footnotes.
   for (auto& e : errors)
     if (color())
-      std::cerr << colorizeError(e) << '\n';
+      std::println(stderr, "{}", colorizeError(e));
     else
-      std::cerr << e << '\n';
+      std::println(stderr, "{}", e);
 
   return rc;
 }
@@ -910,7 +914,7 @@ std::string Context::getTaskContext(const std::string& kind, std::string name,
 
   // Detect if any context is set, and bail out if not
   if (!name.empty())
-    debug(format("Applying context '{1}'", name));
+    debug(::format("Applying context '{1}'", name));
   else {
     debug("No context set");
     return "";
@@ -928,7 +932,8 @@ std::string Context::getTaskContext(const std::string& kind, std::string name,
   } else
     contextString = config.get("context." + name + "." + kind);
 
-  debug(format("Detected context string: {1}", contextString.empty() ? "(empty)" : contextString));
+  debug(
+      ::format("Detected context string: {1}", contextString.empty() ? "(empty)" : contextString));
   return contextString;
 }
 
@@ -1149,9 +1154,10 @@ void Context::createDefaultConfig() {
     }
 
     if (config.getBoolean("confirmation") &&
-        !confirm(format("A configuration file could not be found in {1}\n\nWould you like a sample "
-                        "{2} created, so Taskwarrior can proceed?",
-                        home_dir, rc_file._data)))
+        !confirm(
+            ::format("A configuration file could not be found in {1}\n\nWould you like a sample "
+                     "{2} created, so Taskwarrior can proceed?",
+                     home_dir, rc_file._data)))
       throw std::string("Cannot proceed without rc file.");
 
     Datetime now;
@@ -1187,10 +1193,10 @@ void Context::createDefaultConfig() {
     // default config directory.
     Directory rc_parent(rc_file.parent());
     if (!rc_parent.exists() && !rc_parent.create(0755))
-      throw format("Could not create directory '{1}'.", rc_parent._data);
+      throw ::format("Could not create directory '{1}'.", rc_parent._data);
     // Write out the new file.
     if (!File::write(rc_file._data, contents.str()))
-      throw format("Could not write to '{1}'.", rc_file._data);
+      throw ::format("Could not write to '{1}'.", rc_file._data);
 
     // Load it so that it takes effect for this run.
     config.load(rc_file._data, 1, {TASK_RCDIR});
@@ -1246,7 +1252,7 @@ void Context::updateXtermTitle() {
       title += a->attribute("raw");
     }
 
-    std::cout << "]0;task " << command << ' ' << title << "";
+    std::print("\033]0;task {} {}\a", command, title);
   }
 }
 

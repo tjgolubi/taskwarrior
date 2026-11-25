@@ -38,7 +38,10 @@
 
 #include <cmath>
 #include <csignal>
+#include <cstdio>
+#include <format>
 #include <iostream>
+#include <print>
 
 /* Adding a new version:
  *
@@ -73,11 +76,11 @@ static void signal_handler(int s) {
         footnote = Color(Context::getContext().config.get("color.footnote"));
     }
 
-    std::cout << "\n\nCome back and read about new features later!\n";
+    std::println("\n\nCome back and read about new features later!");
 
-    std::cout << footnote.colorize(
-        "\nIf you enjoy Taskwarrior, please consider supporting the project at:\n"
-        "    https://github.com/sponsors/GothenburgBitFactory/\n");
+    std::print("{}", footnote.colorize(
+                         "\nIf you enjoy Taskwarrior, please consider supporting the project at:\n"
+                         "    https://github.com/sponsors/GothenburgBitFactory/\n"));
     exit(1);
   }
 }
@@ -86,9 +89,10 @@ void wait_for_enter() {
   signal(SIGINT, signal_handler);
 
   std::string dummy;
-  std::cout << "\nPress enter to continue..";
+  std::print("\nPress enter to continue..");
+  std::fflush(stdout);
   std::getline(std::cin, dummy);
-  std::cout << "\33[2K\033[A\33[2K";  // Erase current line, move up, and erase again
+  std::print("\33[2K\033[A\33[2K");  // Erase current line, move up, and erase again
 
   signal(SIGINT, SIG_DFL);
 }
@@ -125,30 +129,35 @@ void NewsItem::render() {
 
   // TODO: For some reason, bold cannot be blended in 256-color terminals
   // Apply this workaround of colorizing twice.
-  std::cout << bold.colorize(header.colorize(format("{1} ({2})\n", _title, _version)));
+  std::print("{}", bold.colorize(
+                       header.colorize(std::format("{} ({})\n", _title, std::string(_version)))));
   if (_background.size()) {
     if (_bg_title.empty()) _bg_title = "Background";
 
-    std::cout << "\n  " << underline.colorize(_bg_title) << std::endl << _background << std::endl;
+    std::println("\n  {}\n{}", underline.colorize(_bg_title), _background);
+    std::fflush(stdout);
   }
 
   wait_for_enter();
 
-  std::cout << "  " << underline.colorize(format("What changed in {1}?\n", _version));
-  if (_punchline.size()) std::cout << footnote.colorize(format("{1}\n", _punchline));
+  std::print("  {}",
+             underline.colorize(std::format("What changed in {}?\n", std::string(_version))));
+  if (_punchline.size()) std::print("{}", footnote.colorize(_punchline + '\n'));
 
-  if (_update.size()) std::cout << format("{1}\n", _update);
+  if (_update.size()) std::println("{}", _update);
 
   wait_for_enter();
 
   if (_reasoning.size()) {
-    std::cout << "  " << underline.colorize("What was the motivation behind this feature?\n")
-              << _reasoning << std::endl;
+    std::println("  {}{}", underline.colorize("What was the motivation behind this feature?\n"),
+                 _reasoning);
+    std::fflush(stdout);
     wait_for_enter();
   }
 
   if (_actions.size()) {
-    std::cout << "  " << underline.colorize("What do I have to do?\n") << _actions << std::endl;
+    std::println("  {}{}", underline.colorize("What do I have to do?\n"), _actions);
+    std::fflush(stdout);
     wait_for_enter();
   }
 }
@@ -197,14 +206,14 @@ void NewsItem::version2_6_0(std::vector<NewsItem>& items) {
                  [&](auto& name) { return config.has("context." + name); });
 
     if (old_style.size()) {
-      advice << format("  You have {1} defined contexts, out of which {2} are old-style:\n",
-                       defined.size(),
-                       std::count_if(defined.begin(), defined.end(),
-                                     [&](auto& name) { return config.has("context." + name); }));
+      advice << ::format("  You have {1} defined contexts, out of which {2} are old-style:\n",
+                         defined.size(),
+                         std::count_if(defined.begin(), defined.end(),
+                                       [&](auto& name) { return config.has("context." + name); }));
 
       for (auto context : defined) {
         std::string old_definition = config.get("context." + context);
-        if (old_definition != "") advice << format("  * {1}: {2}\n", context, old_definition);
+        if (old_definition != "") advice << ::format("  * {1}: {2}\n", context, old_definition);
       }
 
       advice << "\n"
@@ -214,7 +223,7 @@ void NewsItem::version2_6_0(std::vector<NewsItem>& items) {
       for (auto context : defined) {
         std::string old_definition = config.get("context." + context);
         if (old_definition != "")
-          advice << format("  $ task context define {1} '{2}'\n", context, old_definition);
+          advice << ::format("  $ task context define {1} '{2}'\n", context, old_definition);
       }
 
       advice
@@ -603,21 +612,21 @@ int CmdNews::execute(std::string& output) {
 
   Color bold = Color("bold");
   if (items.empty()) {
-    std::cout << bold.colorize("You are up to date!\n");
+    std::print("{}", bold.colorize("You are up to date!\n"));
   } else {
     // Print release notes
-    std::cout << bold.colorize(
-        format("\n"
-               "================================================\n"
-               "Taskwarrior {1} through {2} Release Highlights\n"
-               "================================================\n",
-               news_version, current_version));
+    std::print("{}",
+               bold.colorize(std::format("\n"
+                                         "================================================\n"
+                                         "Taskwarrior {} through {} Release Highlights\n"
+                                         "================================================\n",
+                                         std::string(news_version), std::string(current_version))));
 
     for (unsigned short i = 0; i < items.size(); i++) {
-      std::cout << format("\n({1}/{2}) ", i + 1, items.size());
+      std::print("\n({}/{}) ", i + 1, items.size());
       items[i].render();
     }
-    std::cout << "Thank you for catching up on the new features!\n";
+    std::println("Thank you for catching up on the new features!");
   }
   wait_for_enter();
 

@@ -33,7 +33,7 @@
 
 #include <Task.h>
 
-#define STRING_DEPEND_BLOCKED "Task {1} is blocked by:"
+#define STRING_DEPEND_BLOCKED "Task {} is blocked by:"
 bool dependencyIsCircular(const Task& task);
 void dependencyChainOnComplete(Task& task);
 void dependencyChainOnStart(Task& task);

@@ -42,9 +42,10 @@
 
 #include <algorithm>
 #include <cerrno>
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <iostream>
+#include <print>
 #include <sstream>
 
 #define STRING_EDIT_START_MOD "Start date modified."
@@ -91,7 +92,7 @@ int CmdEdit::execute(std::string&) {
   // If we are editing more than "bulk" tasks, ask for confirmation.
   // Bulk = 0 denotes infinite bulk.
   if ((filtered.size() > bulk) && (bulk != 0))
-    if (!confirm(format("Do you wish to manually edit {1} tasks?", filtered.size()))) return 2;
+    if (!confirm(::format("Do you wish to manually edit {1} tasks?", filtered.size()))) return 2;
 
   // Find number of matching tasks.
   for (auto& task : filtered) {
@@ -591,7 +592,7 @@ void CmdEdit::parseTask(Task& task, const std::string& after, const std::string&
            (task.get(col.first) != Datetime(value, dateformat).toEpochString())) &&
           (type != "duration" || (task.get(col.first) != Duration(value).toString()))) {
         if (value != "") {
-          Context::getContext().footnote(format("UDA {1} modified.", col.first));
+          Context::getContext().footnote(::format("UDA {1} modified.", col.first));
 
           if (type == "string") {
             task.set(col.first, value);
@@ -601,14 +602,14 @@ void CmdEdit::parseTask(Task& task, const std::string& after, const std::string&
             if (pig.getNumber(d) && pig.eos())
               task.set(col.first, value);
             else
-              throw format("The value '{1}' is not a valid numeric value.", value);
+              throw ::format("The value '{1}' is not a valid numeric value.", value);
           } else if (type == "date") {
             task.set(col.first, Datetime(value, dateformat).toEpochString());
           } else if (type == "duration") {
             task.set(col.first, Duration(value).toTime_t());
           }
         } else {
-          Context::getContext().footnote(format("UDA {1} deleted.", col.first));
+          Context::getContext().footnote(::format("UDA {1} deleted.", col.first));
           task.remove(col.first);
         }
       }
@@ -676,14 +677,15 @@ ARE_THESE_REALLY_HARMFUL:
   bool changes = false;  // No changes made.
 
   // Launch the editor.
-  std::cout << format("Launching '{1}' now...\n", editor);
+  std::println("Launching '{}' now...", editor);
+  std::fflush(stdout);
   int exitcode = system(editor.c_str());
   auto captured_errno = errno;
   if (0 == exitcode)
-    std::cout << "Editing complete.\n";
+    std::println("Editing complete.");
   else {
-    std::cout << format("Editing failed with exit code {1}.\n", exitcode);
-    if (-1 == exitcode) std::cout << std::strerror(captured_errno) << '\n';
+    std::println("Editing failed with exit code {}.", exitcode);
+    if (-1 == exitcode) std::println("{}", std::strerror(captured_errno));
     File::remove(file.str());
     return CmdEdit::editResult::error;
   }
@@ -695,7 +697,7 @@ ARE_THESE_REALLY_HARMFUL:
   // Update task based on what can be parsed back out of the file, but only
   // if changes were made.
   if (before_orig != after) {
-    std::cout << "Edits were detected.\n";
+    std::println("Edits were detected.");
     std::string problem = "";
     auto oops = false;
 
@@ -710,7 +712,7 @@ ARE_THESE_REALLY_HARMFUL:
     }
 
     if (oops) {
-      std::cerr << "Error: " << problem << '\n';
+      std::println(stderr, "Error: {}", problem);
 
       File::remove(file.str());
 
@@ -724,7 +726,7 @@ ARE_THESE_REALLY_HARMFUL:
     } else
       changes = true;
   } else {
-    std::cout << "No edits were detected.\n";
+    std::println("No edits were detected.");
     changes = false;
   }
 

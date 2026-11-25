@@ -37,7 +37,7 @@
 #include <recur.h>
 #include <util.h>
 
-#include <iostream>
+#include <print>
 
 ////////////////////////////////////////////////////////////////////////////////
 CmdStart::CmdStart() {
@@ -73,7 +73,7 @@ int CmdStart::execute(std::string&) {
   std::map<std::string, std::string> projectChanges;
 
   if (filtered.size() > 1) {
-    feedback_affected("This command will alter {1} tasks.", filtered.size());
+    feedback_affected("This command will alter {} tasks.", filtered.size());
   }
 
   std::vector<Task> modified;
@@ -83,7 +83,7 @@ int CmdStart::execute(std::string&) {
 
       // Start the specified task.
       std::string question =
-          format("Start task {1} '{2}'?", task.identifier(true), task.get("description"));
+          ::format("Start task {1} '{2}'?", task.identifier(true), task.get("description"));
       task.setAsNow("start");
 
       Task::status status = task.getStatus();
@@ -100,7 +100,7 @@ int CmdStart::execute(std::string&) {
         updateRecurrenceMask(task);
         Context::getContext().tdb2.modify(task);
         ++count;
-        feedback_affected("Starting task {1} '{2}'.", task);
+        feedback_affected("Starting task {} '{}'.", task);
         dependencyChainOnStart(task);
         if (Context::getContext().verbose("project"))
           projectChanges[task.get("project")] = onProjectChange(task, false);
@@ -108,13 +108,12 @@ int CmdStart::execute(std::string&) {
         // Save unmodified task for potential nagging later
         modified.push_back(before);
       } else {
-        std::cout << "Task not started.\n";
+        std::println("Task not started.");
         rc = 1;
         if (_permission_quit) break;
       }
     } else {
-      std::cout << format("Task {1} '{2}' already started.", task.id, task.get("description"))
-                << '\n';
+      std::println("Task {} '{}' already started.", task.id, task.get("description"));
       rc = 1;
     }
   }
@@ -125,7 +124,7 @@ int CmdStart::execute(std::string&) {
   for (auto& change : projectChanges)
     if (change.first != "") Context::getContext().footnote(change.second);
 
-  feedback_affected(count == 1 ? "Started {1} task." : "Started {1} tasks.", count);
+  feedback_affected(count == 1 ? "Started {} task." : "Started {} tasks.", count);
   return rc;
 }
 

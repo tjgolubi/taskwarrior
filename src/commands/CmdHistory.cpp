@@ -111,19 +111,19 @@ void CmdHistoryBase<HistoryStrategy>::outputGraphical(std::string& output) {
       if (Context::getContext().color()) {
         std::string aBar;
         if (addedGroup[i.first]) {
-          aBar = format(addedGroup[i.first]);
+          aBar = ::format(addedGroup[i.first]);
           while (aBar.length() < addedBar) aBar = ' ' + aBar;
         }
 
         std::string cBar;
         if (completedGroup[i.first]) {
-          cBar = format(completedGroup[i.first]);
+          cBar = ::format(completedGroup[i.first]);
           while (cBar.length() < completedBar) cBar = ' ' + cBar;
         }
 
         std::string dBar;
         if (deletedGroup[i.first]) {
-          dBar = format(deletedGroup[i.first]);
+          dBar = ::format(deletedGroup[i.first]);
           while (dBar.length() < deletedBar) dBar = ' ' + dBar;
         }
 
@@ -152,9 +152,9 @@ void CmdHistoryBase<HistoryStrategy>::outputGraphical(std::string& output) {
     out << optionalBlankLine() << view.render() << '\n';
 
     if (Context::getContext().color())
-      out << format("Legend: {1}, {2}, {3}", color_add.colorize(STRING_CMD_HISTORY_ADDED),
-                    color_done.colorize(STRING_CMD_HISTORY_COMP),
-                    color_delete.colorize(STRING_CMD_HISTORY_DEL))
+      out << ::format("Legend: {1}, {2}, {3}", color_add.colorize(STRING_CMD_HISTORY_ADDED),
+                      color_done.colorize(STRING_CMD_HISTORY_COMP),
+                      color_delete.colorize(STRING_CMD_HISTORY_DEL))
           << optionalBlankLine() << '\n';
     else
       out << "Legend: + Added, X Completed, - Deleted\n";

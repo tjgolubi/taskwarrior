@@ -53,7 +53,7 @@
 #include <shared.h>
 #include <util.h>
 
-#include <iostream>
+#include <print>
 #include <vector>
 #ifdef HAVE_EXECUTE
 #include <CmdExec.h>
@@ -261,7 +261,7 @@ void Command::factory(std::map<std::string, Command*>& all) {
   for (auto& report : reports) {
     // Make sure a custom report does not clash with a built-in command.
     if (all.find(report) != all.end())
-      throw format("Custom report '{1}' conflicts with built-in task command.", report);
+      throw ::format("Custom report '{1}' conflicts with built-in task command.", report);
 
     c = new CmdCustom(report, "task <filter> " + report,
                       Context::getContext().config.get("report." + report + ".description"));
@@ -376,7 +376,7 @@ bool Command::permission(const std::string& question, unsigned int quantity) {
   // style. Bulk = 0 denotes infinite bulk.
   if ((bulk == 0 || quantity < bulk) && (!_needs_confirm || !confirmation)) return true;
 
-  if (Context::getContext().verbose("blank") && !_first_iteration) std::cout << '\n';
+  if (Context::getContext().verbose("blank") && !_first_iteration) std::print("\n");
   int answer = confirm4(question);
   _first_iteration = false;
   switch (answer) {

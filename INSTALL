@@ -10,9 +10,7 @@ More information on CMake can be obtained at https://cmake.org
 You will also need:
   - make
 
-You will need a C++ compiler that supports full C++17, which includes:
-  - gcc 7.1   (released 2017-05-02)
-  - clang 5.0 (released 2017-09-07)
+You will need a C++23 compiler and a standard library that provides <print>.
 
 You will need the following libraries:
   - libuuid (not needed for OSX)

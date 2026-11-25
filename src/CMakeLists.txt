@@ -46,6 +46,8 @@ add_library (libshared STATIC libshared/src/Color.cpp
                        libshared/src/shared.cpp
                        libshared/src/unicode.cpp
                        libshared/src/utf8.cpp)
+# Build the pinned libshared revision in its native language mode.
+set_property (TARGET libshared PROPERTY CXX_STANDARD 17)
 
 add_executable (task_executable main.cpp)
 add_executable (calc_executable calc.cpp)

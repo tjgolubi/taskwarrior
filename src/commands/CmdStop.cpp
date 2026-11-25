@@ -35,7 +35,7 @@
 #include <format.h>
 #include <recur.h>
 
-#include <iostream>
+#include <print>
 
 ////////////////////////////////////////////////////////////////////////////////
 CmdStop::CmdStop() {
@@ -71,7 +71,7 @@ int CmdStop::execute(std::string&) {
   std::map<std::string, std::string> projectChanges;
 
   if (filtered.size() > 1) {
-    feedback_affected("This command will alter {1} tasks.", filtered.size());
+    feedback_affected("This command will alter {} tasks.", filtered.size());
   }
   for (auto& task : filtered) {
     if (task.has("start")) {
@@ -79,7 +79,7 @@ int CmdStop::execute(std::string&) {
 
       // Stop the specified task.
       std::string question =
-          format("Stop task {1} '{2}'?", task.identifier(true), task.get("description"));
+          ::format("Stop task {1} '{2}'?", task.identifier(true), task.get("description"));
 
       task.modify(Task::modAnnotate);
       task.remove("start");
@@ -91,19 +91,17 @@ int CmdStop::execute(std::string&) {
         updateRecurrenceMask(task);
         Context::getContext().tdb2.modify(task);
         ++count;
-        feedback_affected("Stopping task {1} '{2}'.", task);
+        feedback_affected("Stopping task {} '{}'.", task);
         dependencyChainOnStart(task);
         if (Context::getContext().verbose("project"))
           projectChanges[task.get("project")] = onProjectChange(task, false);
       } else {
-        std::cout << "Task not stopped.\n";
+        std::println("Task not stopped.");
         rc = 1;
         if (_permission_quit) break;
       }
     } else {
-      std::cout << format("Task {1} '{2}' not started.", task.identifier(true),
-                          task.get("description"))
-                << '\n';
+      std::println("Task {} '{}' not started.", task.identifier(true), task.get("description"));
       rc = 1;
     }
   }
@@ -112,7 +110,7 @@ int CmdStop::execute(std::string&) {
   for (auto& change : projectChanges)
     if (change.first != "") Context::getContext().footnote(change.second);
 
-  feedback_affected(count == 1 ? "Stopped {1} task." : "Stopped {1} tasks.", count);
+  feedback_affected(count == 1 ? "Stopped {} task." : "Stopped {} tasks.", count);
   return rc;
 }
 

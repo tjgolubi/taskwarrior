@@ -42,7 +42,9 @@
 #include <util.h>
 
 #include <algorithm>
-#include <iostream>
+#include <cstdio>
+#include <format>
+#include <print>
 #include <sstream>
 #include <vector>
 
@@ -93,7 +95,7 @@ int CmdCustom::execute(std::string& output) {
   auto labels = split(reportLabels, ',');
 
   if (columns.size() != labels.size() && labels.size() != 0)
-    throw format("There are different numbers of columns and labels for report '{1}'.", _keyword);
+    throw ::format("There are different numbers of columns and labels for report '{1}'.", _keyword);
 
   auto sortOrder = split(reportSort, ',');
   if (sortOrder.size() != 0 && sortOrder[0] != "none") validateSortColumns(sortOrder);
@@ -205,12 +207,12 @@ int CmdCustom::execute(std::string& output) {
 
     // Print the number of rendered tasks
     if (Context::getContext().verbose("affected")) {
-      out << (filtered.size() == 1 ? "1 task" : format("{1} tasks", filtered.size()));
+      out << (filtered.size() == 1 ? "1 task" : ::format("{1} tasks", filtered.size()));
 
-      if (maxrows && maxrows < (int)filtered.size()) out << ", " << format("{1} shown", maxrows);
+      if (maxrows && maxrows < (int)filtered.size()) out << ", " << ::format("{1} shown", maxrows);
 
       if (maxlines && maxlines < (int)filtered.size())
-        out << ", " << format("truncated to {1} lines", maxlines - table_header);
+        out << ", " << ::format("truncated to {1} lines", maxlines - table_header);
 
       out << '\n';
     }
@@ -236,10 +238,13 @@ int CmdCustom::execute(std::string& output) {
   File pending_data = File(location + "/pending.data");
   if (pending_data.exists()) {
     Color warning = Color(Context::getContext().config.get("color.warning"));
-    std::cerr << warning.colorize(format("Found existing '*.data' files in {1}", location)) << "\n";
-    std::cerr << "  Taskwarrior's storage format changed in 3.0, requiring a manual migration.\n";
-    std::cerr << "  See https://taskwarrior.org/docs/upgrade-3/. Run `task import-v2` to import\n";
-    std::cerr << "  the tasks into the Taskwarrior-3.x format\n";
+    std::println(stderr, "{}",
+                 warning.colorize(std::format("Found existing '*.data' files in {}", location)));
+    std::println(stderr,
+                 "  Taskwarrior's storage format changed in 3.0, requiring a manual migration.");
+    std::println(stderr,
+                 "  See https://taskwarrior.org/docs/upgrade-3/. Run `task import-v2` to import");
+    std::println(stderr, "  the tasks into the Taskwarrior-3.x format");
   }
 
   feedback_backlog();

@@ -44,10 +44,10 @@ ColumnUrgency::ColumnUrgency() {
 // Set the minimum and maximum widths for the value.
 void ColumnUrgency::measure(Task& task, unsigned int& minimum, unsigned int& maximum) {
   if (_style == "default" || _style == "real")
-    minimum = maximum = format(task.urgency(), 4, 3).length();
+    minimum = maximum = ::format(task.urgency(), 4, 3).length();
 
   else if (_style == "integer")
-    minimum = maximum = format((int)task.urgency()).length();
+    minimum = maximum = ::format((int)task.urgency()).length();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

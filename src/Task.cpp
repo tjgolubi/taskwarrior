@@ -167,7 +167,7 @@ Task::status Task::textToStatus(const std::string& input) {
   else if (input[0] == 'w')
     return Task::pending;
 
-  throw format("The status '{1}' is not valid.", input);
+  throw ::format("The status '{1}' is not valid.", input);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -193,7 +193,7 @@ std::string Task::statusToText(Task::status s) {
 // as long as they have non-zero ID.
 const std::string Task::identifier(bool shortened /* = false */) const {
   if (id != 0)
-    return format(id);
+    return ::format(id);
   else if (shortened)
     return get("uuid").substr(0, 8);
   else
@@ -283,7 +283,7 @@ void Task::set(const std::string& name, const std::string& value) {
 
 ////////////////////////////////////////////////////////////////////////////////
 void Task::set(const std::string& name, long long value) {
-  data[name] = format(value);
+  data[name] = ::format(value);
 
   recalc_urgency = true;
 }
@@ -676,7 +676,7 @@ void Task::parseJSON(const json::object* root_obj) {
 
         // Fail if 'annotations' is not an array
         if (i.second->type() != json::j_array) {
-          throw format("Annotations is malformed: {1}", i.second->dump());
+          throw ::format("Annotations is malformed: {1}", i.second->dump());
         }
 
         auto atts = (json::array*)i.second;
@@ -688,7 +688,7 @@ void Task::parseJSON(const json::object* root_obj) {
           if (!what) {
             annotation->_data.erase(
                 "description");  // Erase NULL description inserted by failed lookup above
-            throw format("Annotation is missing a description: {1}", annotation->dump());
+            throw ::format("Annotation is missing a description: {1}", annotation->dump());
           }
 
           // Extract 64-bit annotation entry value
@@ -945,7 +945,7 @@ void Task::addAnnotation(const std::string& description) {
   std::string key;
 
   do {
-    key = "annotation_" + format((long long int)now);
+    key = "annotation_" + ::format((long long int)now);
     ++now;
   } while (has(key));
 
@@ -994,13 +994,13 @@ void Task::setAnnotations(const std::map<std::string, std::string>& annotations)
 void Task::addDependency(int depid) {
   // Check that id is resolvable.
   std::string uuid = Context::getContext().tdb2.uuid(depid);
-  if (uuid == "") throw format("Could not create a dependency on task {1} - not found.", depid);
+  if (uuid == "") throw ::format("Could not create a dependency on task {1} - not found.", depid);
 
   // the addDependency(&std::string) overload will check this, too, but here we
   // can give an more natural error message containing the id the user
   // provided.
   if (hasDependency(uuid)) {
-    Context::getContext().footnote(format("Task {1} already depends on task {2}.", id, depid));
+    Context::getContext().footnote(::format("Task {1} already depends on task {2}.", id, depid));
     return;
   }
 
@@ -1015,7 +1015,7 @@ void Task::addDependency(const std::string& uuid) {
   if (hasDependency(uuid)) {
 #ifdef PRODUCT_TASKWARRIOR
     Context::getContext().footnote(
-        format("Task {1} already depends on task {2}.", get("uuid"), uuid));
+        ::format("Task {1} already depends on task {2}.", get("uuid"), uuid));
 #endif
     return;
   }
@@ -1041,7 +1041,7 @@ void Task::removeDependency(int id) {
   // The removeDependency(std::string&) method will check this too, but here we
   // can give a more natural error message containing the id provided by the user
   if (uuid == "" || !has(dep2Attr(uuid)))
-    throw format("Could not delete a dependency on task {1} - not found.", id);
+    throw ::format("Could not delete a dependency on task {1} - not found.", id);
   removeDependency(uuid);
 }
 
@@ -1051,7 +1051,7 @@ void Task::removeDependency(const std::string& uuid) {
   if (has(depattr))
     remove(depattr);
   else
-    throw format("Could not delete a dependency on task {1} - not found.", uuid);
+    throw ::format("Could not delete a dependency on task {1} - not found.", uuid);
 
   recalc_urgency = true;
   fixDependsAttribute();
@@ -1397,7 +1397,7 @@ void Task::substitute(const std::string& from, const std::string& to, const std:
       if (!global) done = true;
 
       if (++counter > APPROACHING_INFINITY)
-        throw format(
+        throw ::format(
             "Terminated substitution because more than {1} changes were made - infinite loop "
             "protection.",
             APPROACHING_INFINITY);
@@ -1421,7 +1421,7 @@ void Task::substitute(const std::string& from, const std::string& to, const std:
           if (!global) done = true;
 
           if (++counter > APPROACHING_INFINITY)
-            throw format(
+            throw ::format(
                 "Terminated substitution because more than {1} changes were made - infinite loop "
                 "protection.",
                 APPROACHING_INFINITY);
@@ -1497,7 +1497,7 @@ void Task::validate(bool applyDefault /* = true */) {
     Lexer::Type type;
     // `uuid` is not a property in the TaskChampion model, so an invalid UUID is
     // actually an error.
-    if (!lex.isUUID(token, type, true)) throw format("Not a valid UUID '{1}'.", uid);
+    if (!lex.isUUID(token, type, true)) throw ::format("Not a valid UUID '{1}'.", uid);
   } else
     set("uuid", uuid());
 
@@ -1628,11 +1628,11 @@ void Task::validate(bool applyDefault /* = true */) {
   validate_before("scheduled", "end");
 
   if (!has("description") || get("description") == "")
-    Context::getContext().footnote(format("Warning: task has no description."));
+    Context::getContext().footnote(::format("Warning: task has no description."));
 
   // Cannot have an old-style recur frequency with no due date - when would it recur?
   if (has("recur") && (!has("due") || get("due") == "")) {
-    Context::getContext().footnote(format("Warning: recurring task has no due date."));
+    Context::getContext().footnote(::format("Warning: recurring task has no due date."));
     remove("recur");
   }
 
@@ -1645,7 +1645,7 @@ void Task::validate(bool applyDefault /* = true */) {
       if (!p.parse(value, i)) {
         // TODO Ideal location to map unsupported old recurrence periods to supported values.
         Context::getContext().footnote(
-            format("Warning: The recurrence value '{1}' is not valid.", value));
+            ::format("Warning: The recurrence value '{1}' is not valid.", value));
         remove("recur");
       }
     }
@@ -1661,7 +1661,7 @@ void Task::validate_before(const std::string& left, const std::string& right) {
 
     // if date is zero, then it is being removed (e.g. "due: wait:1day")
     if (date_left > date_right && date_right.toEpoch() != 0)
-      Context::getContext().footnote(format(
+      Context::getContext().footnote(::format(
           "Warning: You have specified that the '{1}' date is after the '{2}' date.", left, right));
   }
 #endif
@@ -2052,7 +2052,7 @@ void Task::modify(modType type, bool text_required /* = false */) {
           // Get the column info. Some columns are not modifiable.
           Column* column = Context::getContext().columns[name];
           if (!column || !column->modifiable())
-            throw format("The '{1}' attribute does not allow a value of '{2}'.", name, value);
+            throw ::format("The '{1}' attribute does not allow a value of '{2}'.", name, value);
 
           // Delegate modification to the column object or their base classes.
           if (name == "depends" || name == "tags" || name == "recur" || column->type() == "date" ||
@@ -2063,7 +2063,7 @@ void Task::modify(modType type, bool text_required /* = false */) {
           }
 
           else
-            throw format("Unrecognized column type '{1}' for column '{2}'", column->type(), name);
+            throw ::format("Unrecognized column type '{1}' for column '{2}'", column->type(), name);
         }
       }
 
@@ -2135,10 +2135,10 @@ void Task::modify(modType type, bool text_required /* = false */) {
   if ((getStatus() == Task::completed || getStatus() == Task::deleted) &&
       getStatus() == originalStatus) {
     auto uuid = get("uuid").substr(0, 8);
-    Context::getContext().footnote(
-        format("Note: Modified task {1} is {2}. You may wish to make this task pending with: task "
-               "{3} modify status:pending",
-               uuid, get("status"), uuid));
+    Context::getContext().footnote(::format(
+        "Note: Modified task {1} is {2}. You may wish to make this task pending with: task "
+        "{3} modify status:pending",
+        uuid, get("status"), uuid));
   }
 }
 #endif
@@ -2163,31 +2163,31 @@ std::string Task::diff(const Task& after) const {
   std::stringstream out;
   for (auto& name : beforeOnly) {
     if (isAnnotationAttr(name)) {
-      out << "  - " << format("Annotation {1} will be removed.", name) << "\n";
+      out << "  - " << ::format("Annotation {1} will be removed.", name) << "\n";
     } else if (isTagAttr(name)) {
-      out << "  - " << format("Tag {1} will be removed.", attr2Tag(name)) << "\n";
+      out << "  - " << ::format("Tag {1} will be removed.", attr2Tag(name)) << "\n";
     } else if (isDepAttr(name)) {
-      out << "  - " << format("Dependency on {1} will be removed.", attr2Dep(name)) << "\n";
+      out << "  - " << ::format("Dependency on {1} will be removed.", attr2Dep(name)) << "\n";
     } else if (name == "depends" || name == "tags") {
       // do nothing for legacy attributes
     } else {
-      out << "  - " << format("{1} will be deleted.", Lexer::ucFirst(name)) << "\n";
+      out << "  - " << ::format("{1} will be deleted.", Lexer::ucFirst(name)) << "\n";
     }
   }
 
   for (auto& name : afterOnly) {
     if (isAnnotationAttr(name)) {
-      out << format("Annotation of {1} will be added.\n", after.get(name));
+      out << ::format("Annotation of {1} will be added.\n", after.get(name));
     } else if (isTagAttr(name)) {
-      out << format("Tag {1} will be added.\n", attr2Tag(name));
+      out << ::format("Tag {1} will be added.\n", attr2Tag(name));
     } else if (isDepAttr(name)) {
-      out << format("Dependency on {1} will be added.\n", attr2Dep(name));
+      out << ::format("Dependency on {1} will be added.\n", attr2Dep(name));
     } else if (name == "depends" || name == "tags") {
       // do nothing for legacy attributes
     } else
       out << "  - "
-          << format("{1} will be set to '{2}'.", Lexer::ucFirst(name),
-                    renderAttribute(name, after.get(name)))
+          << ::format("{1} will be set to '{2}'.", Lexer::ucFirst(name),
+                      renderAttribute(name, after.get(name)))
           << "\n";
   }
 
@@ -2202,11 +2202,11 @@ std::string Task::diff(const Task& after) const {
       } else if (isTagAttr(name) || isDepAttr(name)) {
         // ignore new attributes
       } else if (isAnnotationAttr(name)) {
-        out << format("Annotation will be changed to {1}.\n", after.get(name));
+        out << ::format("Annotation will be changed to {1}.\n", after.get(name));
       } else
         out << "  - "
-            << format("{1} will be changed from '{2}' to '{3}'.", Lexer::ucFirst(name),
-                      renderAttribute(name, get(name)), renderAttribute(name, after.get(name)))
+            << ::format("{1} will be changed from '{2}' to '{3}'.", Lexer::ucFirst(name),
+                        renderAttribute(name, get(name)), renderAttribute(name, after.get(name)))
             << "\n";
     }
   }

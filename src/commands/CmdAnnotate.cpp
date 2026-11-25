@@ -34,7 +34,7 @@
 #include <format.h>
 #include <shared.h>
 
-#include <iostream>
+#include <print>
 
 ////////////////////////////////////////////////////////////////////////////////
 CmdAnnotate::CmdAnnotate() {
@@ -72,21 +72,21 @@ int CmdAnnotate::execute(std::string&) {
   std::map<std::string, std::string> projectChanges;
 
   if (filtered.size() > 1) {
-    feedback_affected("This command will alter {1} tasks.", filtered.size());
+    feedback_affected("This command will alter {} tasks.", filtered.size());
   }
   for (auto& task : filtered) {
     Task before(task);
 
     // Annotate the specified task.
     std::string question =
-        format("Annotate task {1} '{2}'?", task.identifier(true), task.get("description"));
+        ::format("Annotate task {1} '{2}'?", task.identifier(true), task.get("description"));
 
     task.modify(Task::modAnnotate, true);
 
     if (permission(before.diff(task) + question, filtered.size())) {
       Context::getContext().tdb2.modify(task);
       ++count;
-      feedback_affected("Annotating task {1} '{2}'.", task);
+      feedback_affected("Annotating task {} '{}'.", task);
       if (Context::getContext().verbose("project"))
         projectChanges[task.get("project")] = onProjectChange(task, false);
 
@@ -101,7 +101,7 @@ int CmdAnnotate::execute(std::string&) {
             sibling.modify(Task::modAnnotate, true);
             Context::getContext().tdb2.modify(sibling);
             ++count;
-            feedback_affected("Annotating recurring task {1} '{2}'.", sibling);
+            feedback_affected("Annotating recurring task {} '{}'.", sibling);
           }
 
           // Annotate the parent
@@ -112,7 +112,7 @@ int CmdAnnotate::execute(std::string&) {
         }
       }
     } else {
-      std::cout << "Task not annotated.\n";
+      std::println("Task not annotated.");
       rc = 1;
       if (_permission_quit) break;
     }
@@ -122,7 +122,7 @@ int CmdAnnotate::execute(std::string&) {
   for (const auto& change : projectChanges)
     if (change.first != "") Context::getContext().footnote(change.second);
 
-  feedback_affected(count == 1 ? "Annotated {1} task." : "Annotated {1} tasks.", count);
+  feedback_affected(count == 1 ? "Annotated {} task." : "Annotated {} tasks.", count);
   return rc;
 }
 

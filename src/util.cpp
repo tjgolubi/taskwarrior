@@ -29,6 +29,9 @@
 
 #include <format.h>
 #include <shared.h>
+
+#include <cstdio>
+#include <print>
 // If <iostream> is included, put it after <stdio.h>, because it includes
 // <stdio.h>, and therefore would ignore the _WITH_GETLINE.
 #ifdef FREEBSD
@@ -65,7 +68,7 @@ static const char* noline = "";
 ////////////////////////////////////////////////////////////////////////////////
 static void signal_handler(int s) {
   if (s == SIGINT) {
-    std::cout << "\n\nInterrupted: No changes made.\n";
+    std::println("\n\nInterrupted: No changes made.");
     exit(1);
   }
 }
@@ -84,8 +87,8 @@ int confirm4(const std::string& question) {
   signal(SIGINT, signal_handler);
 
   do {
-    std::cout << question << " (" << options[1] << '/' << options[2] << '/' << options[4] << '/'
-              << options[5] << ") ";
+    std::print("{} ({}/{}/{}/{}) ", question, options[1], options[2], options[4], options[5]);
+    std::fflush(stdout);
 
     std::string answer{""};
     std::getline(std::cin, answer);
@@ -260,5 +263,5 @@ void setHeaderUnderline(Table& table) {
 //
 bool extractLongInteger(const std::string& input, long& output) {
   output = strtol(input.c_str(), nullptr, 10);
-  return (format("{1}", output) == input);
+  return (::format("{1}", output) == input);
 }

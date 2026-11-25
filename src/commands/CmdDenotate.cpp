@@ -35,11 +35,12 @@
 #include <shared.h>
 #include <util.h>
 
-#include <iostream>
+#include <format>
+#include <print>
 
 #define STRING_CMD_DENO_NO "Task not denotated."
-#define STRING_CMD_DENO_1 "Denotated {1} task."
-#define STRING_CMD_DENO_N "Denotated {1} tasks."
+#define STRING_CMD_DENO_1 "Denotated {} task."
+#define STRING_CMD_DENO_N "Denotated {} tasks."
 
 ////////////////////////////////////////////////////////////////////////////////
 CmdDenotate::CmdDenotate() {
@@ -86,7 +87,7 @@ int CmdDenotate::execute(std::string&) {
   std::map<std::string, std::string> projectChanges;
 
   if (filtered.size() > 1) {
-    feedback_affected("This command will alter {1} tasks.", filtered.size());
+    feedback_affected("This command will alter {} tasks.", filtered.size());
   }
   for (auto& task : filtered) {
     Task before(task);
@@ -122,22 +123,21 @@ int CmdDenotate::execute(std::string&) {
 
     if (before.getAnnotations() != task.getAnnotations()) {
       auto question =
-          format("Denotate task {1} '{2}'?", task.identifier(true), task.get("description"));
+          ::format("Denotate task {1} '{2}'?", task.identifier(true), task.get("description"));
 
       if (permission(before.diff(task) + question, filtered.size())) {
         ++count;
         Context::getContext().tdb2.modify(task);
-        feedback_affected(format("Found annotation '{1}' and deleted it.", anno));
+        feedback_affected(std::format("Found annotation '{}' and deleted it.", anno));
         if (Context::getContext().verbose("project"))
           projectChanges[task.get("project")] = onProjectChange(task, false);
       } else {
-        std::cout << STRING_CMD_DENO_NO << '\n';
+        std::println("{}", STRING_CMD_DENO_NO);
         rc = 1;
         if (_permission_quit) break;
       }
     } else {
-      std::cout << format("Did not find any matching annotation to be deleted for '{1}'.\n",
-                          pattern);
+      std::println("Did not find any matching annotation to be deleted for '{}'.", pattern);
       rc = 1;
     }
   }

@@ -32,10 +32,8 @@
 #include <format.h>
 #include <shared.h>
 
-#include <iostream>
+#include <print>
 #include <vector>
-
-#define STRING_DEPEND_BLOCKED "Task {1} is blocked by:"
 
 ////////////////////////////////////////////////////////////////////////////////
 // Returns true if the supplied task adds a cycle to the dependency chain.
@@ -115,19 +113,17 @@ void dependencyChainOnComplete(Task& task) {
 
     // Nag about broken chain.
     if (Context::getContext().config.getBoolean("dependency.reminder")) {
-      std::cout << format(STRING_DEPEND_BLOCKED, task.identifier()) << '\n';
+      std::println(STRING_DEPEND_BLOCKED, task.identifier());
 
-      for (const auto& b : blocking)
-        std::cout << "  " << b.id << ' ' << b.get("description") << '\n';
+      for (const auto& b : blocking) std::println("  {} {}", b.id, b.get("description"));
     }
 
     // If there are both blocking and blocked tasks, the chain is broken.
     if (blocked.size()) {
       if (Context::getContext().config.getBoolean("dependency.reminder")) {
-        std::cout << "and is blocking:\n";
+        std::println("and is blocking:");
 
-        for (const auto& b : blocked)
-          std::cout << "  " << b.id << ' ' << b.get("description") << '\n';
+        for (const auto& b : blocked) std::println("  {} {}", b.id, b.get("description"));
       }
 
       if (!Context::getContext().config.getBoolean("dependency.confirmation") ||
@@ -157,10 +153,9 @@ void dependencyChainOnStart(Task& task) {
     // If the task is anything but the tail end of a dependency chain, nag about
     // broken chain.
     if (blocking.size()) {
-      std::cout << format(STRING_DEPEND_BLOCKED, task.identifier()) << '\n';
+      std::println(STRING_DEPEND_BLOCKED, task.identifier());
 
-      for (const auto& b : blocking)
-        std::cout << "  " << b.id << ' ' << b.get("description") << '\n';
+      for (const auto& b : blocking) std::println("  {} {}", b.id, b.get("description"));
     }
   }
 }

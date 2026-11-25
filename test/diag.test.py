@@ -43,14 +43,14 @@ class TestDiagnostics(TestCase):
 
     @unittest.skipIf(
         getattr(platform, "dist", None) == None or "xenial" == platform.dist()[-1],
-        "Skipping diagnostics test on Ubuntu 16.04, as it lacks full C++17 support",
+        "Skipping diagnostics test on Ubuntu 16.04, as it lacks full C++23 support",
     )
     def test_diagnostics(self):
         """Task diag output, so we can monitor platforms"""
         self.t.activate_hooks()
         code, out, err = self.t.diag()
         self.tap(out)
-        self.assertRegex(out, r"Compliance:\s+C\+\+17")
+        self.assertRegex(out, r"Compliance:\s+C\+\+23")
         self.assertIn("edlin", out)
 
     def test_64bit_time_t(self):

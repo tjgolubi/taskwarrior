@@ -47,7 +47,7 @@ ColumnTypeDate::ColumnTypeDate() {
   Datetime now;
   now -= 125;  // So that "age" is non-zero.
   _examples = {now.toString(Context::getContext().config.get("dateformat")),
-               format(now.toJulian(), 13, 12),
+               ::format(now.toJulian(), 13, 12),
                now.toEpochString(),
                now.toISO(),
                Duration(Datetime() - now).formatVague(true),
@@ -77,7 +77,7 @@ void ColumnTypeDate::measure(Task& task, unsigned int& minimum, unsigned int& ma
       Datetime now;
       minimum = maximum = Duration(date - now).formatVague(true).length();
     } else if (_style == "julian") {
-      minimum = maximum = format(date.toJulian(), 13, 12).length();
+      minimum = maximum = ::format(date.toJulian(), 13, 12).length();
     } else if (_style == "epoch") {
       minimum = maximum = date.toEpochString().length();
     } else if (_style == "iso") {
@@ -122,7 +122,7 @@ void ColumnTypeDate::render(std::vector<std::string>& lines, Task& task, int wid
       Datetime now;
       renderStringRight(lines, width, color, Duration(date - now).formatVague(true));
     } else if (_style == "julian")
-      renderStringRight(lines, width, color, format(date.toJulian(), 13, 12));
+      renderStringRight(lines, width, color, ::format(date.toJulian(), 13, 12));
 
     else if (_style == "epoch")
       renderStringRight(lines, width, color, date.toEpochString());
@@ -176,23 +176,23 @@ void ColumnTypeDate::modify(Task& task, const std::string& value) {
   std::string label = "  [1;37;43mMODIFICATION[0m ";
   if (evaluatedValue.type() == Variant::type_duration) {
     Context::getContext().debug(label + _name + " <-- '" +
-                                format("{1}", format(evaluatedValue.get_duration())) + "' <-- '" +
-                                (std::string)evaluatedValue + "' <-- '" + value + '\'');
+                                ::format("{1}", ::format(evaluatedValue.get_duration())) +
+                                "' <-- '" + (std::string)evaluatedValue + "' <-- '" + value + '\'');
     evaluatedValue.cast(Variant::type_date);
   } else {
     evaluatedValue.cast(Variant::type_date);
     Context::getContext().debug(label + _name + " <-- '" +
-                                format("{1}", evaluatedValue.get_date()) + "' <-- '" +
+                                ::format("{1}", evaluatedValue.get_date()) + "' <-- '" +
                                 (std::string)evaluatedValue + "' <-- '" + value + '\'');
   }
 
   // If a date doesn't parse (2/29/2014) then it evaluates to zero.
   if (value != "" && evaluatedValue.get_date() == 0)
-    throw format("'{1}' is not a valid date in the '{2}' format.", value, Variant::dateFormat);
+    throw ::format("'{1}' is not a valid date in the '{2}' format.", value, Variant::dateFormat);
 
   time_t epoch = evaluatedValue.get_date();
   if (epoch < EPOCH_MIN_VALUE || epoch >= EPOCH_MAX_VALUE) {
-    throw format("'{1}' is not a valid date.", value);
+    throw ::format("'{1}' is not a valid date.", value);
   }
   task.set(_name, epoch);
 }

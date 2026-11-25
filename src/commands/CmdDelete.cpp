@@ -36,9 +36,9 @@
 #include <recur.h>
 #include <shared.h>
 
-#include <iostream>
+#include <print>
 
-#define STRING_CMD_DELETE_TASK_R "Deleting recurring task {1} '{2}'."
+#define STRING_CMD_DELETE_TASK_R "Deleting recurring task {} '{}'."
 #define STRING_CMD_DELETE_CONFIRM_R \
   "This is a recurring task.  Do you want to delete all pending recurrences of this same task?"
 
@@ -77,7 +77,7 @@ int CmdDelete::execute(std::string&) {
   std::map<std::string, std::string> projectChanges;
 
   if (filtered.size() > 1) {
-    feedback_affected("This command will alter {1} tasks.", filtered.size());
+    feedback_affected("This command will alter {} tasks.", filtered.size());
   }
   for (auto& task : filtered) {
     Task before(task);
@@ -85,7 +85,7 @@ int CmdDelete::execute(std::string&) {
     if (task.getStatus() != Task::deleted) {
       // Delete the specified task.
       std::string question;
-      question = format("Delete task {1} '{2}'?", task.identifier(true), task.get("description"));
+      question = ::format("Delete task {1} '{2}'?", task.identifier(true), task.get("description"));
 
       task.modify(Task::modAnnotate);
       task.setStatus(Task::deleted);
@@ -95,7 +95,7 @@ int CmdDelete::execute(std::string&) {
         updateRecurrenceMask(task);
         ++count;
         Context::getContext().tdb2.modify(task);
-        feedback_affected("Deleting task {1} '{2}'.", task);
+        feedback_affected("Deleting task {} '{}'.", task);
         feedback_unblocked(task);
         dependencyChainOnComplete(task);
         if (Context::getContext().verbose("project"))
@@ -150,14 +150,13 @@ int CmdDelete::execute(std::string&) {
           }
         }
       } else {
-        std::cout << "Task not deleted.\n";
+        std::println("Task not deleted.");
         rc = 1;
         if (_permission_quit) break;
       }
     } else {
-      std::cout << format("Task {1} '{2}' is not deletable.", task.identifier(true),
-                          task.get("description"))
-                << '\n';
+      std::println("Task {} '{}' is not deletable.", task.identifier(true),
+                   task.get("description"));
       rc = 1;
     }
   }
@@ -166,7 +165,7 @@ int CmdDelete::execute(std::string&) {
   for (const auto& change : projectChanges)
     if (change.first != "") Context::getContext().footnote(change.second);
 
-  feedback_affected(count == 1 ? "Deleted {1} task." : "Deleted {1} tasks.", count);
+  feedback_affected(count == 1 ? "Deleted {} task." : "Deleted {} tasks.", count);
 
   return rc;
 }

@@ -34,7 +34,7 @@
 #include <format.h>
 #include <util.h>
 
-#include <iostream>
+#include <print>
 
 ////////////////////////////////////////////////////////////////////////////////
 CmdDuplicate::CmdDuplicate() {
@@ -85,18 +85,15 @@ int CmdDuplicate::execute(std::string&) {
       dup.remove("recur");
       dup.remove("until");
       dup.remove("imask");
-      std::cout << format("Note: task {1} was a recurring task.  The duplicated task is not.",
-                          task.identifier())
-                << '\n';
+      std::println("Note: task {} was a recurring task.  The duplicated task is not.",
+                   task.identifier());
     }
 
     // When duplicating a parent task, create a new parent task.
     else if (dup.getStatus() == Task::recurring) {
       dup.remove("mask");
-      std::cout << format(
-                       "Note: task {1} was a parent recurring task.  The duplicated task is too.",
-                       task.identifier())
-                << '\n';
+      std::println("Note: task {} was a parent recurring task.  The duplicated task is too.",
+                   task.identifier());
     }
 
     dup.setStatus(Task::pending);  // Does not inherit status.
@@ -105,23 +102,23 @@ int CmdDuplicate::execute(std::string&) {
     dup.modify(Task::modAnnotate);
 
     if (permission(
-            format("Duplicate task {1} '{2}'?", task.identifier(true), task.get("description")),
+            ::format("Duplicate task {1} '{2}'?", task.identifier(true), task.get("description")),
             filtered.size())) {
       Context::getContext().tdb2.add(dup);
       ++count;
-      feedback_affected("Duplicated task {1} '{2}'.", task);
+      feedback_affected("Duplicated task {} '{}'.", task);
 
       auto status = dup.getStatus();
       if (Context::getContext().verbose("new-id") && dup.is_open())
-        std::cout << format("Created task {1}.\n", dup.id);
+        std::println("Created task {}.", dup.id);
 
       else if (Context::getContext().verbose("new-uuid") && status != Task::recurring)
-        std::cout << format("Created task {1}.\n", dup.get("uuid"));
+        std::println("Created task {}.", dup.get("uuid"));
 
       if (Context::getContext().verbose("project"))
         projectChanges[task.get("project")] = onProjectChange(task);
     } else {
-      std::cout << "Task not duplicated.\n";
+      std::println("Task not duplicated.");
       rc = 1;
       if (_permission_quit) break;
     }
@@ -131,7 +128,7 @@ int CmdDuplicate::execute(std::string&) {
   for (const auto& change : projectChanges)
     if (change.first != "") Context::getContext().footnote(change.second);
 
-  feedback_affected(count == 1 ? "Duplicated {1} task." : "Duplicated {1} tasks.", count);
+  feedback_affected(count == 1 ? "Duplicated {} task." : "Duplicated {} tasks.", count);
 
   return rc;
 }

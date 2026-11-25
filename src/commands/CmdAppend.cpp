@@ -34,7 +34,7 @@
 #include <format.h>
 #include <shared.h>
 
-#include <iostream>
+#include <print>
 
 ////////////////////////////////////////////////////////////////////////////////
 CmdAppend::CmdAppend() {
@@ -72,21 +72,21 @@ int CmdAppend::execute(std::string&) {
   std::map<std::string, std::string> projectChanges;
 
   if (filtered.size() > 1) {
-    feedback_affected("This command will alter {1} tasks.", filtered.size());
+    feedback_affected("This command will alter {} tasks.", filtered.size());
   }
   for (auto& task : filtered) {
     Task before(task);
 
     // Append to the specified task.
     auto question =
-        format("Append to task {1} '{2}'?", task.identifier(true), task.get("description"));
+        ::format("Append to task {1} '{2}'?", task.identifier(true), task.get("description"));
 
     task.modify(Task::modAppend, true);
 
     if (permission(before.diff(task) + question, filtered.size())) {
       Context::getContext().tdb2.modify(task);
       ++count;
-      feedback_affected("Appending to task {1} '{2}'.", task);
+      feedback_affected("Appending to task {} '{}'.", task);
       if (Context::getContext().verbose("project"))
         projectChanges[task.get("project")] = onProjectChange(task, false);
 
@@ -101,7 +101,7 @@ int CmdAppend::execute(std::string&) {
             sibling.modify(Task::modAppend, true);
             Context::getContext().tdb2.modify(sibling);
             ++count;
-            feedback_affected("Appending to recurring task {1} '{2}'.", sibling);
+            feedback_affected("Appending to recurring task {} '{}'.", sibling);
           }
 
           // Append to the parent
@@ -112,7 +112,7 @@ int CmdAppend::execute(std::string&) {
         }
       }
     } else {
-      std::cout << "Task not appended.\n";
+      std::println("Task not appended.");
       rc = 1;
       if (_permission_quit) break;
     }
@@ -122,7 +122,7 @@ int CmdAppend::execute(std::string&) {
   for (const auto& change : projectChanges)
     if (change.first != "") Context::getContext().footnote(change.second);
 
-  feedback_affected(count == 1 ? "Appended {1} task." : "Appended {1} tasks.", count);
+  feedback_affected(count == 1 ? "Appended {} task." : "Appended {} tasks.", count);
   return rc;
 }
 

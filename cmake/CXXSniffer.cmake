@@ -1,16 +1,9 @@
-message ("-- Configuring C++17")
+message ("-- Configuring C++23")
 message ("-- System: ${CMAKE_SYSTEM_NAME}")
 
-include (CheckCXXCompilerFlag)
-
-CHECK_CXX_COMPILER_FLAG("-std=c++17"   _HAS_CXX17)
-
-if (_HAS_CXX17)
-  set (CMAKE_CXX_STANDARD 17)
-  set (CMAKE_CXX_EXTENSIONS OFF)
-else (_HAS_CXX17)
- message (FATAL_ERROR "C++17 support missing. Try upgrading your C++ compiler. If you have a good reason for using an outdated compiler, please let us know at support@gothenburgbitfactory.org.")
-endif (_HAS_CXX17)
+set (CMAKE_CXX_STANDARD 23)
+set (CMAKE_CXX_STANDARD_REQUIRED ON)
+set (CMAKE_CXX_EXTENSIONS OFF)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   set (LINUX true)
@@ -40,3 +33,12 @@ endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 set (CMAKE_CXX_FLAGS "${_CXX14_FLAGS} ${CMAKE_CXX_FLAGS}")
 set (CMAKE_CXX_FLAGS "-Wall -Wextra -Wsign-compare -Wreturn-type ${CMAKE_CXX_FLAGS}")
+
+include (CheckCXXSourceCompiles)
+check_cxx_source_compiles([=[
+  #include <print>
+  int main() { std::println("{}", 23); }
+]=] TASK_HAVE_STD_PRINT)
+if (NOT TASK_HAVE_STD_PRINT)
+  message (FATAL_ERROR "Taskwarrior requires a C++23 compiler and standard library with <print> support.")
+endif ()

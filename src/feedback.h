@@ -33,16 +33,19 @@
 
 #include <Task.h>
 
+#include <format>
 #include <string>
+#include <string_view>
 #include <vector>
 
 std::string renderAttribute(const std::string& name, const std::string& value,
                             const std::string& format = "");
 void feedback_affected(const std::string& effect);
-void feedback_affected(const std::string& effect, int quantity);
-void feedback_affected(const std::string& effect, const Task& task);
+void feedback_affected(std::string_view effect, int quantity);
+void feedback_affected(std::format_string<std::string_view, std::string_view> effect,
+                       const Task& task);
 void feedback_reserved_tags(const std::string& tag);
-void feedback_special_tags(const Task& task, const std::string& tag);
+void feedback_special_tags(const Task&, const std::string& tag);
 void feedback_unblocked(const Task& task);
 void feedback_backlog();
 std::string onProjectChange(Task& task, bool scope = true);

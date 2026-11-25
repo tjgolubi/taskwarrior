@@ -37,7 +37,7 @@
 #include <recur.h>
 #include <util.h>
 
-#include <iostream>
+#include <print>
 
 ////////////////////////////////////////////////////////////////////////////////
 CmdDone::CmdDone() {
@@ -73,7 +73,7 @@ int CmdDone::execute(std::string&) {
   std::map<std::string, std::string> projectChanges;
 
   if (filtered.size() > 1) {
-    feedback_affected("This command will alter {1} tasks.", filtered.size());
+    feedback_affected("This command will alter {} tasks.", filtered.size());
   }
 
   std::vector<Task> modified;
@@ -83,7 +83,7 @@ int CmdDone::execute(std::string&) {
     if (task.is_open()) {
       // Complete the specified task.
       std::string question =
-          format("Complete task {1} '{2}'?", task.identifier(true), task.get("description"));
+          ::format("Complete task {1} '{2}'?", task.identifier(true), task.get("description"));
 
       task.modify(Task::modAnnotate);
       task.setStatus(Task::completed);
@@ -100,7 +100,7 @@ int CmdDone::execute(std::string&) {
         updateRecurrenceMask(task);
         Context::getContext().tdb2.modify(task);
         ++count;
-        feedback_affected("Completed task {1} '{2}'.", task);
+        feedback_affected("Completed task {} '{}'.", task);
         feedback_unblocked(task);
         dependencyChainOnComplete(task);
         if (Context::getContext().verbose("project"))
@@ -109,14 +109,13 @@ int CmdDone::execute(std::string&) {
         // Save unmodified task for potential nagging later
         modified.push_back(before);
       } else {
-        std::cout << "Task not completed.\n";
+        std::println("Task not completed.");
         rc = 1;
         if (_permission_quit) break;
       }
     } else {
-      std::cout << format("Task {1} '{2}' is neither pending nor waiting.", task.identifier(true),
-                          task.get("description"))
-                << '\n';
+      std::println("Task {} '{}' is neither pending nor waiting.", task.identifier(true),
+                   task.get("description"));
       rc = 1;
     }
   }
@@ -127,7 +126,7 @@ int CmdDone::execute(std::string&) {
   for (const auto& change : projectChanges)
     if (change.first != "") Context::getContext().footnote(change.second);
 
-  feedback_affected(count == 1 ? "Completed {1} task." : "Completed {1} tasks.", count);
+  feedback_affected(count == 1 ? "Completed {} task." : "Completed {} tasks.", count);
   return rc;
 }
 

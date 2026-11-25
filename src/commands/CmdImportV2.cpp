@@ -35,7 +35,7 @@
 #include <shared.h>
 #include <util.h>
 
-#include <iostream>
+#include <print>
 #include <unordered_map>
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -77,7 +77,7 @@ int CmdImportV2::execute(std::string&) {
   auto count = import(task_data);
 
   Context::getContext().footnote(
-      format("Imported {1} tasks from `*.data` files. You may now delete these files.", count));
+      ::format("Imported {1} tasks from `*.data` files. You may now delete these files.", count));
   return 0;
 }
 
@@ -94,7 +94,7 @@ int CmdImportV2::import(const std::vector<std::map<std::string, std::string>>& t
   for (auto& task : task_data) {
     auto uuid_iter = task.find(uuid_key);
     if (uuid_iter == task.end()) {
-      std::cout << " err  - Task with no UUID\n";
+      std::println(" err  - Task with no UUID");
       continue;
     }
     auto uuid_str = uuid_iter->second;
@@ -116,17 +116,17 @@ int CmdImportV2::import(const std::vector<std::map<std::string, std::string>>& t
     count++;
 
     if (added_task) {
-      std::cout << " add ";
+      std::print(" add ");
     } else {
-      std::cout << " mod ";
+      std::print(" mod ");
     }
-    std::cout << uuid_str << ' ';
+    std::print("{} ", uuid_str);
     if (auto descr_iter = task.find(descr_key); descr_iter != task.end()) {
-      std::cout << descr_iter->second;
+      std::print("{}", descr_iter->second);
     } else {
-      std::cout << "(no description)";
+      std::print("(no description)");
     }
-    std::cout << "\n";
+    std::print("\n");
   }
 
   replica->commit_operations(std::move(ops));

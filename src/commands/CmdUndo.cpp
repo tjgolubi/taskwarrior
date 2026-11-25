@@ -33,7 +33,7 @@
 #include <Task.h>
 #include <shared.h>
 
-#include <iostream>
+#include <print>
 #include <sstream>
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -60,7 +60,7 @@ int CmdUndo::execute(std::string&) {
     // Note that commit_reversed_operations rebuilds the working set, so that
     // need not be done here.
     if (!replica->commit_reversed_operations(std::move(undo_ops))) {
-      std::cout << "Could not undo: other operations have occurred.";
+      std::print("Could not undo: other operations have occurred.");
     }
   }
   return 0;
@@ -76,11 +76,11 @@ bool CmdUndo::confirm_revert(const std::vector<Operation>& undo_ops) {
     }
   }
   if (ops_count == 0) {
-    std::cout << "No operations to undo.\n";
+    std::println("No operations to undo.");
     return true;
   }
 
-  std::cout << "The following " << ops_count << " operations would be reverted:\n";
+  std::println("The following {} operations would be reverted:", ops_count);
 
   Table view;
   if (Context::getContext().config.getBoolean("obfuscate")) view.obfuscate();
@@ -135,7 +135,7 @@ bool CmdUndo::confirm_revert(const std::vector<Operation>& undo_ops) {
   int row = view.addRow();
   view.set(row, 0, last_uuid);
   view.set(row, 1, mods.str());
-  std::cout << view.render() << "\n";
+  std::println("{}", view.render());
 
   return !Context::getContext().config.getBoolean("confirmation") ||
          confirm(

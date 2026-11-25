@@ -103,7 +103,8 @@ int CmdDiagnostics::execute(std::string& output) {
       << " +vp" << 8 * sizeof(void*) << " +time_t" << 8 * sizeof(time_t) << '\n';
 
   // Compiler compliance level.
-  out << " Compliance: " << cppCompliance() << "\n\n";
+  // libshared reports the language mode it was built with.
+  out << " Compliance: C++23\n\n";
 
   out << bold.colorize("Build Features") << '\n'
 
@@ -241,14 +242,16 @@ int CmdDiagnostics::execute(std::string& output) {
   auto all = Context::getContext().tdb2.all_tasks();
 
   bool noBrokenRefs = true;
-  out << " Broken ref: " << format("Scanned {1} tasks for broken references:", all.size()) << '\n';
+  out << " Broken ref: " << ::format("Scanned {1} tasks for broken references:", all.size())
+      << '\n';
 
   for (auto& task : all) {
     // Check dependencies
     for (auto& uuid : task.getDependencyUUIDs()) {
       if (!Context::getContext().tdb2.has(uuid)) {
         out << "             "
-            << format("Task {1} depends on nonexistent task: {2}", task.get("uuid"), uuid) << '\n';
+            << ::format("Task {1} depends on nonexistent task: {2}", task.get("uuid"), uuid)
+            << '\n';
         noBrokenRefs = false;
       }
     }
@@ -258,8 +261,8 @@ int CmdDiagnostics::execute(std::string& output) {
 
     if (parentUUID != "" && !Context::getContext().tdb2.has(parentUUID)) {
       out << "             "
-          << format("Task {1} has nonexistent recurrence template {2}", task.get("uuid"),
-                    parentUUID)
+          << ::format("Task {1} has nonexistent recurrence template {2}", task.get("uuid"),
+                      parentUUID)
           << '\n';
       noBrokenRefs = false;
     }
