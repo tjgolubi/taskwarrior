@@ -34,6 +34,7 @@
 #include <Filter.h>
 #include <Lexer.h>
 #include <Operation.h>
+#include <Rounded.h>
 #include <feedback.h>
 #include <format.h>
 #include <rules.h>
@@ -382,7 +383,7 @@ int CmdInfo::execute(std::string& output) {
     // Task::urgency
     row = view.addRow();
     view.set(row, 0, "Urgency");
-    view.set(row, 1, Lexer::trimLeft(::format(task.urgency(), 4, 4)));
+    view.set(row, 1, Lexer::trimLeft(std::format("{:4.4g}", rounded(task.urgency(), 4))));
 
     // Show any UDAs
     auto all = task.all();
@@ -516,7 +517,8 @@ int CmdInfo::execute(std::string& output) {
       row = urgencyDetails.addRow();
       urgencyDetails.set(row, 5, rightJustify("------", 6));
       row = urgencyDetails.addRow();
-      urgencyDetails.set(row, 5, rightJustify(::format(task.urgency(), 4, 4), 6));
+      urgencyDetails.set(row, 5,
+                         rightJustify(std::format("{:4.4g}", rounded(task.urgency(), 4)), 6));
     }
 
     // Create a third table, containing undo log change details.
@@ -594,11 +596,11 @@ void CmdInfo::urgencyTerm(Table& view, const std::string& label, float measure,
   if (value != 0.0) {
     auto row = view.addRow();
     view.set(row, 0, "    " + label);
-    view.set(row, 1, rightJustify(::format(measure, 5, 3), 6));
+    view.set(row, 1, rightJustify(std::format("{:5.3g}", rounded(measure, 5)), 6));
     view.set(row, 2, "*");
-    view.set(row, 3, rightJustify(::format(coefficient, 4, 2), 4));
+    view.set(row, 3, rightJustify(std::format("{:4.2g}", rounded(coefficient, 4)), 4));
     view.set(row, 4, "=");
-    view.set(row, 5, rightJustify(::format(value, 5, 3), 6));
+    view.set(row, 5, rightJustify(std::format("{:5.3g}", rounded(value, 5)), 6));
   }
 }
 

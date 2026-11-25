@@ -33,6 +33,7 @@
 #include <Duration.h>
 #include <Eval.h>
 #include <Filter.h>
+#include <Rounded.h>
 #include <Variant.h>
 #include <format.h>
 
@@ -47,7 +48,7 @@ ColumnTypeDate::ColumnTypeDate() {
   Datetime now;
   now -= 125;  // So that "age" is non-zero.
   _examples = {now.toString(Context::getContext().config.get("dateformat")),
-               ::format(now.toJulian(), 13, 12),
+               std::format("{:13.12g}", rounded(now.toJulian(), 13)),
                now.toEpochString(),
                now.toISO(),
                Duration(Datetime() - now).formatVague(true),
@@ -77,7 +78,7 @@ void ColumnTypeDate::measure(Task& task, unsigned int& minimum, unsigned int& ma
       Datetime now;
       minimum = maximum = Duration(date - now).formatVague(true).length();
     } else if (_style == "julian") {
-      minimum = maximum = ::format(date.toJulian(), 13, 12).length();
+      minimum = maximum = std::format("{:13.12g}", rounded(date.toJulian(), 13)).length();
     } else if (_style == "epoch") {
       minimum = maximum = date.toEpochString().length();
     } else if (_style == "iso") {
@@ -122,7 +123,8 @@ void ColumnTypeDate::render(std::vector<std::string>& lines, Task& task, int wid
       Datetime now;
       renderStringRight(lines, width, color, Duration(date - now).formatVague(true));
     } else if (_style == "julian")
-      renderStringRight(lines, width, color, ::format(date.toJulian(), 13, 12));
+      renderStringRight(lines, width, color,
+                        std::format("{:13.12g}", rounded(date.toJulian(), 13)));
 
     else if (_style == "epoch")
       renderStringRight(lines, width, color, date.toEpochString());

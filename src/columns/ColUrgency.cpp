@@ -28,6 +28,7 @@
 // cmake.h include header must come first
 
 #include <ColUrgency.h>
+#include <Rounded.h>
 #include <format.h>
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -44,7 +45,7 @@ ColumnUrgency::ColumnUrgency() {
 // Set the minimum and maximum widths for the value.
 void ColumnUrgency::measure(Task& task, unsigned int& minimum, unsigned int& maximum) {
   if (_style == "default" || _style == "real")
-    minimum = maximum = ::format(task.urgency(), 4, 3).length();
+    minimum = maximum = std::format("{:4.3g}", rounded(task.urgency(), 4)).length();
 
   else if (_style == "integer")
     minimum = maximum = ::format((int)task.urgency()).length();
