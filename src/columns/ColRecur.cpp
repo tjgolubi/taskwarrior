@@ -105,7 +105,7 @@ void ColumnRecur::modify(Task& task, const std::string& value) {
     Context::getContext().debug(label + _name + " <-- '" + value + '\'');
     task.set(_name, value);
   } else
-    throw format("The duration value '{1}' is not supported.", value);
+    throw ::format1("The duration value '{1}' is not supported.", value);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

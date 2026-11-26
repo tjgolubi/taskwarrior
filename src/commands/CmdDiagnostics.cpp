@@ -241,14 +241,16 @@ int CmdDiagnostics::execute(std::string& output) {
   auto all = Context::getContext().tdb2.all_tasks();
 
   bool noBrokenRefs = true;
-  out << " Broken ref: " << format("Scanned {1} tasks for broken references:", all.size()) << '\n';
+  out << " Broken ref: " << ::format1("Scanned {1} tasks for broken references:", all.size())
+      << '\n';
 
   for (auto& task : all) {
     // Check dependencies
     for (auto& uuid : task.getDependencyUUIDs()) {
       if (!Context::getContext().tdb2.has(uuid)) {
         out << "             "
-            << format("Task {1} depends on nonexistent task: {2}", task.get("uuid"), uuid) << '\n';
+            << ::format1("Task {1} depends on nonexistent task: {2}", task.get("uuid"), uuid)
+            << '\n';
         noBrokenRefs = false;
       }
     }
@@ -258,8 +260,8 @@ int CmdDiagnostics::execute(std::string& output) {
 
     if (parentUUID != "" && !Context::getContext().tdb2.has(parentUUID)) {
       out << "             "
-          << format("Task {1} has nonexistent recurrence template {2}", task.get("uuid"),
-                    parentUUID)
+          << ::format1("Task {1} has nonexistent recurrence template {2}", task.get("uuid"),
+                       parentUUID)
           << '\n';
       noBrokenRefs = false;
     }

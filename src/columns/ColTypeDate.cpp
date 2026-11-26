@@ -176,23 +176,23 @@ void ColumnTypeDate::modify(Task& task, const std::string& value) {
   std::string label = "  [1;37;43mMODIFICATION[0m ";
   if (evaluatedValue.type() == Variant::type_duration) {
     Context::getContext().debug(label + _name + " <-- '" +
-                                format("{1}", format(evaluatedValue.get_duration())) + "' <-- '" +
-                                (std::string)evaluatedValue + "' <-- '" + value + '\'');
+                                ::format1("{1}", format(evaluatedValue.get_duration())) +
+                                "' <-- '" + (std::string)evaluatedValue + "' <-- '" + value + '\'');
     evaluatedValue.cast(Variant::type_date);
   } else {
     evaluatedValue.cast(Variant::type_date);
     Context::getContext().debug(label + _name + " <-- '" +
-                                format("{1}", evaluatedValue.get_date()) + "' <-- '" +
+                                ::format1("{1}", evaluatedValue.get_date()) + "' <-- '" +
                                 (std::string)evaluatedValue + "' <-- '" + value + '\'');
   }
 
   // If a date doesn't parse (2/29/2014) then it evaluates to zero.
   if (value != "" && evaluatedValue.get_date() == 0)
-    throw format("'{1}' is not a valid date in the '{2}' format.", value, Variant::dateFormat);
+    throw ::format1("'{1}' is not a valid date in the '{2}' format.", value, Variant::dateFormat);
 
   time_t epoch = evaluatedValue.get_date();
   if (epoch < EPOCH_MIN_VALUE || epoch >= EPOCH_MAX_VALUE) {
-    throw format("'{1}' is not a valid date.", value);
+    throw ::format1("'{1}' is not a valid date.", value);
   }
   task.set(_name, epoch);
 }

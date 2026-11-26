@@ -95,7 +95,7 @@ int CmdReports::execute(std::string& output) {
   }
 
   out << optionalBlankLine() << view.render() << optionalBlankLine()
-      << format("{1} reports\n", reports.size());
+      << ::format1("{1} reports\n", reports.size());
 
   output = out.str();
   return 0;

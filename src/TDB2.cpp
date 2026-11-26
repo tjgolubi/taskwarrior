@@ -59,7 +59,7 @@ static tc::Status statusFromString(const std::string& s) {
   if (s == "deleted") return tc::Status::Deleted;
   if (s == "recurring") return tc::Status::Recurring;
   if (s == "iterative") return tc::Status::Iterative;
-  throw format("Unknown task status value '{1}'.", s);
+  throw ::format1("Unknown task status value '{1}'.", s);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

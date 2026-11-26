@@ -157,7 +157,7 @@ void TF2::load_tasks() {
   }
 
   catch (const std::string& e) {
-    throw e + format(" in {1} at line {2}", _file._data, line_number);
+    throw e + ::format1(" in {1} at line {2}", _file._data, line_number);
   }
 
   Context::getContext().time_load_us += timer.total_us();

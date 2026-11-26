@@ -174,7 +174,7 @@ int CmdSummary::execute(std::string& output) {
   if (view.rows()) {
     out << optionalBlankLine() << view.render() << optionalBlankLine();
 
-    out << format("{1} projects\n", view.rows());
+    out << ::format1("{1} projects\n", view.rows());
   } else {
     out << "No projects.\n";
     rc = 1;

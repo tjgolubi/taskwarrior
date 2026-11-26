@@ -626,11 +626,11 @@ std::optional<std::string> CmdInfo::formatForInfo(const std::vector<Operation>& 
     // Handle property deletions
     if (!value && old_value) {
       if (Task::isAnnotationAttr(prop)) {
-        out << format("Annotation '{1}' deleted.\n", *old_value);
+        out << ::format1("Annotation '{1}' deleted.\n", *old_value);
       } else if (Task::isTagAttr(prop)) {
-        out << format("Tag '{1}' deleted.\n", Task::attr2Tag(prop));
+        out << ::format1("Tag '{1}' deleted.\n", Task::attr2Tag(prop));
       } else if (Task::isDepAttr(prop)) {
-        out << format("Dependency on '{1}' deleted.\n", Task::attr2Dep(prop));
+        out << ::format1("Dependency on '{1}' deleted.\n", Task::attr2Dep(prop));
       } else if (prop == "start") {
         Datetime started(last_start);
         Datetime stopped = timestamp;
@@ -651,22 +651,22 @@ std::optional<std::string> CmdInfo::formatForInfo(const std::vector<Operation>& 
           }
         }
 
-        out << format("{1} deleted (duration: {2}).", Lexer::ucFirst(prop),
-                      Duration(stopped - started).format())
+        out << ::format1("{1} deleted (duration: {2}).", Lexer::ucFirst(prop),
+                         Duration(stopped - started).format())
             << "\n";
       } else {
-        out << format("{1} deleted.\n", Lexer::ucFirst(prop));
+        out << ::format1("{1} deleted.\n", Lexer::ucFirst(prop));
       }
     }
 
     // Handle property additions.
     if (value && !old_value) {
       if (Task::isAnnotationAttr(prop)) {
-        out << format("Annotation of '{1}' added.\n", *value);
+        out << ::format1("Annotation of '{1}' added.\n", *value);
       } else if (Task::isTagAttr(prop)) {
-        out << format("Tag '{1}' added.\n", Task::attr2Tag(prop));
+        out << ::format1("Tag '{1}' added.\n", Task::attr2Tag(prop));
       } else if (Task::isDepAttr(prop)) {
-        out << format("Dependency on '{1}' added.\n", Task::attr2Dep(prop));
+        out << ::format1("Dependency on '{1}' added.\n", Task::attr2Dep(prop));
       } else {
         // Record the last start time for later duration calculation.
         if (prop == "start") {
@@ -677,8 +677,8 @@ std::optional<std::string> CmdInfo::formatForInfo(const std::vector<Operation>& 
           }
         }
 
-        out << format("{1} set to '{2}'.", Lexer::ucFirst(prop),
-                      renderAttribute(prop, *value, dateformat))
+        out << ::format1("{1} set to '{2}'.", Lexer::ucFirst(prop),
+                         renderAttribute(prop, *value, dateformat))
             << "\n";
       }
     }
@@ -688,16 +688,16 @@ std::optional<std::string> CmdInfo::formatForInfo(const std::vector<Operation>& 
       if (Task::isTagAttr(prop) || Task::isDepAttr(prop)) {
         // Dependencies and tags do not have meaningful values.
       } else if (Task::isAnnotationAttr(prop)) {
-        out << format("Annotation changed to '{1}'.\n", *value);
+        out << ::format1("Annotation changed to '{1}'.\n", *value);
       } else {
         // Record the last start time for later duration calculation.
         if (prop == "start") {
           last_start = Datetime(value.value()).toEpoch();
         }
 
-        out << format("{1} changed from '{2}' to '{3}'.", Lexer::ucFirst(prop),
-                      renderAttribute(prop, *old_value, dateformat),
-                      renderAttribute(prop, *value, dateformat))
+        out << ::format1("{1} changed from '{2}' to '{3}'.", Lexer::ucFirst(prop),
+                         renderAttribute(prop, *old_value, dateformat),
+                         renderAttribute(prop, *value, dateformat))
             << "\n";
       }
     }

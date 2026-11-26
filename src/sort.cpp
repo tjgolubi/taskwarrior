@@ -282,7 +282,7 @@ static bool sort_compare(int left, int right) {
         return ascending ? (left_duration < right_duration) : (left_duration > right_duration);
       }
     } else
-      throw format("The '{1}' column is not a valid sort field.", field);
+      throw ::format1("The '{1}' column is not a valid sort field.", field);
   }
 
   return false;

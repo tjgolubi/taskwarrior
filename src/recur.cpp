@@ -146,7 +146,7 @@ void handleRecurrence() {
 
         if (Context::getContext().verbose("recur"))
           Context::getContext().footnote(
-              format("Creating recurring task instance '{1}'", t.get("description")));
+              ::format1("Creating recurring task instance '{1}'", t.get("description")));
       }
     }
   }
@@ -245,8 +245,8 @@ std::optional<Datetime> getNextRecurrence(Datetime& current, std::string& period
     int increment = strtol(period.substr(0, period.length() - 1).c_str(), nullptr, 10);
 
     if (increment <= 0)
-      throw format("Recurrence period '{1}' is equivalent to {2} and hence invalid.", period,
-                   increment);
+      throw ::format1("Recurrence period '{1}' is equivalent to {2} and hence invalid.", period,
+                      increment);
 
     m += increment;
     while (m > 12) {
@@ -264,8 +264,8 @@ std::optional<Datetime> getNextRecurrence(Datetime& current, std::string& period
     int increment = strtol(period.substr(1, period.length() - 2).c_str(), nullptr, 10);
 
     if (increment <= 0)
-      throw format("Recurrence period '{1}' is equivalent to {2} and hence invalid.", period,
-                   increment);
+      throw ::format1("Recurrence period '{1}' is equivalent to {2} and hence invalid.", period,
+                      increment);
 
     m += increment;
     while (m > 12) {
@@ -294,7 +294,7 @@ std::optional<Datetime> getNextRecurrence(Datetime& current, std::string& period
     int increment = strtol(period.substr(0, period.length() - 1).c_str(), nullptr, 10);
 
     if (increment <= 0) {
-      Context::getContext().footnote(format(
+      Context::getContext().footnote(::format1(
           "Recurrence period '{1}' is equivalent to {2} and hence invalid.", period, increment));
       return std::nullopt;
     }
@@ -355,7 +355,7 @@ std::optional<Datetime> getNextRecurrence(Datetime& current, std::string& period
   Duration p;
   if (!p.parse(period, idx)) {
     Context::getContext().footnote(
-        format("Warning: The recurrence value '{1}' is not valid.", period));
+        ::format1("Warning: The recurrence value '{1}' is not valid.", period));
     return std::nullopt;
   }
 
@@ -404,8 +404,9 @@ void handleUntil() {
     if (t.getStatus() == Task::pending && t.has("until")) {
       auto until = Datetime(t.get_date("until"));
       if (until < now) {
-        Context::getContext().debug(format("handleUntil: recurrence expired until {1} < now {2}",
-                                           until.toISOLocalExtended(), now.toISOLocalExtended()));
+        Context::getContext().debug(::format1("handleUntil: recurrence expired until {1} < now {2}",
+                                              until.toISOLocalExtended(),
+                                              now.toISOLocalExtended()));
         t.setStatus(Task::deleted);
         Context::getContext().tdb2.modify(t);
         Context::getContext().footnote(onExpiration(t));

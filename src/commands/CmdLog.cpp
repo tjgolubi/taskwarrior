@@ -67,7 +67,7 @@ int CmdLog::execute(std::string& output) {
     Context::getContext().footnote(onProjectChange(task));
 
   if (Context::getContext().verbose("new-uuid"))
-    output = format("Logged task {1}.\n", task.get("uuid"));
+    output = ::format1("Logged task {1}.\n", task.get("uuid"));
 
   return 0;
 }

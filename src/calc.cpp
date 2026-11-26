@@ -86,7 +86,7 @@ int main(int argc, char** argv) {
         exit(1);
       } else if (!strcmp(argv[i], "-v") || !strcmp(argv[i], "--version")) {
         std::cout << '\n'
-                  << format("calc {1} built for ", VERSION) << osName() << '\n'
+                  << ::format1("calc {1} built for ", VERSION) << osName() << '\n'
                   << "Copyright (C) 2006 - 2021 T. Babej, P. Beckingham, F. Hernandez." << '\n'
                   << '\n'
                   << "Taskwarrior may be copied only under the terms of the MIT license, which may "
