@@ -93,7 +93,7 @@ int CmdCustom::execute(std::string& output) {
   auto labels = split(reportLabels, ',');
 
   if (columns.size() != labels.size() && labels.size() != 0)
-    throw ::format1("There are different numbers of columns and labels for report '{1}'.",
+    throw ::format0("There are different numbers of columns and labels for report '{0}'.",
                     _keyword);
 
   auto sortOrder = split(reportSort, ',');
@@ -206,12 +206,12 @@ int CmdCustom::execute(std::string& output) {
 
     // Print the number of rendered tasks
     if (Context::getContext().verbose("affected")) {
-      out << (filtered.size() == 1 ? "1 task" : ::format1("{1} tasks", filtered.size()));
+      out << (filtered.size() == 1 ? "1 task" : ::format0("{0} tasks", filtered.size()));
 
-      if (maxrows && maxrows < (int)filtered.size()) out << ", " << ::format1("{1} shown", maxrows);
+      if (maxrows && maxrows < (int)filtered.size()) out << ", " << ::format0("{0} shown", maxrows);
 
       if (maxlines && maxlines < (int)filtered.size())
-        out << ", " << ::format1("truncated to {1} lines", maxlines - table_header);
+        out << ", " << ::format0("truncated to {0} lines", maxlines - table_header);
 
       out << '\n';
     }
@@ -237,7 +237,7 @@ int CmdCustom::execute(std::string& output) {
   File pending_data = File(location + "/pending.data");
   if (pending_data.exists()) {
     Color warning = Color(Context::getContext().config.get("color.warning"));
-    std::cerr << warning.colorize(::format1("Found existing '*.data' files in {1}", location))
+    std::cerr << warning.colorize(::format0("Found existing '*.data' files in {0}", location))
               << "\n";
     std::cerr << "  Taskwarrior's storage format changed in 3.0, requiring a manual migration.\n";
     std::cerr << "  See https://taskwarrior.org/docs/upgrade-3/. Run `task import-v2` to import\n";

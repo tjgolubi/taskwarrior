@@ -99,7 +99,7 @@ bool CmdConfig::setConfigVariable(const std::string& name, const std::string& va
 
   if (change)
     if (!File::write(Context::getContext().config.file(), contents))
-      throw ::format1("Could not write to '{1}'.", Context::getContext().config.file());
+      throw ::format0("Could not write to '{0}'.", Context::getContext().config.file());
 
   return change;
 }
@@ -126,7 +126,7 @@ int CmdConfig::unsetConfigVariable(const std::string& name, bool confirmation /*
       found = true;
 
       // Remove name
-      if (!confirmation || confirm(::format1("Are you sure you want to remove '{1}'?", name))) {
+      if (!confirmation || confirm(::format0("Are you sure you want to remove '{0}'?", name))) {
         // vector::erase method returns a valid iterator to the next object
         line = contents.erase(line);
         lineDeleted = true;
@@ -139,7 +139,7 @@ int CmdConfig::unsetConfigVariable(const std::string& name, bool confirmation /*
 
   if (change)
     if (!File::write(Context::getContext().config.file(), contents))
-      throw ::format1("Could not write to '{1}'.", Context::getContext().config.file());
+      throw ::format0("Could not write to '{0}'.", Context::getContext().config.file());
 
   if (change && found)
     return 0;
@@ -193,12 +193,12 @@ int CmdConfig::execute(std::string& output) {
         } else if (rc == 1)
           found = true;
 
-        if (!found) throw ::format1("No entry named '{1}' found.", name);
+        if (!found) throw ::format0("No entry named '{0}' found.", name);
       }
 
       // Show feedback depending on whether .taskrc has been rewritten
       if (change) {
-        out << ::format1("Config file {1} modified.", Context::getContext().config.file()) << '\n';
+        out << ::format0("Config file {0} modified.", Context::getContext().config.file()) << '\n';
       } else
         out << "No changes made.\n";
     } else

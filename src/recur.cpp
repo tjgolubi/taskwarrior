@@ -146,7 +146,7 @@ void handleRecurrence() {
 
         if (Context::getContext().verbose("recur"))
           Context::getContext().footnote(
-              ::format1("Creating recurring task instance '{1}'", t.get("description")));
+              ::format0("Creating recurring task instance '{0}'", t.get("description")));
       }
     }
   }
@@ -355,7 +355,7 @@ std::optional<Datetime> getNextRecurrence(Datetime& current, std::string& period
   Duration p;
   if (!p.parse(period, idx)) {
     Context::getContext().footnote(
-        ::format1("Warning: The recurrence value '{1}' is not valid.", period));
+        ::format0("Warning: The recurrence value '{0}' is not valid.", period));
     return std::nullopt;
   }
 
@@ -404,7 +404,7 @@ void handleUntil() {
     if (t.getStatus() == Task::pending && t.has("until")) {
       auto until = Datetime(t.get_date("until"));
       if (until < now) {
-        Context::getContext().debug(::format1("handleUntil: recurrence expired until {1} < now {2}",
+        Context::getContext().debug(::format0("handleUntil: recurrence expired until {0} < now {1}",
                                               until.toISOLocalExtended(),
                                               now.toISOLocalExtended()));
         t.setStatus(Task::deleted);

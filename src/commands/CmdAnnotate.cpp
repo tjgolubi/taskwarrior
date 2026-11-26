@@ -79,7 +79,7 @@ int CmdAnnotate::execute(std::string&) {
 
     // Annotate the specified task.
     std::string question =
-        ::format1("Annotate task {1} '{2}'?", task.identifier(true), task.get("description"));
+        ::format0("Annotate task {0} '{1}'?", task.identifier(true), task.get("description"));
 
     task.modify(Task::modAnnotate, true);
 

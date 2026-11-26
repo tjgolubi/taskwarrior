@@ -108,7 +108,7 @@ void feedback_reserved_tags(const std::string& tag) {
       tag == "READY" || tag == "SCHEDULED" || tag == "TAGGED" || tag == "TEMPLATE" ||
       tag == "TODAY" || tag == "TOMORROW" || tag == "UDA" || tag == "UNBLOCKED" || tag == "UNTIL" ||
       tag == "WAITING" || tag == "WEEK" || tag == "YEAR" || tag == "YESTERDAY") {
-    throw ::format1("Virtual tags (including '{1}') are reserved and may not be added or removed.",
+    throw ::format0("Virtual tags (including '{0}') are reserved and may not be added or removed.",
                     tag);
   }
 }
@@ -130,7 +130,7 @@ void feedback_special_tags(const Task& task, const std::string& tag) {
           "report.";
 
     if (msg.length()) {
-      std::cout << ::format1(msg, task.identifier()) << "\n";
+      std::cout << ::format0(msg, task.identifier()) << "\n";
     }
   }
 }
@@ -152,10 +152,10 @@ void feedback_unblocked(const Task& task) {
       auto blocking = i.getDependencyTasks();
       if (blocking.size() == 0) {
         if (i.id)
-          std::cout << ::format1("Unblocked {1} '{2}'.", i.id, i.get("description")) << "\n";
+          std::cout << ::format0("Unblocked {0} '{1}'.", i.id, i.get("description")) << "\n";
         else {
           std::string uuid = i.get("uuid");
-          std::cout << ::format1("Unblocked {1} '{2}'.", i.get("uuid"), i.get("description"))
+          std::cout << ::format0("Unblocked {0} '{1}'.", i.get("uuid"), i.get("description"))
                     << "\n";
         }
       }
@@ -173,9 +173,9 @@ void feedback_backlog() {
   if (Context::getContext().verbose("sync")) {
     int count = Context::getContext().tdb2.num_local_changes();
     if (count)
-      Context::getContext().footnote(::format1(count > 1
-                                                   ? "There are {1} local changes.  Sync required."
-                                                   : "There is {1} local change.  Sync required.",
+      Context::getContext().footnote(::format0(count > 1
+                                                   ? "There are {0} local changes.  Sync required."
+                                                   : "There is {0} local change.  Sync required.",
                                                count));
   }
 }
@@ -186,7 +186,7 @@ std::string onProjectChange(Task& task, bool scope /* = true */) {
   std::string project = task.get("project");
 
   if (project != "") {
-    if (scope) msg << ::format1("The project '{1}' has changed.", project) << "  ";
+    if (scope) msg << ::format0("The project '{0}' has changed.", project) << "  ";
 
     // Count pending and done tasks, for this project.
     int count_pending = 0;
@@ -211,9 +211,9 @@ std::string onProjectChange(Task& task, bool scope /* = true */) {
     msg << ::format1("Project '{1}' is {2}% complete", project, percentage) << ' ';
 
     if (count_pending == 1 && count_done == 0)
-      msg << ::format1("({1} task remaining).", count_pending);
+      msg << ::format0("({0} task remaining).", count_pending);
     else
-      msg << ::format1("({1} of {2} tasks remaining).", count_pending, count_pending + count_done);
+      msg << ::format0("({0} of {1} tasks remaining).", count_pending, count_pending + count_done);
   }
 
   return msg.str();
@@ -236,7 +236,7 @@ std::string onExpiration(Task& task) {
   std::stringstream msg;
 
   if (Context::getContext().verbose("affected"))
-    msg << ::format1("Task {1} '{2}' expired and was deleted.", task.identifier(true),
+    msg << ::format0("Task {0} '{1}' expired and was deleted.", task.identifier(true),
                      task.get("description"));
 
   return msg.str();

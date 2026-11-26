@@ -152,7 +152,7 @@ void CmdHistoryBase<HistoryStrategy>::outputGraphical(std::string& output) {
     out << optionalBlankLine() << view.render() << '\n';
 
     if (Context::getContext().color())
-      out << ::format1("Legend: {1}, {2}, {3}", color_add.colorize(STRING_CMD_HISTORY_ADDED),
+      out << ::format0("Legend: {0}, {1}, {2}", color_add.colorize(STRING_CMD_HISTORY_ADDED),
                        color_done.colorize(STRING_CMD_HISTORY_COMP),
                        color_delete.colorize(STRING_CMD_HISTORY_DEL))
           << optionalBlankLine() << '\n';

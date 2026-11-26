@@ -626,11 +626,11 @@ std::optional<std::string> CmdInfo::formatForInfo(const std::vector<Operation>& 
     // Handle property deletions
     if (!value && old_value) {
       if (Task::isAnnotationAttr(prop)) {
-        out << ::format1("Annotation '{1}' deleted.\n", *old_value);
+        out << ::format0("Annotation '{0}' deleted.\n", *old_value);
       } else if (Task::isTagAttr(prop)) {
-        out << ::format1("Tag '{1}' deleted.\n", Task::attr2Tag(prop));
+        out << ::format0("Tag '{0}' deleted.\n", Task::attr2Tag(prop));
       } else if (Task::isDepAttr(prop)) {
-        out << ::format1("Dependency on '{1}' deleted.\n", Task::attr2Dep(prop));
+        out << ::format0("Dependency on '{0}' deleted.\n", Task::attr2Dep(prop));
       } else if (prop == "start") {
         Datetime started(last_start);
         Datetime stopped = timestamp;
@@ -655,18 +655,18 @@ std::optional<std::string> CmdInfo::formatForInfo(const std::vector<Operation>& 
                          Duration(stopped - started).format())
             << "\n";
       } else {
-        out << ::format1("{1} deleted.\n", Lexer::ucFirst(prop));
+        out << ::format0("{0} deleted.\n", Lexer::ucFirst(prop));
       }
     }
 
     // Handle property additions.
     if (value && !old_value) {
       if (Task::isAnnotationAttr(prop)) {
-        out << ::format1("Annotation of '{1}' added.\n", *value);
+        out << ::format0("Annotation of '{0}' added.\n", *value);
       } else if (Task::isTagAttr(prop)) {
-        out << ::format1("Tag '{1}' added.\n", Task::attr2Tag(prop));
+        out << ::format0("Tag '{0}' added.\n", Task::attr2Tag(prop));
       } else if (Task::isDepAttr(prop)) {
-        out << ::format1("Dependency on '{1}' added.\n", Task::attr2Dep(prop));
+        out << ::format0("Dependency on '{0}' added.\n", Task::attr2Dep(prop));
       } else {
         // Record the last start time for later duration calculation.
         if (prop == "start") {
@@ -688,7 +688,7 @@ std::optional<std::string> CmdInfo::formatForInfo(const std::vector<Operation>& 
       if (Task::isTagAttr(prop) || Task::isDepAttr(prop)) {
         // Dependencies and tags do not have meaningful values.
       } else if (Task::isAnnotationAttr(prop)) {
-        out << ::format1("Annotation changed to '{1}'.\n", *value);
+        out << ::format0("Annotation changed to '{0}'.\n", *value);
       } else {
         // Record the last start time for later duration calculation.
         if (prop == "start") {

@@ -85,7 +85,7 @@ int CmdDuplicate::execute(std::string&) {
       dup.remove("recur");
       dup.remove("until");
       dup.remove("imask");
-      std::cout << ::format1("Note: task {1} was a recurring task.  The duplicated task is not.",
+      std::cout << ::format0("Note: task {0} was a recurring task.  The duplicated task is not.",
                              task.identifier())
                 << '\n';
     }
@@ -93,8 +93,8 @@ int CmdDuplicate::execute(std::string&) {
     // When duplicating a parent task, create a new parent task.
     else if (dup.getStatus() == Task::recurring) {
       dup.remove("mask");
-      std::cout << ::format1(
-                       "Note: task {1} was a parent recurring task.  The duplicated task is too.",
+      std::cout << ::format0(
+                       "Note: task {0} was a parent recurring task.  The duplicated task is too.",
                        task.identifier())
                 << '\n';
     }
@@ -105,7 +105,7 @@ int CmdDuplicate::execute(std::string&) {
     dup.modify(Task::modAnnotate);
 
     if (permission(
-            ::format1("Duplicate task {1} '{2}'?", task.identifier(true), task.get("description")),
+            ::format0("Duplicate task {0} '{1}'?", task.identifier(true), task.get("description")),
             filtered.size())) {
       Context::getContext().tdb2.add(dup);
       ++count;
@@ -113,10 +113,10 @@ int CmdDuplicate::execute(std::string&) {
 
       auto status = dup.getStatus();
       if (Context::getContext().verbose("new-id") && dup.is_open())
-        std::cout << ::format1("Created task {1}.\n", dup.id);
+        std::cout << ::format0("Created task {0}.\n", dup.id);
 
       else if (Context::getContext().verbose("new-uuid") && status != Task::recurring)
-        std::cout << ::format1("Created task {1}.\n", dup.get("uuid"));
+        std::cout << ::format0("Created task {0}.\n", dup.get("uuid"));
 
       if (Context::getContext().verbose("project"))
         projectChanges[task.get("project")] = onProjectChange(task);

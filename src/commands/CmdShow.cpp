@@ -39,9 +39,9 @@
 #include <sstream>
 #include <vector>
 
-#define STRING_CMD_SHOW_DIFFER_COLOR "These are highlighted in {1} above."
+#define STRING_CMD_SHOW_DIFFER_COLOR "These are highlighted in {0} above."
 #define STRING_CMD_SHOW_CONFIG_ERROR \
-  "Configuration error: {1} contains an unrecognized value '{2}'."
+  "Configuration error: {0} contains an unrecognized value '{1}'."
 
 extern std::string configurationDefaults;
 
@@ -337,7 +337,7 @@ int CmdShow::execute(std::string& output) {
     out << "Some of your .taskrc variables differ from the default values.\n";
 
     if (Context::getContext().color() && warning.nontrivial())
-      out << "  " << ::format1(STRING_CMD_SHOW_DIFFER_COLOR, warning.colorize("color")) << "\n\n";
+      out << "  " << ::format0(STRING_CMD_SHOW_DIFFER_COLOR, warning.colorize("color")) << "\n\n";
   }
 
   // Display the unrecognized variables.
@@ -352,7 +352,7 @@ int CmdShow::execute(std::string& output) {
              "urgency.user.tag.<tag>.coefficient.\n";
 
     if (Context::getContext().color() && error.nontrivial())
-      out << '\n' << ::format1(STRING_CMD_SHOW_DIFFER_COLOR, error.colorize("color"));
+      out << '\n' << ::format0(STRING_CMD_SHOW_DIFFER_COLOR, error.colorize("color"));
 
     out << "\n\n";
   }
@@ -366,12 +366,12 @@ int CmdShow::execute(std::string& output) {
   // Check for bad values in rc.calendar.details.
   std::string calendardetails = Context::getContext().config.get("calendar.details");
   if (calendardetails != "full" && calendardetails != "sparse" && calendardetails != "none")
-    out << ::format1(STRING_CMD_SHOW_CONFIG_ERROR, "calendar.details", calendardetails) << '\n';
+    out << ::format0(STRING_CMD_SHOW_CONFIG_ERROR, "calendar.details", calendardetails) << '\n';
 
   // Check for bad values in rc.calendar.holidays.
   std::string calendarholidays = Context::getContext().config.get("calendar.holidays");
   if (calendarholidays != "full" && calendarholidays != "sparse" && calendarholidays != "none")
-    out << ::format1(STRING_CMD_SHOW_CONFIG_ERROR, "calendar.holidays", calendarholidays) << '\n';
+    out << ::format0(STRING_CMD_SHOW_CONFIG_ERROR, "calendar.holidays", calendarholidays) << '\n';
 
   // Verify installation.  This is mentioned in the documentation as the way
   // to ensure everything is properly installed.

@@ -72,18 +72,18 @@ int CmdAdd::execute(std::string& output) {
   // asked for this if they just wanted a human-friendly number.
 
   if (Context::getContext().verbose("new-uuid") && status == Task::recurring)
-    output += ::format1("Created task {1} (recurrence template).\n", task.get("uuid"));
+    output += ::format0("Created task {0} (recurrence template).\n", task.get("uuid"));
 
   else if (Context::getContext().verbose("new-uuid") ||
            (Context::getContext().verbose("new-id") &&
             (status == Task::completed || status == Task::deleted)))
-    output += ::format1("Created task {1}.\n", task.get("uuid"));
+    output += ::format0("Created task {0}.\n", task.get("uuid"));
 
   else if (Context::getContext().verbose("new-id") && task.is_open())
-    output += ::format1("Created task {1}.\n", task.id);
+    output += ::format0("Created task {0}.\n", task.id);
 
   else if (Context::getContext().verbose("new-id") && status == Task::recurring)
-    output += ::format1("Created task {1} (recurrence template).\n", task.id);
+    output += ::format0("Created task {0} (recurrence template).\n", task.id);
 
   if (Context::getContext().verbose("project"))
     Context::getContext().footnote(onProjectChange(task));

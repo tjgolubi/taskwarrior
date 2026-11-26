@@ -490,15 +490,15 @@ int Context::initialize(int argc, const char** argv) {
       const char* env_xdg_config_home = getenv("XDG_CONFIG_HOME");
 
       if (env_xdg_config_home)
-        xdg_config_home = ::format1("{1}", env_xdg_config_home);
+        xdg_config_home = ::format0("{0}", env_xdg_config_home);
       else
-        xdg_config_home = ::format1("{1}/.config", home_dir);
+        xdg_config_home = ::format0("{0}/.config", home_dir);
 
       // Ensure the path does not end with '/'
       if (xdg_config_home.back() == '/') xdg_config_home.pop_back();
 
       // https://github.com/GothenburgBitFactory/libshared/issues/32
-      std::string rcfile_path = ::format1("{1}/task/taskrc", xdg_config_home);
+      std::string rcfile_path = ::format0("{0}/task/taskrc", xdg_config_home);
 
       File maybe_rc_file = File(rcfile_path);
       if (maybe_rc_file.exists()) rc_file = maybe_rc_file;
@@ -520,13 +520,13 @@ int Context::initialize(int argc, const char** argv) {
       if (!haiku_task_dir.empty()) config.set("data.location", haiku_task_dir + "/data");
 #endif
       config.load(rc_file._data, 1, searchPaths);
-      debugTiming(::format1("Config::load ({1})", rc_file._data), timer);
+      debugTiming(::format0("Config::load ({0})", rc_file._data), timer);
     }
 
     CLI2::applyOverrides(argc, argv);
 
     if (taskrc_overridden && verbose("override"))
-      header(::format1("TASKRC override: {1}", rc_file._data));
+      header(::format0("TASKRC override: {0}", rc_file._data));
 
     ////////////////////////////////////////////////////////////////////////////
     //
@@ -551,7 +551,7 @@ int Context::initialize(int argc, const char** argv) {
     taskdata_overridden = CLI2::getDataLocation(argc, argv, data_dir) || taskdata_overridden;
 
     if (taskdata_overridden && verbose("override"))
-      header(::format1("TASKDATA override: {1}", data_dir._data));
+      header(::format0("TASKDATA override: {0}", data_dir._data));
 
     createDefaultConfig();
 
@@ -910,7 +910,7 @@ std::string Context::getTaskContext(const std::string& kind, std::string name,
 
   // Detect if any context is set, and bail out if not
   if (!name.empty())
-    debug(::format1("Applying context '{1}'", name));
+    debug(::format0("Applying context '{0}'", name));
   else {
     debug("No context set");
     return "";
@@ -929,7 +929,7 @@ std::string Context::getTaskContext(const std::string& kind, std::string name,
     contextString = config.get("context." + name + "." + kind);
 
   debug(
-      ::format1("Detected context string: {1}", contextString.empty() ? "(empty)" : contextString));
+      ::format0("Detected context string: {0}", contextString.empty() ? "(empty)" : contextString));
   return contextString;
 }
 
@@ -1189,10 +1189,10 @@ void Context::createDefaultConfig() {
     // default config directory.
     Directory rc_parent(rc_file.parent());
     if (!rc_parent.exists() && !rc_parent.create(0755))
-      throw ::format1("Could not create directory '{1}'.", rc_parent._data);
+      throw ::format0("Could not create directory '{0}'.", rc_parent._data);
     // Write out the new file.
     if (!File::write(rc_file._data, contents.str()))
-      throw ::format1("Could not write to '{1}'.", rc_file._data);
+      throw ::format0("Could not write to '{0}'.", rc_file._data);
 
     // Load it so that it takes effect for this run.
     config.load(rc_file._data, 1, {TASK_RCDIR});

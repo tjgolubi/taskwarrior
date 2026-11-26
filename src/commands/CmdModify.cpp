@@ -88,7 +88,7 @@ int CmdModify::execute(std::string&) {
       // Clearing `iter` ends the series, so confirm it like a delete.
       if (before.getStatus() == Task::iterative && task.get("iter") == "" &&
           Context::getContext().config.getBoolean("confirmation") &&
-          !confirm(::format1("End the iterative series for task {1} '{2}'?", task.identifier(true),
+          !confirm(::format0("End the iterative series for task {0} '{1}'?", task.identifier(true),
                              task.get("description")))) {
         std::cout << "Task not modified.\n";
         rc = 1;
@@ -96,7 +96,7 @@ int CmdModify::execute(std::string&) {
       }
 
       auto question =
-          ::format1("Modify task {1} '{2}'?", task.identifier(true), task.get("description"));
+          ::format0("Modify task {0} '{1}'?", task.identifier(true), task.get("description"));
 
       if (permission(before.diff(task) + question, filtered.size())) {
         count += modifyAndUpdate(before, task, &projectChanges);
@@ -139,7 +139,7 @@ void CmdModify::checkConsistency(Task& before, Task& after) {
 
   if (before.is_pending() && after.is_pending() && (before.get("end") == "") &&
       (after.get("end") != ""))
-    throw ::format1("Could not modify task {1}. You cannot set an end date on a pending task.",
+    throw ::format0("Could not modify task {0}. You cannot set an end date on a pending task.",
                     before.identifier(true));
 }
 

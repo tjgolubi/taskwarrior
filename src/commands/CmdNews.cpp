@@ -134,10 +134,10 @@ void NewsItem::render() {
 
   wait_for_enter();
 
-  std::cout << "  " << underline.colorize(::format1("What changed in {1}?\n", _version));
-  if (_punchline.size()) std::cout << footnote.colorize(::format1("{1}\n", _punchline));
+  std::cout << "  " << underline.colorize(::format0("What changed in {0}?\n", _version));
+  if (_punchline.size()) std::cout << footnote.colorize(::format0("{0}\n", _punchline));
 
-  if (_update.size()) std::cout << ::format1("{1}\n", _update);
+  if (_update.size()) std::cout << ::format0("{0}\n", _update);
 
   wait_for_enter();
 
@@ -197,7 +197,7 @@ void NewsItem::version2_6_0(std::vector<NewsItem>& items) {
                  [&](auto& name) { return config.has("context." + name); });
 
     if (old_style.size()) {
-      advice << ::format1("  You have {1} defined contexts, out of which {2} are old-style:\n",
+      advice << ::format0("  You have {0} defined contexts, out of which {1} are old-style:\n",
                           defined.size(),
                           std::count_if(defined.begin(), defined.end(),
                                         [&](auto& name) { return config.has("context." + name); }));
@@ -607,14 +607,14 @@ int CmdNews::execute(std::string& output) {
   } else {
     // Print release notes
     std::cout << bold.colorize(
-        ::format1("\n"
+        ::format0("\n"
                   "================================================\n"
-                  "Taskwarrior {1} through {2} Release Highlights\n"
+                  "Taskwarrior {0} through {1} Release Highlights\n"
                   "================================================\n",
                   news_version, current_version));
 
     for (unsigned short i = 0; i < items.size(); i++) {
-      std::cout << ::format1("\n({1}/{2}) ", i + 1, items.size());
+      std::cout << ::format0("\n({0}/{1}) ", i + 1, items.size());
       items[i].render();
     }
     std::cout << "Thank you for catching up on the new features!\n";

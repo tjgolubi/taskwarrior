@@ -86,7 +86,7 @@ int CmdDelete::execute(std::string&) {
       // Delete the specified task.
       std::string question;
       question =
-          ::format1("Delete task {1} '{2}'?", task.identifier(true), task.get("description"));
+          ::format0("Delete task {0} '{1}'?", task.identifier(true), task.get("description"));
 
       task.modify(Task::modAnnotate);
       task.setStatus(Task::deleted);
@@ -156,7 +156,7 @@ int CmdDelete::execute(std::string&) {
         if (_permission_quit) break;
       }
     } else {
-      std::cout << ::format1("Task {1} '{2}' is not deletable.", task.identifier(true),
+      std::cout << ::format0("Task {0} '{1}' is not deletable.", task.identifier(true),
                              task.get("description"))
                 << '\n';
       rc = 1;

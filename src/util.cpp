@@ -260,5 +260,5 @@ void setHeaderUnderline(Table& table) {
 //
 bool extractLongInteger(const std::string& input, long& output) {
   output = strtol(input.c_str(), nullptr, 10);
-  return (::format1("{1}", output) == input);
+  return (::format0("{0}", output) == input);
 }

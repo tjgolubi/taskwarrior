@@ -32,7 +32,7 @@
 
 #include <sstream>
 
-#define STRING_LEGACY_PRIORITY "Legacy attribute found.  Please change '{1}' to '{2}'."
+#define STRING_LEGACY_PRIORITY "Legacy attribute found.  Please change '{0}' to '{1}'."
 
 ////////////////////////////////////////////////////////////////////////////////
 void legacyColumnMap(std::string& name) {
@@ -55,7 +55,7 @@ void legacyColumnMap(std::string& name) {
   // If a legacy column was used, complain about it, but modify it anyway.
   auto found = legacyMap.find(name);
   if (found != legacyMap.end()) {
-    Context::getContext().footnote(::format1(STRING_LEGACY_PRIORITY, name, found->second));
+    Context::getContext().footnote(::format0(STRING_LEGACY_PRIORITY, name, found->second));
     name = found->second;
   }
 }
@@ -81,7 +81,7 @@ void legacySortColumnMap(std::string& name) {
   // If a legacy column was used, complain about it, but modify it anyway.
   auto found = legacyMap.find(name);
   if (found != legacyMap.end()) {
-    Context::getContext().footnote(::format1(STRING_LEGACY_PRIORITY, name, found->second));
+    Context::getContext().footnote(::format0(STRING_LEGACY_PRIORITY, name, found->second));
     name = found->second;
   }
 }

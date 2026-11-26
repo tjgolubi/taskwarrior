@@ -35,7 +35,7 @@
 #include <iostream>
 #include <vector>
 
-#define STRING_DEPEND_BLOCKED "Task {1} is blocked by:"
+#define STRING_DEPEND_BLOCKED "Task {0} is blocked by:"
 
 ////////////////////////////////////////////////////////////////////////////////
 // Returns true if the supplied task adds a cycle to the dependency chain.
@@ -115,7 +115,7 @@ void dependencyChainOnComplete(Task& task) {
 
     // Nag about broken chain.
     if (Context::getContext().config.getBoolean("dependency.reminder")) {
-      std::cout << ::format1(STRING_DEPEND_BLOCKED, task.identifier()) << '\n';
+      std::cout << ::format0(STRING_DEPEND_BLOCKED, task.identifier()) << '\n';
 
       for (const auto& b : blocking)
         std::cout << "  " << b.id << ' ' << b.get("description") << '\n';
@@ -157,7 +157,7 @@ void dependencyChainOnStart(Task& task) {
     // If the task is anything but the tail end of a dependency chain, nag about
     // broken chain.
     if (blocking.size()) {
-      std::cout << ::format1(STRING_DEPEND_BLOCKED, task.identifier()) << '\n';
+      std::cout << ::format0(STRING_DEPEND_BLOCKED, task.identifier()) << '\n';
 
       for (const auto& b : blocking)
         std::cout << "  " << b.id << ' ' << b.get("description") << '\n';

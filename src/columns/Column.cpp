@@ -139,7 +139,7 @@ Column* Column::factory(const std::string& name, const std::string& report) {
     c = Column::uda(column_name);
 
   else
-    throw ::format1("Unrecognized column name '{1}'.", column_name);
+    throw ::format0("Unrecognized column name '{0}'.", column_name);
 
   c->setReport(report);
   c->setStyle(column_style);
@@ -223,7 +223,7 @@ void Column::uda(std::map<std::string, Column*>& all) {
 
   for (const auto& uda : udas) {
     if (all.find(uda) != all.end())
-      throw ::format1("The UDA named '{1}' is the same as a core attribute, and is not permitted.",
+      throw ::format0("The UDA named '{0}' is the same as a core attribute, and is not permitted.",
                       uda);
 
     Column* c = Column::uda(uda);

@@ -249,7 +249,7 @@ void CLI2::applyOverrides(int argc, const char** argv) {
     context.config.set(name, value);
   };
   auto display_overrides = [&](std::string raw) {
-    if (is_override(raw)) context.footnote(::format1("Configuration override {1}", raw));
+    if (is_override(raw)) context.footnote(::format0("Configuration override {0}", raw));
   };
   std::for_each(argv, last, override_settings);
   if (context.verbose("override")) std::for_each(argv, last, display_overrides);
@@ -551,7 +551,7 @@ void CLI2::addContext(bool readable, bool writeable) {
       if (a._lextype == Lexer::Type::uuid || a._lextype == Lexer::Type::number ||
           a._lextype == Lexer::Type::set) {
         Context::getContext().debug(
-            ::format1("UUID/ID argument found '{1}', not applying context.", a.attribute("raw")));
+            ::format0("UUID/ID argument found '{0}', not applying context.", a.attribute("raw")));
         return;
       }
     }
@@ -567,7 +567,7 @@ void CLI2::addContext(bool readable, bool writeable) {
   // Inform the user about the application of context
   if (Context::getContext().verbose("context"))
     Context::getContext().footnote(
-        ::format1("Context '{1}' set. Use 'task context none' to remove.",
+        ::format0("Context '{0}' set. Use 'task context none' to remove.",
                   Context::getContext().config.get("context")));
 }
 
@@ -793,7 +793,7 @@ void CLI2::aliasExpansion() {
 
   if (counter >= safetyValveDefault)
     Context::getContext().debug(
-        ::format1("Nested alias limit of {1} reached.", safetyValveDefault));
+        ::format0("Nested alias limit of {0} reached.", safetyValveDefault));
 
   if (changes && Context::getContext().config.getInteger("debug.parser") >= 2)
     Context::getContext().debug(dump("CLI2::analyze aliasExpansion"));
@@ -1211,7 +1211,7 @@ void CLI2::desugarFilterAttributes() {
           rhs.attribute("raw", "\\b" + value + "\\b");
 #endif
         } else
-          throw ::format1("Error: unrecognized attribute modifier '{1}'.", mod);
+          throw ::format0("Error: unrecognized attribute modifier '{0}'.", mod);
 
         reconstructed.push_back(lhs);
         reconstructed.push_back(op);

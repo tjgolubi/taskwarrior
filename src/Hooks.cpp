@@ -49,21 +49,21 @@
 #include <unistd.h>
 #include <util.h>
 
-#define STRING_HOOK_ERROR_OBJECT "Hook Error: JSON Object '{...}' expected from hook script: {1}"
+#define STRING_HOOK_ERROR_OBJECT "Hook Error: JSON Object '{...}' expected from hook script: {0}"
 #define STRING_HOOK_ERROR_NODESC \
-  "Hook Error: JSON Object missing 'description' attribute from hook script: {1}"
+  "Hook Error: JSON Object missing 'description' attribute from hook script: {0}"
 #define STRING_HOOK_ERROR_NOUUID \
-  "Hook Error: JSON Object missing 'uuid' attribute from hook script: {1}"
-#define STRING_HOOK_ERROR_SYNTAX "Hook Error: JSON syntax error in: {1}"
+  "Hook Error: JSON Object missing 'uuid' attribute from hook script: {0}"
+#define STRING_HOOK_ERROR_SYNTAX "Hook Error: JSON syntax error in: {0}"
 #define STRING_HOOK_ERROR_JSON "Hook Error: JSON "
 #define STRING_HOOK_ERROR_NOPARSE "Hook Error: JSON failed to parse: "
 #define STRING_HOOK_ERROR_BAD_NUM \
-  "Hook Error: Expected {1} JSON task(s), found {2}, in hook script: {3}"
+  "Hook Error: Expected {0} JSON task(s), found {1}, in hook script: {2}"
 #define STRING_HOOK_ERROR_SAME1 \
-  "Hook Error: JSON must be for the same task: {1}, in hook script: {2}"
+  "Hook Error: JSON must be for the same task: {0}, in hook script: {1}"
 #define STRING_HOOK_ERROR_SAME2 \
   "Hook Error: JSON must be for the same task: {1} != {2}, in hook script: {3}"
-#define STRING_HOOK_ERROR_NOFEEDBACK "Hook Error: Expected feedback from failing hook script: {1}"
+#define STRING_HOOK_ERROR_NOFEEDBACK "Hook Error: Expected feedback from failing hook script: {0}"
 
 ////////////////////////////////////////////////////////////////////////////////
 void Hooks::initialize() {
@@ -356,24 +356,24 @@ void Hooks::assertValidJSON(const std::vector<std::string>& input,
                             const std::string& script) const {
   for (auto& i : input) {
     if (i.length() < 3 || i[0] != '{' || i[i.length() - 1] != '}') {
-      Context::getContext().error(::format1(STRING_HOOK_ERROR_OBJECT, Path(script).name()));
+      Context::getContext().error(::format0(STRING_HOOK_ERROR_OBJECT, Path(script).name()));
       throw 0;
     }
 
     try {
       json::value* root = json::parse(i);
       if (root->type() != json::j_object) {
-        Context::getContext().error(::format1(STRING_HOOK_ERROR_OBJECT, Path(script).name()));
+        Context::getContext().error(::format0(STRING_HOOK_ERROR_OBJECT, Path(script).name()));
         throw 0;
       }
 
       if (((json::object*)root)->_data.find("description") == ((json::object*)root)->_data.end()) {
-        Context::getContext().error(::format1(STRING_HOOK_ERROR_NODESC, Path(script).name()));
+        Context::getContext().error(::format0(STRING_HOOK_ERROR_NODESC, Path(script).name()));
         throw 0;
       }
 
       if (((json::object*)root)->_data.find("uuid") == ((json::object*)root)->_data.end()) {
-        Context::getContext().error(::format1(STRING_HOOK_ERROR_NOUUID, Path(script).name()));
+        Context::getContext().error(::format0(STRING_HOOK_ERROR_NOUUID, Path(script).name()));
         throw 0;
       }
 
@@ -381,7 +381,7 @@ void Hooks::assertValidJSON(const std::vector<std::string>& input,
     }
 
     catch (const std::string& e) {
-      Context::getContext().error(::format1(STRING_HOOK_ERROR_SYNTAX, i));
+      Context::getContext().error(::format0(STRING_HOOK_ERROR_SYNTAX, i));
       if (_debug) Context::getContext().error(STRING_HOOK_ERROR_JSON + e);
       throw 0;
     }
@@ -398,7 +398,7 @@ void Hooks::assertNTasks(const std::vector<std::string>& input, unsigned int n,
                          const std::string& script) const {
   if (input.size() != n) {
     Context::getContext().error(
-        ::format1(STRING_HOOK_ERROR_BAD_NUM, n, (int)input.size(), Path(script).name()));
+        ::format0(STRING_HOOK_ERROR_BAD_NUM, n, (int)input.size(), Path(script).name()));
     throw 0;
   }
 }
@@ -414,7 +414,7 @@ void Hooks::assertSameTask(const std::vector<std::string>& input, const Task& ta
     // If there is no UUID at all.
     auto u = root_obj->_data.find("uuid");
     if (u == root_obj->_data.end() || u->second->type() != json::j_string) {
-      Context::getContext().error(::format1(STRING_HOOK_ERROR_SAME1, uuid, Path(script).name()));
+      Context::getContext().error(::format0(STRING_HOOK_ERROR_SAME1, uuid, Path(script).name()));
       throw 0;
     }
 
@@ -439,7 +439,7 @@ void Hooks::assertFeedback(const std::vector<std::string>& input, const std::str
     if (nontrivial(i)) foundSomething = true;
 
   if (!foundSomething) {
-    Context::getContext().error(::format1(STRING_HOOK_ERROR_NOFEEDBACK, Path(script).name()));
+    Context::getContext().error(::format0(STRING_HOOK_ERROR_NOFEEDBACK, Path(script).name()));
     throw 0;
   }
 }
@@ -496,7 +496,7 @@ int Hooks::callHookScript(const std::string& script, const std::vector<std::stri
   if (_debug >= 2) {
     Timer timer;
     status = execute(script, args, inputStr, outputStr);
-    Context::getContext().debugTiming(::format1("Hooks::execute ({1})", script), timer);
+    Context::getContext().debugTiming(::format0("Hooks::execute ({0})", script), timer);
   } else
     status = execute(script, args, inputStr, outputStr);
 
@@ -507,7 +507,7 @@ int Hooks::callHookScript(const std::string& script, const std::vector<std::stri
     for (const auto& i : output)
       if (i != "") Context::getContext().debug("  " + i);
 
-    Context::getContext().debug(::format1("Hook: Completed with status {1}", status));
+    Context::getContext().debug(::format0("Hook: Completed with status {0}", status));
     Context::getContext().debug(" ");  // Blank line
   }
 

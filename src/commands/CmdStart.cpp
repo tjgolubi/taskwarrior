@@ -83,7 +83,7 @@ int CmdStart::execute(std::string&) {
 
       // Start the specified task.
       std::string question =
-          ::format1("Start task {1} '{2}'?", task.identifier(true), task.get("description"));
+          ::format0("Start task {0} '{1}'?", task.identifier(true), task.get("description"));
       task.setAsNow("start");
 
       Task::status status = task.getStatus();
@@ -113,7 +113,7 @@ int CmdStart::execute(std::string&) {
         if (_permission_quit) break;
       }
     } else {
-      std::cout << ::format1("Task {1} '{2}' already started.", task.id, task.get("description"))
+      std::cout << ::format0("Task {0} '{1}' already started.", task.id, task.get("description"))
                 << '\n';
       rc = 1;
     }

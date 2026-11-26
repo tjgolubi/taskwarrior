@@ -122,12 +122,12 @@ int CmdDenotate::execute(std::string&) {
 
     if (before.getAnnotations() != task.getAnnotations()) {
       auto question =
-          ::format1("Denotate task {1} '{2}'?", task.identifier(true), task.get("description"));
+          ::format0("Denotate task {0} '{1}'?", task.identifier(true), task.get("description"));
 
       if (permission(before.diff(task) + question, filtered.size())) {
         ++count;
         Context::getContext().tdb2.modify(task);
-        feedback_affected(::format1("Found annotation '{1}' and deleted it.", anno));
+        feedback_affected(::format0("Found annotation '{0}' and deleted it.", anno));
         if (Context::getContext().verbose("project"))
           projectChanges[task.get("project")] = onProjectChange(task, false);
       } else {
@@ -136,7 +136,7 @@ int CmdDenotate::execute(std::string&) {
         if (_permission_quit) break;
       }
     } else {
-      std::cout << ::format1("Did not find any matching annotation to be deleted for '{1}'.\n",
+      std::cout << ::format0("Did not find any matching annotation to be deleted for '{0}'.\n",
                              pattern);
       rc = 1;
     }

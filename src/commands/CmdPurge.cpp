@@ -146,7 +146,7 @@ int CmdPurge::execute(std::string&) {
       matched_deleted = true;
 
       std::string question;
-      question = ::format1("Permanently remove task {1} '{2}'?", task.identifier(true),
+      question = ::format0("Permanently remove task {0} '{1}'?", task.identifier(true),
                            task.get("description"));
 
       if (permission(question, filtered.size())) handleRelations(task, tasks);
