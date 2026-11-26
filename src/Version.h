@@ -27,6 +27,7 @@
 #ifndef INCLUDED_VERSION
 #define INCLUDED_VERSION
 
+#include <format.h>
 #include <string>
 
 // A utility class for handling Taskwarrior versions.
@@ -67,6 +68,9 @@ class Version {
   int minor = -1;
   int patch = -1;
 };
+
+template<>
+struct ostream_formattable<Version> : std::true_type {};
 
 #endif
 ////////////////////////////////////////////////////////////////////////////////
