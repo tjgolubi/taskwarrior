@@ -59,7 +59,7 @@ add_executable(test_runner
   ${cpp_test_SRCS}
 )
 if (CMAKE_SYSTEM_NAME STREQUAL "MSYS")
-  # Expose the POSIX functions used by the harness in strict C++17 mode.
+  # Expose the POSIX functions used by the harness in strict C++23 mode.
   target_compile_definitions(test_runner PRIVATE _POSIX_C_SOURCE=200809L)
 endif ()
 

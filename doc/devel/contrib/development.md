@@ -2,8 +2,8 @@
 
 ## Satisfy the Requirements:
 
- * CMake 3.22 or later
- * gcc 7.0 or later, clang 6.0 or later, or a compiler with full C++17 support
+ * CMake 3.24 or later
+ * A compiler and standard library with C++23 support
  * libuuid (if not on macOS)
  * Rust 1.64.0 or higher (hint: use https://rustup.rs/ instead of using your system's package manager)
 

@@ -4,15 +4,13 @@ Please follow the instructions below to build and install Taskwarrior from sourc
 
 # Dependencies
 
-You will need the CMake 3.0+ build system installed in order to build Taskwarrior from source.
+You will need CMake 3.24 or later to build Taskwarrior from source.
 More information on CMake can be obtained at https://cmake.org
 
 You will also need:
   - make
 
-You will need a C++ compiler that supports full C++17, which includes:
-  - gcc 7.1   (released 2017-05-02)
-  - clang 5.0 (released 2017-09-07)
+You will need a compiler and standard library with C++23 support.
 
 You will need the following libraries:
   - libuuid (not needed for OSX)
