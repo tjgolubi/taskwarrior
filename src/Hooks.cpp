@@ -62,7 +62,7 @@
 #define STRING_HOOK_ERROR_SAME1 \
   "Hook Error: JSON must be for the same task: {0}, in hook script: {1}"
 #define STRING_HOOK_ERROR_SAME2 \
-  "Hook Error: JSON must be for the same task: {1} != {2}, in hook script: {3}"
+  "Hook Error: JSON must be for the same task: {0} != {1}, in hook script: {2}"
 #define STRING_HOOK_ERROR_NOFEEDBACK "Hook Error: Expected feedback from failing hook script: {0}"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -424,7 +424,7 @@ void Hooks::assertSameTask(const std::vector<std::string>& input, const Task& ta
     std::string json_uuid = json::decode(text);
     if (json_uuid != uuid) {
       Context::getContext().error(
-          ::format1(STRING_HOOK_ERROR_SAME2, uuid, json_uuid, Path(script).name()));
+          ::format0(STRING_HOOK_ERROR_SAME2, uuid, json_uuid, Path(script).name()));
       throw 0;
     }
 

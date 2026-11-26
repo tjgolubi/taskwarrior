@@ -2052,7 +2052,7 @@ void Task::modify(modType type, bool text_required /* = false */) {
           // Get the column info. Some columns are not modifiable.
           Column* column = Context::getContext().columns[name];
           if (!column || !column->modifiable())
-            throw ::format1("The '{1}' attribute does not allow a value of '{2}'.", name, value);
+            throw ::format0("The '{0}' attribute does not allow a value of '{1}'.", name, value);
 
           // Delegate modification to the column object or their base classes.
           if (name == "depends" || name == "tags" || name == "recur" || column->type() == "date" ||
@@ -2136,9 +2136,9 @@ void Task::modify(modType type, bool text_required /* = false */) {
   if ((getStatus() == Task::completed || getStatus() == Task::deleted) &&
       getStatus() == originalStatus) {
     auto uuid = get("uuid").substr(0, 8);
-    Context::getContext().footnote(::format1(
-        "Note: Modified task {1} is {2}. You may wish to make this task pending with: task "
-        "{3} modify status:pending",
+    Context::getContext().footnote(::format0(
+        "Note: Modified task {0} is {1}. You may wish to make this task pending with: task "
+        "{2} modify status:pending",
         uuid, get("status"), uuid));
   }
 }
@@ -2187,7 +2187,7 @@ std::string Task::diff(const Task& after) const {
       // do nothing for legacy attributes
     } else
       out << "  - "
-          << ::format1("{1} will be set to '{2}'.", Lexer::ucFirst(name),
+          << ::format0("{0} will be set to '{1}'.", Lexer::ucFirst(name),
                        renderAttribute(name, after.get(name)))
           << "\n";
   }
@@ -2206,7 +2206,7 @@ std::string Task::diff(const Task& after) const {
         out << ::format0("Annotation will be changed to {0}.\n", after.get(name));
       } else
         out << "  - "
-            << ::format1("{1} will be changed from '{2}' to '{3}'.", Lexer::ucFirst(name),
+            << ::format0("{0} will be changed from '{1}' to '{2}'.", Lexer::ucFirst(name),
                          renderAttribute(name, get(name)), renderAttribute(name, after.get(name)))
             << "\n";
     }

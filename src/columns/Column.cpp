@@ -310,7 +310,7 @@ void Column::renderHeader(std::vector<std::string>& lines, int width, Color& col
 ////////////////////////////////////////////////////////////////////////////////
 void Column::setStyle(const std::string& style) {
   if (style != "default" && std::find(_styles.begin(), _styles.end(), style) == _styles.end())
-    throw ::format1("Unrecognized column format '{1}.{2}'", _name, style);
+    throw ::format0("Unrecognized column format '{0}.{1}'", _name, style);
 
   _style = style;
 }

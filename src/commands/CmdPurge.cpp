@@ -93,8 +93,8 @@ void CmdPurge::handleChildren(Task& task, std::vector<Task>& tasks) {
     if (child.get("parent") == uuid) {
       if (child.getStatus() != Task::deleted)
         // In case any child task is not deleted, bail out
-        throw ::format1(
-            "Task '{1}' is a recurrence template. Its child task {2} must be deleted before it can "
+        throw ::format0(
+            "Task '{0}' is a recurrence template. Its child task {1} must be deleted before it can "
             "be purged.",
             task.get("description"), child.identifier(true));
       else
@@ -106,8 +106,8 @@ void CmdPurge::handleChildren(Task& task, std::vector<Task>& tasks) {
   if (children.empty()) return;
 
   // Ask for confirmation to purge them, if needed
-  std::string question = ::format1(
-      "Task '{1}' is a recurrence template. All its {2} deleted children tasks will be purged as "
+  std::string question = ::format0(
+      "Task '{0}' is a recurrence template. All its {1} deleted children tasks will be purged as "
       "well. Continue?",
       task.get("description"), children.size());
 
@@ -162,7 +162,7 @@ int CmdPurge::execute(std::string&) {
     Context::getContext().footnote(
         "No deleted tasks specified. Maybe you forgot to delete tasks first?");
 
-  feedback_affected(tasks.size() == 1 ? "Purged {1} task." : "Purged {1} tasks.", tasks.size());
+  feedback_affected(tasks.size() == 1 ? "Purged {0} task." : "Purged {0} tasks.", tasks.size());
   return rc;
 }
 

@@ -245,7 +245,7 @@ std::optional<Datetime> getNextRecurrence(Datetime& current, std::string& period
     int increment = strtol(period.substr(0, period.length() - 1).c_str(), nullptr, 10);
 
     if (increment <= 0)
-      throw ::format1("Recurrence period '{1}' is equivalent to {2} and hence invalid.", period,
+      throw ::format0("Recurrence period '{0}' is equivalent to {1} and hence invalid.", period,
                       increment);
 
     m += increment;
@@ -264,7 +264,7 @@ std::optional<Datetime> getNextRecurrence(Datetime& current, std::string& period
     int increment = strtol(period.substr(1, period.length() - 2).c_str(), nullptr, 10);
 
     if (increment <= 0)
-      throw ::format1("Recurrence period '{1}' is equivalent to {2} and hence invalid.", period,
+      throw ::format0("Recurrence period '{0}' is equivalent to {1} and hence invalid.", period,
                       increment);
 
     m += increment;
@@ -294,8 +294,8 @@ std::optional<Datetime> getNextRecurrence(Datetime& current, std::string& period
     int increment = strtol(period.substr(0, period.length() - 1).c_str(), nullptr, 10);
 
     if (increment <= 0) {
-      Context::getContext().footnote(::format1(
-          "Recurrence period '{1}' is equivalent to {2} and hence invalid.", period, increment));
+      Context::getContext().footnote(::format0(
+          "Recurrence period '{0}' is equivalent to {1} and hence invalid.", period, increment));
       return std::nullopt;
     }
 

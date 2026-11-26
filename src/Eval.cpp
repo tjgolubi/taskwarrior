@@ -218,7 +218,7 @@ void Eval::evaluatePostfixStack(const std::vector<std::pair<std::string, Lexer::
       Variant result = !right;
       values.push_back(result);
       if (_debug)
-        Context::getContext().debug(::format1("Eval {1} ↓'{2}' → ↑'{3}'", token.first,
+        Context::getContext().debug(::format0("Eval {0} ↓'{1}' → ↑'{2}'", token.first,
                                               (std::string)right, (std::string)result));
     } else if (token.second == Lexer::Type::op && token.first == "_neg_") {
       if (values.size() < 1) throw std::string("The expression could not be evaluated.");
@@ -231,7 +231,7 @@ void Eval::evaluatePostfixStack(const std::vector<std::pair<std::string, Lexer::
       values.push_back(result);
 
       if (_debug)
-        Context::getContext().debug(::format1("Eval {1} ↓'{2}' → ↑'{3}'", token.first,
+        Context::getContext().debug(::format0("Eval {0} ↓'{1}' → ↑'{2}'", token.first,
                                               (std::string)right, (std::string)result));
     } else if (token.second == Lexer::Type::op && token.first == "_pos_") {
       // The _pos_ operator is a NOP.
@@ -308,7 +308,7 @@ void Eval::evaluatePostfixStack(const std::vector<std::pair<std::string, Lexer::
       values.push_back(result);
 
       if (_debug)
-        Context::getContext().debug(::format1("Eval ↓'{1}' {2} ↓'{3}' → ↑'{4}'", (std::string)left,
+        Context::getContext().debug(::format0("Eval ↓'{0}' {1} ↓'{2}' → ↑'{3}'", (std::string)left,
                                               token.first, (std::string)right,
                                               (std::string)result));
     }
@@ -339,7 +339,7 @@ void Eval::evaluatePostfixStack(const std::vector<std::pair<std::string, Lexer::
           for (const auto& source : _sources) {
             if (source(token.first, v)) {
               if (_debug)
-                Context::getContext().debug(::format1("Eval identifier source '{1}' → ↑'{2}'",
+                Context::getContext().debug(::format0("Eval identifier source '{0}' → ↑'{1}'",
                                                       token.first, (std::string)v));
               found = true;
               break;

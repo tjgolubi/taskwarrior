@@ -188,7 +188,7 @@ void ColumnTypeDate::modify(Task& task, const std::string& value) {
 
   // If a date doesn't parse (2/29/2014) then it evaluates to zero.
   if (value != "" && evaluatedValue.get_date() == 0)
-    throw ::format1("'{1}' is not a valid date in the '{2}' format.", value, Variant::dateFormat);
+    throw ::format0("'{0}' is not a valid date in the '{1}' format.", value, Variant::dateFormat);
 
   time_t epoch = evaluatedValue.get_date();
   if (epoch < EPOCH_MIN_VALUE || epoch >= EPOCH_MAX_VALUE) {

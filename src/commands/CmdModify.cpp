@@ -37,7 +37,7 @@
 
 #include <iostream>
 
-#define STRING_CMD_MODIFY_TASK_R "Modifying recurring task {1} '{2}'."
+#define STRING_CMD_MODIFY_TASK_R "Modifying recurring task {0} '{1}'."
 #define STRING_CMD_MODIFY_RECUR \
   "This is a recurring task.  Do you want to modify all pending recurrences of this same task?"
 
@@ -75,7 +75,7 @@ int CmdModify::execute(std::string&) {
 
   auto count = 0;
   if (filtered.size() > 1) {
-    feedback_affected("This command will alter {1} tasks.", filtered.size());
+    feedback_affected("This command will alter {0} tasks.", filtered.size());
   }
   for (auto& task : filtered) {
     Task before(task);
@@ -112,7 +112,7 @@ int CmdModify::execute(std::string&) {
   for (const auto& change : projectChanges)
     if (change.first != "") Context::getContext().footnote(change.second);
 
-  feedback_affected(count == 1 ? "Modified {1} task." : "Modified {1} tasks.", count);
+  feedback_affected(count == 1 ? "Modified {0} task." : "Modified {0} tasks.", count);
   return rc;
 }
 
@@ -150,7 +150,7 @@ int CmdModify::modifyAndUpdate(Task& before, Task& after,
   auto count = 1;
 
   updateRecurrenceMask(after);
-  feedback_affected("Modifying task {1} '{2}'.", after);
+  feedback_affected("Modifying task {0} '{1}'.", after);
   feedback_unblocked(after);
   Context::getContext().tdb2.modify(after);
   if (Context::getContext().verbose("project") && projectChanges)

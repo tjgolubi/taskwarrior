@@ -75,7 +75,7 @@ bool CmdConfig::setConfigVariable(const std::string& name, const std::string& va
       found = true;
       if (!confirmation ||
           confirm(
-              ::format1("Are you sure you want to change the value of '{1}' from '{2}' to '{3}'?",
+              ::format0("Are you sure you want to change the value of '{0}' from '{1}' to '{2}'?",
                         name, Context::getContext().config.get(name), value))) {
         auto new_line = line.substr(0, pos + name.length() + 1) + json::encode(value);
 
@@ -91,7 +91,7 @@ bool CmdConfig::setConfigVariable(const std::string& name, const std::string& va
 
   // Not found, so append instead.
   if (!found && (!confirmation ||
-                 confirm(::format1("Are you sure you want to add '{1}' with a value of '{2}'?",
+                 confirm(::format0("Are you sure you want to add '{0}' with a value of '{1}'?",
                                    name, value)))) {
     contents.push_back(name + '=' + json::encode(value));
     change = true;

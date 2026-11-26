@@ -109,7 +109,7 @@ int CmdDuplicate::execute(std::string&) {
             filtered.size())) {
       Context::getContext().tdb2.add(dup);
       ++count;
-      feedback_affected("Duplicated task {1} '{2}'.", task);
+      feedback_affected("Duplicated task {0} '{1}'.", task);
 
       auto status = dup.getStatus();
       if (Context::getContext().verbose("new-id") && dup.is_open())
@@ -131,7 +131,7 @@ int CmdDuplicate::execute(std::string&) {
   for (const auto& change : projectChanges)
     if (change.first != "") Context::getContext().footnote(change.second);
 
-  feedback_affected(count == 1 ? "Duplicated {1} task." : "Duplicated {1} tasks.", count);
+  feedback_affected(count == 1 ? "Duplicated {0} task." : "Duplicated {0} tasks.", count);
 
   return rc;
 }

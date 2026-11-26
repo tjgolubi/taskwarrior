@@ -877,7 +877,7 @@ void CLI2::categorizeArgs() {
     else if (cmd && !cmd->accepts_filter() && !cmd->accepts_modifications() &&
              !cmd->accepts_miscellaneous()) {
       // No commands were expected --> error.
-      throw ::format1("The '{1}' command does not allow '{2}'.", command, a.attribute("raw"));
+      throw ::format0("The '{0}' command does not allow '{1}'.", command, a.attribute("raw"));
     } else if (cmd && !cmd->accepts_filter() && !cmd->accepts_modifications() &&
                cmd->accepts_miscellaneous()) {
       a.tag("MISCELLANEOUS");

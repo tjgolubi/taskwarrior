@@ -72,7 +72,7 @@ int CmdAppend::execute(std::string&) {
   std::map<std::string, std::string> projectChanges;
 
   if (filtered.size() > 1) {
-    feedback_affected("This command will alter {1} tasks.", filtered.size());
+    feedback_affected("This command will alter {0} tasks.", filtered.size());
   }
   for (auto& task : filtered) {
     Task before(task);
@@ -86,7 +86,7 @@ int CmdAppend::execute(std::string&) {
     if (permission(before.diff(task) + question, filtered.size())) {
       Context::getContext().tdb2.modify(task);
       ++count;
-      feedback_affected("Appending to task {1} '{2}'.", task);
+      feedback_affected("Appending to task {0} '{1}'.", task);
       if (Context::getContext().verbose("project"))
         projectChanges[task.get("project")] = onProjectChange(task, false);
 
@@ -101,7 +101,7 @@ int CmdAppend::execute(std::string&) {
             sibling.modify(Task::modAppend, true);
             Context::getContext().tdb2.modify(sibling);
             ++count;
-            feedback_affected("Appending to recurring task {1} '{2}'.", sibling);
+            feedback_affected("Appending to recurring task {0} '{1}'.", sibling);
           }
 
           // Append to the parent
@@ -122,7 +122,7 @@ int CmdAppend::execute(std::string&) {
   for (const auto& change : projectChanges)
     if (change.first != "") Context::getContext().footnote(change.second);
 
-  feedback_affected(count == 1 ? "Appended {1} task." : "Appended {1} tasks.", count);
+  feedback_affected(count == 1 ? "Appended {0} task." : "Appended {0} tasks.", count);
   return rc;
 }
 

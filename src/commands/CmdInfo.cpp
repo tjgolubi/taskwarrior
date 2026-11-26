@@ -651,7 +651,7 @@ std::optional<std::string> CmdInfo::formatForInfo(const std::vector<Operation>& 
           }
         }
 
-        out << ::format1("{1} deleted (duration: {2}).", Lexer::ucFirst(prop),
+        out << ::format0("{0} deleted (duration: {1}).", Lexer::ucFirst(prop),
                          Duration(stopped - started).format())
             << "\n";
       } else {
@@ -677,7 +677,7 @@ std::optional<std::string> CmdInfo::formatForInfo(const std::vector<Operation>& 
           }
         }
 
-        out << ::format1("{1} set to '{2}'.", Lexer::ucFirst(prop),
+        out << ::format0("{0} set to '{1}'.", Lexer::ucFirst(prop),
                          renderAttribute(prop, *value, dateformat))
             << "\n";
       }
@@ -695,7 +695,7 @@ std::optional<std::string> CmdInfo::formatForInfo(const std::vector<Operation>& 
           last_start = Datetime(value.value()).toEpoch();
         }
 
-        out << ::format1("{1} changed from '{2}' to '{3}'.", Lexer::ucFirst(prop),
+        out << ::format0("{0} changed from '{1}' to '{2}'.", Lexer::ucFirst(prop),
                          renderAttribute(prop, *old_value, dateformat),
                          renderAttribute(prop, *value, dateformat))
             << "\n";

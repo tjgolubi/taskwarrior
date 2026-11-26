@@ -222,7 +222,7 @@ void CmdContext::defineContext(const std::vector<std::string>& words, std::strin
     if (!valid_write_context) {
       std::stringstream warning;
       warning
-          << ::format1("The filter '{1}' is not a valid modification string, because it {2}.",
+          << ::format0("The filter '{0}' is not a valid modification string, because it {1}.",
                        value, reason)
           << "\nAs such, value for the write context cannot be set (context will not apply on task "
              "add / task log).\n\n"
@@ -387,8 +387,8 @@ void CmdContext::showContext(std::stringstream& out) {
   if (currentContext == "")
     out << "No context is currently applied.\n";
   else {
-    out << ::format1(
-        "Context '{1}' with \n\n* read filter: '{2}'\n* write filter: '{3}'\n\nis currently "
+    out << ::format0(
+        "Context '{0}' with \n\n* read filter: '{1}'\n* write filter: '{2}'\n\nis currently "
         "applied.\n",
         currentContext, Context::getContext().getTaskContext("read", ""),
         Context::getContext().getTaskContext("write", ""));

@@ -76,9 +76,9 @@ void feedback_affected(const std::string& effect) {
 //    Deleted 3 tasks
 //
 // The 'effect' string should contain:
-//    {1}    Quantity
+//    {0}    Quantity
 void feedback_affected(const std::string& effect, int quantity) {
-  if (Context::getContext().verbose("affected")) std::cout << ::format1(effect, quantity) << "\n";
+  if (Context::getContext().verbose("affected")) std::cout << ::format0(effect, quantity) << "\n";
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -86,11 +86,11 @@ void feedback_affected(const std::string& effect, int quantity) {
 //    Deleting task 123 'This is a test'
 //
 // The 'effect' string should contain:
-//    {1}    ID
-//    {2}    Description
+//    {0}    ID
+//    {1}    Description
 void feedback_affected(const std::string& effect, const Task& task) {
   if (Context::getContext().verbose("affected")) {
-    std::cout << ::format1(effect, task.identifier(true), task.get("description")) << "\n";
+    std::cout << ::format0(effect, task.identifier(true), task.get("description")) << "\n";
   }
 }
 
@@ -208,7 +208,7 @@ std::string onProjectChange(Task& task, bool scope /* = true */) {
     else
       percentage = (count_done * 100 / (count_done + count_pending));
 
-    msg << ::format1("Project '{1}' is {2}% complete", project, percentage) << ' ';
+    msg << ::format0("Project '{0}' is {1}% complete", project, percentage) << ' ';
 
     if (count_pending == 1 && count_done == 0)
       msg << ::format0("({0} task remaining).", count_pending);

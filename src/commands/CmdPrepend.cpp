@@ -72,7 +72,7 @@ int CmdPrepend::execute(std::string&) {
   std::map<std::string, std::string> projectChanges;
 
   if (filtered.size() > 1) {
-    feedback_affected("This command will alter {1} tasks.", filtered.size());
+    feedback_affected("This command will alter {0} tasks.", filtered.size());
   }
   for (auto& task : filtered) {
     Task before(task);
@@ -86,7 +86,7 @@ int CmdPrepend::execute(std::string&) {
     if (permission(before.diff(task) + question, filtered.size())) {
       Context::getContext().tdb2.modify(task);
       ++count;
-      feedback_affected("Prepending to task {1} '{2}'.", task);
+      feedback_affected("Prepending to task {0} '{1}'.", task);
       if (Context::getContext().verbose("project"))
         projectChanges[task.get("project")] = onProjectChange(task, false);
 
@@ -101,7 +101,7 @@ int CmdPrepend::execute(std::string&) {
             sibling.modify(Task::modPrepend, true);
             Context::getContext().tdb2.modify(sibling);
             ++count;
-            feedback_affected("Prepending to recurring task {1} '{2}'.", sibling);
+            feedback_affected("Prepending to recurring task {0} '{1}'.", sibling);
           }
 
           // Prepend to the parent
@@ -122,7 +122,7 @@ int CmdPrepend::execute(std::string&) {
   for (auto& change : projectChanges)
     if (change.first != "") Context::getContext().footnote(change.second);
 
-  feedback_affected(count == 1 ? "Prepended {1} task." : "Prepended {1} tasks.", count);
+  feedback_affected(count == 1 ? "Prepended {0} task." : "Prepended {0} tasks.", count);
   return rc;
 }
 

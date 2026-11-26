@@ -73,7 +73,7 @@ int CmdDone::execute(std::string&) {
   std::map<std::string, std::string> projectChanges;
 
   if (filtered.size() > 1) {
-    feedback_affected("This command will alter {1} tasks.", filtered.size());
+    feedback_affected("This command will alter {0} tasks.", filtered.size());
   }
 
   std::vector<Task> modified;
@@ -100,7 +100,7 @@ int CmdDone::execute(std::string&) {
         updateRecurrenceMask(task);
         Context::getContext().tdb2.modify(task);
         ++count;
-        feedback_affected("Completed task {1} '{2}'.", task);
+        feedback_affected("Completed task {0} '{1}'.", task);
         feedback_unblocked(task);
         dependencyChainOnComplete(task);
         if (Context::getContext().verbose("project"))
@@ -127,7 +127,7 @@ int CmdDone::execute(std::string&) {
   for (const auto& change : projectChanges)
     if (change.first != "") Context::getContext().footnote(change.second);
 
-  feedback_affected(count == 1 ? "Completed {1} task." : "Completed {1} tasks.", count);
+  feedback_affected(count == 1 ? "Completed {0} task." : "Completed {0} tasks.", count);
   return rc;
 }
 

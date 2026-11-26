@@ -38,8 +38,8 @@
 #include <iostream>
 
 #define STRING_CMD_DENO_NO "Task not denotated."
-#define STRING_CMD_DENO_1 "Denotated {1} task."
-#define STRING_CMD_DENO_N "Denotated {1} tasks."
+#define STRING_CMD_DENO_1 "Denotated {0} task."
+#define STRING_CMD_DENO_N "Denotated {0} tasks."
 
 ////////////////////////////////////////////////////////////////////////////////
 CmdDenotate::CmdDenotate() {
@@ -86,7 +86,7 @@ int CmdDenotate::execute(std::string&) {
   std::map<std::string, std::string> projectChanges;
 
   if (filtered.size() > 1) {
-    feedback_affected("This command will alter {1} tasks.", filtered.size());
+    feedback_affected("This command will alter {0} tasks.", filtered.size());
   }
   for (auto& task : filtered) {
     Task before(task);

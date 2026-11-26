@@ -1151,8 +1151,8 @@ void Context::createDefaultConfig() {
 
     if (config.getBoolean("confirmation") &&
         !confirm(
-            ::format1("A configuration file could not be found in {1}\n\nWould you like a sample "
-                      "{2} created, so Taskwarrior can proceed?",
+            ::format0("A configuration file could not be found in {0}\n\nWould you like a sample "
+                      "{1} created, so Taskwarrior can proceed?",
                       home_dir, rc_file._data)))
       throw std::string("Cannot proceed without rc file.");
 

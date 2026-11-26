@@ -125,7 +125,7 @@ void NewsItem::render() {
 
   // TODO: For some reason, bold cannot be blended in 256-color terminals
   // Apply this workaround of colorizing twice.
-  std::cout << bold.colorize(header.colorize(::format1("{1} ({2})\n", _title, _version)));
+  std::cout << bold.colorize(header.colorize(::format0("{0} ({1})\n", _title, _version)));
   if (_background.size()) {
     if (_bg_title.empty()) _bg_title = "Background";
 
@@ -204,7 +204,7 @@ void NewsItem::version2_6_0(std::vector<NewsItem>& items) {
 
       for (auto context : defined) {
         std::string old_definition = config.get("context." + context);
-        if (old_definition != "") advice << ::format1("  * {1}: {2}\n", context, old_definition);
+        if (old_definition != "") advice << ::format0("  * {0}: {1}\n", context, old_definition);
       }
 
       advice << "\n"
@@ -214,7 +214,7 @@ void NewsItem::version2_6_0(std::vector<NewsItem>& items) {
       for (auto context : defined) {
         std::string old_definition = config.get("context." + context);
         if (old_definition != "")
-          advice << ::format1("  $ task context define {1} '{2}'\n", context, old_definition);
+          advice << ::format0("  $ task context define {0} '{1}'\n", context, old_definition);
       }
 
       advice
