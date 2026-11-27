@@ -137,18 +137,18 @@ int CmdCalendar::execute(std::string& output) {
     else if (Lexer::isAllDigits(arg) && arg.length() <= 2) {
       argMonth = strtol(arg.c_str(), nullptr, 10);
       if (argMonth < 1 || argMonth > 12)
-        throw std::format("Argument '{0}' is not a valid month.", arg);
+        throw std::format("Argument '{}' is not a valid month.", arg);
     }
 
     // "January" etc.
     else if (autoComplete(Lexer::lowerCase(arg), monthNames, matches,
                           config.getInteger("abbreviation.minimum")) == 1) {
       argMonth = Datetime::monthOfYear(matches[0]);
-      if (argMonth == -1) throw std::format("Argument '{0}' is not a valid month.", arg);
+      if (argMonth == -1) throw std::format("Argument '{}' is not a valid month.", arg);
     }
 
     else
-      throw std::format("Could not recognize argument '{0}'.", arg);
+      throw std::format("Could not recognize argument '{}'.", arg);
   }
 
   // Supported combinations:

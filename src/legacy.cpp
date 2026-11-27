@@ -33,7 +33,7 @@
 #include <format>
 #include <sstream>
 
-#define STRING_LEGACY_PRIORITY "Legacy attribute found.  Please change '{0}' to '{1}'."
+#define STRING_LEGACY_PRIORITY "Legacy attribute found.  Please change '{}' to '{}'."
 
 ////////////////////////////////////////////////////////////////////////////////
 void legacyColumnMap(std::string& name) {

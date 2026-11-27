@@ -169,7 +169,7 @@ int CmdTimesheet::execute(std::string& output) {
       row = table.addRowEven();
 
     // If the data doesn't change, it doesn't get shown.
-    table.set(row, 0, (week != previous_week ? std::format("W{0}", week) : ""));
+    table.set(row, 0, (week != previous_week ? std::format("W{}", week) : ""));
     table.set(row, 1, (date != previous_date ? date : ""));
     table.set(row, 2, (day != previous_day ? day : ""));
     table.set(row, 3, task.identifier(true));
@@ -188,7 +188,7 @@ int CmdTimesheet::execute(std::string& output) {
   if (table.rows()) out << optionalBlankLine() << table.render() << '\n';
 
   if (Context::getContext().verbose("affected"))
-    out << std::format("{0} completed, {1} started.", num_completed, num_started) << '\n';
+    out << std::format("{} completed, {} started.", num_completed, num_started) << '\n';
 
   output = out.str();
   return rc;

@@ -74,7 +74,7 @@ void Filter::subset(const std::vector<Task>& input, std::vector<Task>& output) {
 
   _endCount = (int)output.size();
   Context::getContext().debug(
-      std::format("Filtered {0} tasks --> {1} tasks [list subset]", _startCount, _endCount));
+      std::format("Filtered {} tasks --> {} tasks [list subset]", _startCount, _endCount));
   Context::getContext().time_filter_us += timer.total_us();
 }
 
@@ -142,7 +142,7 @@ void Filter::subset(std::vector<Task>& output) {
   }
 
   _endCount = (int)output.size();
-  Context::getContext().debug(std::format("Filtered {0} tasks --> {1} tasks [{2}]", _startCount,
+  Context::getContext().debug(std::format("Filtered {} tasks --> {} tasks [{}]", _startCount,
                                           _endCount, (shortcut ? "pending only" : "all tasks")));
   Context::getContext().time_filter_us += timer.total_us();
 }

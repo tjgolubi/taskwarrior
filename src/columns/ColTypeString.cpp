@@ -36,7 +36,7 @@
 
 #include <format>
 
-#define STRING_INVALID_MOD "The '{0}' attribute does not allow a value of '{1}'."
+#define STRING_INVALID_MOD "The '{}' attribute does not allow a value of '{}'."
 
 ////////////////////////////////////////////////////////////////////////////////
 ColumnTypeString::ColumnTypeString() { _type = "string"; }

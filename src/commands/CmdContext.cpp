@@ -131,14 +131,14 @@ bool CmdContext::validateWriteContext(const std::vector<A2>& lexedArgs, std::str
     if (arg._lextype == Lexer::Type::pair) {
       auto modifier = arg.attribute("modifier");
       if (modifier != "" && modifier != "is" && modifier != "equals") {
-        reason = std::format("contains an attribute modifier '{0}'", arg.attribute("raw"));
+        reason = std::format("contains an attribute modifier '{}'", arg.attribute("raw"));
         return false;
       }
     }
 
     if (arg._lextype == Lexer::Type::tag) {
       if (arg.attribute("sign") == "-") {
-        reason = std::format("contains tag exclusion '{0}'", arg.attribute("raw"));
+        reason = std::format("contains tag exclusion '{}'", arg.attribute("raw"));
         return false;
       }
     }
@@ -186,7 +186,7 @@ void CmdContext::defineContext(const std::vector<std::string>& words, std::strin
 
     // Make sure nobody creates a context with name 'list', 'none' or 'show'
     if (words[1] == "none" or words[1] == "list" or words[1] == "show") {
-      throw std::format("The name '{0}' is reserved and not allowed to use as a context name.",
+      throw std::format("The name '{}' is reserved and not allowed to use as a context name.",
                         words[1]);
     }
 
@@ -207,13 +207,13 @@ void CmdContext::defineContext(const std::vector<std::string>& words, std::strin
       Context::getContext().cli2.addFilter(value);
       filter.subset(pending, filtered);
     } catch (std::string exception) {
-      throw std::format("Filter validation failed: {0}", exception);
+      throw std::format("Filter validation failed: {}", exception);
     }
 
     // Make user explicitly confirm filters that are matching no pending tasks
     if (filtered.size() == 0)
       if (confirmation &&
-          !confirm(std::format("The filter '{0}' matches 0 pending tasks. Do you wish to continue?",
+          !confirm(std::format("The filter '{}' matches 0 pending tasks. Do you wish to continue?",
                                value)))
         throw std::string("Context definition aborted.");
 
@@ -223,12 +223,12 @@ void CmdContext::defineContext(const std::vector<std::string>& words, std::strin
     if (!valid_write_context) {
       std::stringstream warning;
       warning
-          << std::format("The filter '{0}' is not a valid modification string, because it {1}.",
+          << std::format("The filter '{}' is not a valid modification string, because it {}.",
                          value, reason)
           << "\nAs such, value for the write context cannot be set (context will not apply on task "
              "add / task log).\n\n"
           << std::format(
-                 "Please use 'task config context.{0}.write <default mods>' to set default "
+                 "Please use 'task config context.{}.write <default mods>' to set default "
                  "attribute values for new tasks in this context manually.\n\n",
                  words[1]);
       out << colorizeFootnote(warning.str());
@@ -248,15 +248,15 @@ void CmdContext::defineContext(const std::vector<std::string>& words, std::strin
       }
 
     if (!read_success and !write_success)
-      throw std::format("Context '{0}' not defined.", words[1]);
+      throw std::format("Context '{}' not defined.", words[1]);
     else if (!read_success)
-      out << std::format("Context '{0}' defined (write only).", words[1]);
+      out << std::format("Context '{}' defined (write only).", words[1]);
     else if (!write_success)
-      out << std::format("Context '{0}' defined (read only).", words[1]);
+      out << std::format("Context '{}' defined (read only).", words[1]);
     else
-      out << std::format("Context '{0}' defined (read, write).", words[1]);
+      out << std::format("Context '{}' defined (read, write).", words[1]);
 
-    out << std::format(" Use 'task context {0}' to activate.\n", words[1]);
+    out << std::format(" Use 'task context {}' to activate.\n", words[1]);
   } else
     throw std::string("Both context name and its definition must be provided.");
 }
@@ -277,8 +277,8 @@ void CmdContext::deleteContext(const std::vector<std::string>& words, std::strin
     auto name = "context." + words[1];
 
     auto confirmation = Context::getContext().config.getBoolean("confirmation");
-    if (confirmation && !confirm(std::format("Do you want to delete context '{0}'?", words[1])))
-      throw std::format("Context '{0}' not deleted.", words[1]);
+    if (confirmation && !confirm(std::format("Do you want to delete context '{}'?", words[1])))
+      throw std::format("Context '{}' not deleted.", words[1]);
 
     // Delete legacy format and .read / .write flavours
     auto rc = CmdConfig::unsetConfigVariable(name, false);
@@ -292,11 +292,11 @@ void CmdContext::deleteContext(const std::vector<std::string>& words, std::strin
     // Output feedback, rc should be even because only 0 (found and removed)
     // and 2 (not found) are aceptable return values from unsetConfigVariable
     if (rc % 2 != 0)
-      throw std::format("Context '{0}' not deleted.", words[1]);
+      throw std::format("Context '{}' not deleted.", words[1]);
     else if (rc == 6)
-      throw std::format("Context '{0}' not found.", words[1]);
+      throw std::format("Context '{}' not found.", words[1]);
 
-    out << std::format("Context '{0}' deleted.\n", words[1]);
+    out << std::format("Context '{}' deleted.\n", words[1]);
   } else
     throw std::string("Context name needs to be specified.");
 }
@@ -363,15 +363,15 @@ void CmdContext::setContext(const std::vector<std::string>& words, std::stringst
 
   // Check that the specified context is defined
   if (std::find(contexts.begin(), contexts.end(), value) == contexts.end())
-    throw std::format("Context '{0}' not found.", value);
+    throw std::format("Context '{}' not found.", value);
 
   // Set the active context.
   // Should always succeed, as we do not require confirmation.
   bool success = CmdConfig::setConfigVariable("context", value, false);
 
-  if (!success) throw std::format("Context '{0}' not applied.", value);
+  if (!success) throw std::format("Context '{}' not applied.", value);
 
-  out << std::format("Context '{0}' set. Use 'task context none' to remove.\n", value);
+  out << std::format("Context '{}' set. Use 'task context none' to remove.\n", value);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -389,7 +389,7 @@ void CmdContext::showContext(std::stringstream& out) {
     out << "No context is currently applied.\n";
   else {
     out << std::format(
-        "Context '{0}' with \n\n* read filter: '{1}'\n* write filter: '{2}'\n\nis currently "
+        "Context '{}' with \n\n* read filter: '{}'\n* write filter: '{}'\n\nis currently "
         "applied.\n",
         currentContext, Context::getContext().getTaskContext("read", ""),
         Context::getContext().getTaskContext("write", ""));

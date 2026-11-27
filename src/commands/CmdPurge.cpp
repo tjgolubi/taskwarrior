@@ -96,7 +96,7 @@ void CmdPurge::handleChildren(Task& task, std::vector<Task>& tasks) {
       if (child.getStatus() != Task::deleted)
         // In case any child task is not deleted, bail out
         throw std::format(
-            "Task '{0}' is a recurrence template. Its child task {1} must be deleted before it can "
+            "Task '{}' is a recurrence template. Its child task {} must be deleted before it can "
             "be purged.",
             task.get("description"), child.identifier(true));
       else
@@ -109,7 +109,7 @@ void CmdPurge::handleChildren(Task& task, std::vector<Task>& tasks) {
 
   // Ask for confirmation to purge them, if needed
   std::string question = std::format(
-      "Task '{0}' is a recurrence template. All its {1} deleted children tasks will be purged as "
+      "Task '{}' is a recurrence template. All its {} deleted children tasks will be purged as "
       "well. Continue?",
       task.get("description"), children.size());
 
@@ -148,7 +148,7 @@ int CmdPurge::execute(std::string&) {
       matched_deleted = true;
 
       std::string question;
-      question = std::format("Permanently remove task {0} '{1}'?", task.identifier(true),
+      question = std::format("Permanently remove task {} '{}'?", task.identifier(true),
                              task.get("description"));
 
       if (permission(question, filtered.size())) handleRelations(task, tasks);
@@ -164,7 +164,7 @@ int CmdPurge::execute(std::string&) {
     Context::getContext().footnote(
         "No deleted tasks specified. Maybe you forgot to delete tasks first?");
 
-  feedback_affected("Purged {0} task.", "Purged {0} tasks.", tasks.size());
+  feedback_affected("Purged {} task.", "Purged {} tasks.", tasks.size());
   return rc;
 }
 

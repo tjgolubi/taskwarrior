@@ -224,7 +224,7 @@ std::string CmdHelp::composeUsage() const {
     if (alias.first.substr(0, 6) == "alias.") {
       row = view.addRow();
       view.set(row, 1, alias.first.substr(6));
-      view.set(row, 2, std::format("Aliased to '{0}'", alias.second));
+      view.set(row, 2, std::format("Aliased to '{}'", alias.second));
     }
   }
 

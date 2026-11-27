@@ -40,9 +40,9 @@
 #include <sstream>
 #include <vector>
 
-#define STRING_CMD_SHOW_DIFFER_COLOR "These are highlighted in {0} above."
+#define STRING_CMD_SHOW_DIFFER_COLOR "These are highlighted in {} above."
 #define STRING_CMD_SHOW_CONFIG_ERROR \
-  "Configuration error: {0} contains an unrecognized value '{1}'."
+  "Configuration error: {} contains an unrecognized value '{}'."
 
 extern std::string configurationDefaults;
 

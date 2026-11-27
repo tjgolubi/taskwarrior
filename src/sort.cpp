@@ -283,7 +283,7 @@ static bool sort_compare(int left, int right) {
         return ascending ? (left_duration < right_duration) : (left_duration > right_duration);
       }
     } else
-      throw std::format("The '{0}' column is not a valid sort field.", field);
+      throw std::format("The '{}' column is not a valid sort field.", field);
   }
 
   return false;

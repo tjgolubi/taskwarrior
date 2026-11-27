@@ -140,7 +140,7 @@ Column* Column::factory(const std::string& name, const std::string& report) {
     c = Column::uda(column_name);
 
   else
-    throw std::format("Unrecognized column name '{0}'.", column_name);
+    throw std::format("Unrecognized column name '{}'.", column_name);
 
   c->setReport(report);
   c->setStyle(column_style);
@@ -225,7 +225,7 @@ void Column::uda(std::map<std::string, Column*>& all) {
   for (const auto& uda : udas) {
     if (all.find(uda) != all.end())
       throw std::format(
-          "The UDA named '{0}' is the same as a core attribute, and is not permitted.", uda);
+          "The UDA named '{}' is the same as a core attribute, and is not permitted.", uda);
 
     Column* c = Column::uda(uda);
     if (c) all[c->_name] = c;
@@ -311,7 +311,7 @@ void Column::renderHeader(std::vector<std::string>& lines, int width, Color& col
 ////////////////////////////////////////////////////////////////////////////////
 void Column::setStyle(const std::string& style) {
   if (style != "default" && std::find(_styles.begin(), _styles.end(), style) == _styles.end())
-    throw std::format("Unrecognized column format '{0}.{1}'", _name, style);
+    throw std::format("Unrecognized column format '{}.{}'", _name, style);
 
   _style = style;
 }

@@ -74,7 +74,7 @@ int CmdDone::execute(std::string&) {
   std::map<std::string, std::string> projectChanges;
 
   if (filtered.size() > 1) {
-    feedback_affected("This command will alter {0} tasks.", filtered.size());
+    feedback_affected("This command will alter {} tasks.", filtered.size());
   }
 
   std::vector<Task> modified;
@@ -84,7 +84,7 @@ int CmdDone::execute(std::string&) {
     if (task.is_open()) {
       // Complete the specified task.
       std::string question =
-          std::format("Complete task {0} '{1}'?", task.identifier(true), task.get("description"));
+          std::format("Complete task {} '{}'?", task.identifier(true), task.get("description"));
 
       task.modify(Task::modAnnotate);
       task.setStatus(Task::completed);
@@ -101,7 +101,7 @@ int CmdDone::execute(std::string&) {
         updateRecurrenceMask(task);
         Context::getContext().tdb2.modify(task);
         ++count;
-        feedback_affected("Completed task {0} '{1}'.", task);
+        feedback_affected("Completed task {} '{}'.", task);
         feedback_unblocked(task);
         dependencyChainOnComplete(task);
         if (Context::getContext().verbose("project"))
@@ -115,7 +115,7 @@ int CmdDone::execute(std::string&) {
         if (_permission_quit) break;
       }
     } else {
-      std::cout << std::format("Task {0} '{1}' is neither pending nor waiting.",
+      std::cout << std::format("Task {} '{}' is neither pending nor waiting.",
                                task.identifier(true), task.get("description"))
                 << '\n';
       rc = 1;
@@ -128,7 +128,7 @@ int CmdDone::execute(std::string&) {
   for (const auto& change : projectChanges)
     if (change.first != "") Context::getContext().footnote(change.second);
 
-  feedback_affected("Completed {0} task.", "Completed {0} tasks.", count);
+  feedback_affected("Completed {} task.", "Completed {} tasks.", count);
   return rc;
 }
 

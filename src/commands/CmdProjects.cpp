@@ -120,11 +120,11 @@ int CmdProjects::execute(std::string& output) {
     if (no_project) --number_projects;
 
     out << optionalBlankLine() << view.render() << optionalBlankLine()
-        << (number_projects == 1 ? std::format("{0} project", number_projects)
-                                 : std::format("{0} projects", number_projects))
+        << (number_projects == 1 ? std::format("{} project", number_projects)
+                                 : std::format("{} projects", number_projects))
         << ' '
-        << (quantity == 1 ? std::format("({0} task)", quantity)
-                          : std::format("({0} tasks)", quantity))
+        << (quantity == 1 ? std::format("({} task)", quantity)
+                          : std::format("({} tasks)", quantity))
         << '\n';
   } else {
     out << "No projects.\n";

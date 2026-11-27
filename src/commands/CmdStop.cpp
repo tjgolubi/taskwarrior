@@ -72,7 +72,7 @@ int CmdStop::execute(std::string&) {
   std::map<std::string, std::string> projectChanges;
 
   if (filtered.size() > 1) {
-    feedback_affected("This command will alter {0} tasks.", filtered.size());
+    feedback_affected("This command will alter {} tasks.", filtered.size());
   }
   for (auto& task : filtered) {
     if (task.has("start")) {
@@ -80,7 +80,7 @@ int CmdStop::execute(std::string&) {
 
       // Stop the specified task.
       std::string question =
-          std::format("Stop task {0} '{1}'?", task.identifier(true), task.get("description"));
+          std::format("Stop task {} '{}'?", task.identifier(true), task.get("description"));
 
       task.modify(Task::modAnnotate);
       task.remove("start");
@@ -92,7 +92,7 @@ int CmdStop::execute(std::string&) {
         updateRecurrenceMask(task);
         Context::getContext().tdb2.modify(task);
         ++count;
-        feedback_affected("Stopping task {0} '{1}'.", task);
+        feedback_affected("Stopping task {} '{}'.", task);
         dependencyChainOnStart(task);
         if (Context::getContext().verbose("project"))
           projectChanges[task.get("project")] = onProjectChange(task, false);
@@ -102,7 +102,7 @@ int CmdStop::execute(std::string&) {
         if (_permission_quit) break;
       }
     } else {
-      std::cout << std::format("Task {0} '{1}' not started.", task.identifier(true),
+      std::cout << std::format("Task {} '{}' not started.", task.identifier(true),
                                task.get("description"))
                 << '\n';
       rc = 1;
@@ -113,7 +113,7 @@ int CmdStop::execute(std::string&) {
   for (auto& change : projectChanges)
     if (change.first != "") Context::getContext().footnote(change.second);
 
-  feedback_affected("Stopped {0} task.", "Stopped {0} tasks.", count);
+  feedback_affected("Stopped {} task.", "Stopped {} tasks.", count);
   return rc;
 }
 

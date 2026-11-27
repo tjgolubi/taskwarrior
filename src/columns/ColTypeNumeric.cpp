@@ -75,10 +75,10 @@ void ColumnTypeNumeric::modify(Task& task, const std::string& value) {
       break;
     // Non-convertible variants
     case Variant::type_string:
-      throw std::format("The value '{0}' is not a valid numeric value.",
+      throw std::format("The value '{}' is not a valid numeric value.",
                         evaluatedValue.get_string());
     default:
-      throw std::format("Unexpected variant type: '{0}'", evaluatedValue.type());
+      throw std::format("Unexpected variant type: '{}'", evaluatedValue.type());
   }
 
   task.set(_name, evaluatedValue);

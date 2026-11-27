@@ -50,21 +50,21 @@
 #include <unistd.h>
 #include <util.h>
 
-#define STRING_HOOK_ERROR_OBJECT "Hook Error: JSON Object '{{...}}' expected from hook script: {0}"
+#define STRING_HOOK_ERROR_OBJECT "Hook Error: JSON Object '{{...}}' expected from hook script: {}"
 #define STRING_HOOK_ERROR_NODESC \
-  "Hook Error: JSON Object missing 'description' attribute from hook script: {0}"
+  "Hook Error: JSON Object missing 'description' attribute from hook script: {}"
 #define STRING_HOOK_ERROR_NOUUID \
-  "Hook Error: JSON Object missing 'uuid' attribute from hook script: {0}"
-#define STRING_HOOK_ERROR_SYNTAX "Hook Error: JSON syntax error in: {0}"
+  "Hook Error: JSON Object missing 'uuid' attribute from hook script: {}"
+#define STRING_HOOK_ERROR_SYNTAX "Hook Error: JSON syntax error in: {}"
 #define STRING_HOOK_ERROR_JSON "Hook Error: JSON "
 #define STRING_HOOK_ERROR_NOPARSE "Hook Error: JSON failed to parse: "
 #define STRING_HOOK_ERROR_BAD_NUM \
-  "Hook Error: Expected {0} JSON task(s), found {1}, in hook script: {2}"
+  "Hook Error: Expected {} JSON task(s), found {}, in hook script: {}"
 #define STRING_HOOK_ERROR_SAME1 \
-  "Hook Error: JSON must be for the same task: {0}, in hook script: {1}"
+  "Hook Error: JSON must be for the same task: {}, in hook script: {}"
 #define STRING_HOOK_ERROR_SAME2 \
-  "Hook Error: JSON must be for the same task: {0} != {1}, in hook script: {2}"
-#define STRING_HOOK_ERROR_NOFEEDBACK "Hook Error: Expected feedback from failing hook script: {0}"
+  "Hook Error: JSON must be for the same task: {} != {}, in hook script: {}"
+#define STRING_HOOK_ERROR_NOFEEDBACK "Hook Error: Expected feedback from failing hook script: {}"
 
 ////////////////////////////////////////////////////////////////////////////////
 void Hooks::initialize() {
@@ -497,7 +497,7 @@ int Hooks::callHookScript(const std::string& script, const std::vector<std::stri
   if (_debug >= 2) {
     Timer timer;
     status = execute(script, args, inputStr, outputStr);
-    Context::getContext().debugTiming(std::format("Hooks::execute ({0})", script), timer);
+    Context::getContext().debugTiming(std::format("Hooks::execute ({})", script), timer);
   } else
     status = execute(script, args, inputStr, outputStr);
 
@@ -508,7 +508,7 @@ int Hooks::callHookScript(const std::string& script, const std::vector<std::stri
     for (const auto& i : output)
       if (i != "") Context::getContext().debug("  " + i);
 
-    Context::getContext().debug(std::format("Hook: Completed with status {0}", status));
+    Context::getContext().debug(std::format("Hook: Completed with status {}", status));
     Context::getContext().debug(" ");  // Blank line
   }
 

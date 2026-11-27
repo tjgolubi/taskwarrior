@@ -73,21 +73,21 @@ int CmdAnnotate::execute(std::string&) {
   std::map<std::string, std::string> projectChanges;
 
   if (filtered.size() > 1) {
-    feedback_affected("This command will alter {0} tasks.", filtered.size());
+    feedback_affected("This command will alter {} tasks.", filtered.size());
   }
   for (auto& task : filtered) {
     Task before(task);
 
     // Annotate the specified task.
     std::string question =
-        std::format("Annotate task {0} '{1}'?", task.identifier(true), task.get("description"));
+        std::format("Annotate task {} '{}'?", task.identifier(true), task.get("description"));
 
     task.modify(Task::modAnnotate, true);
 
     if (permission(before.diff(task) + question, filtered.size())) {
       Context::getContext().tdb2.modify(task);
       ++count;
-      feedback_affected("Annotating task {0} '{1}'.", task);
+      feedback_affected("Annotating task {} '{}'.", task);
       if (Context::getContext().verbose("project"))
         projectChanges[task.get("project")] = onProjectChange(task, false);
 
@@ -102,7 +102,7 @@ int CmdAnnotate::execute(std::string&) {
             sibling.modify(Task::modAnnotate, true);
             Context::getContext().tdb2.modify(sibling);
             ++count;
-            feedback_affected("Annotating recurring task {0} '{1}'.", sibling);
+            feedback_affected("Annotating recurring task {} '{}'.", sibling);
           }
 
           // Annotate the parent
@@ -123,7 +123,7 @@ int CmdAnnotate::execute(std::string&) {
   for (const auto& change : projectChanges)
     if (change.first != "") Context::getContext().footnote(change.second);
 
-  feedback_affected("Annotated {0} task.", "Annotated {0} tasks.", count);
+  feedback_affected("Annotated {} task.", "Annotated {} tasks.", count);
   return rc;
 }
 

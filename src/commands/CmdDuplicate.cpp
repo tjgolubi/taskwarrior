@@ -86,7 +86,7 @@ int CmdDuplicate::execute(std::string&) {
       dup.remove("recur");
       dup.remove("until");
       dup.remove("imask");
-      std::cout << std::format("Note: task {0} was a recurring task.  The duplicated task is not.",
+      std::cout << std::format("Note: task {} was a recurring task.  The duplicated task is not.",
                                task.identifier())
                 << '\n';
     }
@@ -95,7 +95,7 @@ int CmdDuplicate::execute(std::string&) {
     else if (dup.getStatus() == Task::recurring) {
       dup.remove("mask");
       std::cout << std::format(
-                       "Note: task {0} was a parent recurring task.  The duplicated task is too.",
+                       "Note: task {} was a parent recurring task.  The duplicated task is too.",
                        task.identifier())
                 << '\n';
     }
@@ -105,19 +105,19 @@ int CmdDuplicate::execute(std::string&) {
 
     dup.modify(Task::modAnnotate);
 
-    if (permission(std::format("Duplicate task {0} '{1}'?", task.identifier(true),
+    if (permission(std::format("Duplicate task {} '{}'?", task.identifier(true),
                                task.get("description")),
                    filtered.size())) {
       Context::getContext().tdb2.add(dup);
       ++count;
-      feedback_affected("Duplicated task {0} '{1}'.", task);
+      feedback_affected("Duplicated task {} '{}'.", task);
 
       auto status = dup.getStatus();
       if (Context::getContext().verbose("new-id") && dup.is_open())
-        std::cout << std::format("Created task {0}.\n", dup.id);
+        std::cout << std::format("Created task {}.\n", dup.id);
 
       else if (Context::getContext().verbose("new-uuid") && status != Task::recurring)
-        std::cout << std::format("Created task {0}.\n", dup.get("uuid"));
+        std::cout << std::format("Created task {}.\n", dup.get("uuid"));
 
       if (Context::getContext().verbose("project"))
         projectChanges[task.get("project")] = onProjectChange(task);
@@ -132,7 +132,7 @@ int CmdDuplicate::execute(std::string&) {
   for (const auto& change : projectChanges)
     if (change.first != "") Context::getContext().footnote(change.second);
 
-  feedback_affected("Duplicated {0} task.", "Duplicated {0} tasks.", count);
+  feedback_affected("Duplicated {} task.", "Duplicated {} tasks.", count);
 
   return rc;
 }

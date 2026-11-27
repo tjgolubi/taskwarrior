@@ -36,7 +36,7 @@
 #include <iostream>
 #include <vector>
 
-#define STRING_DEPEND_BLOCKED "Task {0} is blocked by:"
+#define STRING_DEPEND_BLOCKED "Task {} is blocked by:"
 
 ////////////////////////////////////////////////////////////////////////////////
 // Returns true if the supplied task adds a cycle to the dependency chain.

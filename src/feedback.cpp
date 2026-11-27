@@ -76,8 +76,7 @@ void feedback_affected(const std::string& effect) {
 // Implements:
 //    Deleted 3 tasks
 //
-// The 'effect' string should contain:
-//    {0}    Quantity
+// The 'effect' string should contain a replacement field for the quantity.
 void feedback_affected(std::format_string<int&> effect, int quantity) {
   if (Context::getContext().verbose("affected")) std::cout << std::format(effect, quantity) << "\n";
 }
@@ -92,9 +91,7 @@ void feedback_affected(std::format_string<int&> singular, std::format_string<int
 // Implements:
 //    Deleting task 123 'This is a test'
 //
-// The 'effect' string should contain:
-//    {0}    ID
-//    {1}    Description
+// The 'effect' string should contain replacement fields for the ID and description, in that order.
 void feedback_affected(std::format_string<const std::string, const std::string> effect,
                        const Task& task) {
   if (Context::getContext().verbose("affected")) {
@@ -117,7 +114,7 @@ void feedback_reserved_tags(const std::string& tag) {
       tag == "TODAY" || tag == "TOMORROW" || tag == "UDA" || tag == "UNBLOCKED" || tag == "UNTIL" ||
       tag == "WAITING" || tag == "WEEK" || tag == "YEAR" || tag == "YESTERDAY") {
     throw std::format(
-        "Virtual tags (including '{0}') are reserved and may not be added or removed.", tag);
+        "Virtual tags (including '{}') are reserved and may not be added or removed.", tag);
   }
 }
 
@@ -160,10 +157,10 @@ void feedback_unblocked(const Task& task) {
       auto blocking = i.getDependencyTasks();
       if (blocking.size() == 0) {
         if (i.id)
-          std::cout << std::format("Unblocked {0} '{1}'.", i.id, i.get("description")) << "\n";
+          std::cout << std::format("Unblocked {} '{}'.", i.id, i.get("description")) << "\n";
         else {
           std::string uuid = i.get("uuid");
-          std::cout << std::format("Unblocked {0} '{1}'.", i.get("uuid"), i.get("description"))
+          std::cout << std::format("Unblocked {} '{}'.", i.get("uuid"), i.get("description"))
                     << "\n";
         }
       }
@@ -182,8 +179,8 @@ void feedback_backlog() {
     int count = Context::getContext().tdb2.num_local_changes();
     if (count)
       Context::getContext().footnote(
-          count > 1 ? std::format("There are {0} local changes.  Sync required.", count)
-                    : std::format("There is {0} local change.  Sync required.", count));
+          count > 1 ? std::format("There are {} local changes.  Sync required.", count)
+                    : std::format("There is {} local change.  Sync required.", count));
   }
 }
 
@@ -193,7 +190,7 @@ std::string onProjectChange(Task& task, bool scope /* = true */) {
   std::string project = task.get("project");
 
   if (project != "") {
-    if (scope) msg << std::format("The project '{0}' has changed.", project) << "  ";
+    if (scope) msg << std::format("The project '{}' has changed.", project) << "  ";
 
     // Count pending and done tasks, for this project.
     int count_pending = 0;
@@ -215,12 +212,12 @@ std::string onProjectChange(Task& task, bool scope /* = true */) {
     else
       percentage = (count_done * 100 / (count_done + count_pending));
 
-    msg << std::format("Project '{0}' is {1}% complete", project, percentage) << ' ';
+    msg << std::format("Project '{}' is {}% complete", project, percentage) << ' ';
 
     if (count_pending == 1 && count_done == 0)
-      msg << std::format("({0} task remaining).", count_pending);
+      msg << std::format("({} task remaining).", count_pending);
     else
-      msg << std::format("({0} of {1} tasks remaining).", count_pending,
+      msg << std::format("({} of {} tasks remaining).", count_pending,
                          count_pending + count_done);
   }
 
@@ -244,7 +241,7 @@ std::string onExpiration(Task& task) {
   std::stringstream msg;
 
   if (Context::getContext().verbose("affected"))
-    msg << std::format("Task {0} '{1}' expired and was deleted.", task.identifier(true),
+    msg << std::format("Task {} '{}' expired and was deleted.", task.identifier(true),
                        task.get("description"));
 
   return msg.str();

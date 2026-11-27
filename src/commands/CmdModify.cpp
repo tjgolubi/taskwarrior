@@ -38,7 +38,7 @@
 #include <format>
 #include <iostream>
 
-#define STRING_CMD_MODIFY_TASK_R "Modifying recurring task {0} '{1}'."
+#define STRING_CMD_MODIFY_TASK_R "Modifying recurring task {} '{}'."
 #define STRING_CMD_MODIFY_RECUR \
   "This is a recurring task.  Do you want to modify all pending recurrences of this same task?"
 
@@ -76,7 +76,7 @@ int CmdModify::execute(std::string&) {
 
   auto count = 0;
   if (filtered.size() > 1) {
-    feedback_affected("This command will alter {0} tasks.", filtered.size());
+    feedback_affected("This command will alter {} tasks.", filtered.size());
   }
   for (auto& task : filtered) {
     Task before(task);
@@ -89,7 +89,7 @@ int CmdModify::execute(std::string&) {
       // Clearing `iter` ends the series, so confirm it like a delete.
       if (before.getStatus() == Task::iterative && task.get("iter") == "" &&
           Context::getContext().config.getBoolean("confirmation") &&
-          !confirm(std::format("End the iterative series for task {0} '{1}'?",
+          !confirm(std::format("End the iterative series for task {} '{}'?",
                                task.identifier(true), task.get("description")))) {
         std::cout << "Task not modified.\n";
         rc = 1;
@@ -97,7 +97,7 @@ int CmdModify::execute(std::string&) {
       }
 
       auto question =
-          std::format("Modify task {0} '{1}'?", task.identifier(true), task.get("description"));
+          std::format("Modify task {} '{}'?", task.identifier(true), task.get("description"));
 
       if (permission(before.diff(task) + question, filtered.size())) {
         count += modifyAndUpdate(before, task, &projectChanges);
@@ -113,7 +113,7 @@ int CmdModify::execute(std::string&) {
   for (const auto& change : projectChanges)
     if (change.first != "") Context::getContext().footnote(change.second);
 
-  feedback_affected("Modified {0} task.", "Modified {0} tasks.", count);
+  feedback_affected("Modified {} task.", "Modified {} tasks.", count);
   return rc;
 }
 
@@ -140,7 +140,7 @@ void CmdModify::checkConsistency(Task& before, Task& after) {
 
   if (before.is_pending() && after.is_pending() && (before.get("end") == "") &&
       (after.get("end") != ""))
-    throw std::format("Could not modify task {0}. You cannot set an end date on a pending task.",
+    throw std::format("Could not modify task {}. You cannot set an end date on a pending task.",
                       before.identifier(true));
 }
 
@@ -151,7 +151,7 @@ int CmdModify::modifyAndUpdate(Task& before, Task& after,
   auto count = 1;
 
   updateRecurrenceMask(after);
-  feedback_affected("Modifying task {0} '{1}'.", after);
+  feedback_affected("Modifying task {} '{}'.", after);
   feedback_unblocked(after);
   Context::getContext().tdb2.modify(after);
   if (Context::getContext().verbose("project") && projectChanges)

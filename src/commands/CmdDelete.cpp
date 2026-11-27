@@ -39,7 +39,7 @@
 #include <format>
 #include <iostream>
 
-#define STRING_CMD_DELETE_TASK_R "Deleting recurring task {0} '{1}'."
+#define STRING_CMD_DELETE_TASK_R "Deleting recurring task {} '{}'."
 #define STRING_CMD_DELETE_CONFIRM_R \
   "This is a recurring task.  Do you want to delete all pending recurrences of this same task?"
 
@@ -78,7 +78,7 @@ int CmdDelete::execute(std::string&) {
   std::map<std::string, std::string> projectChanges;
 
   if (filtered.size() > 1) {
-    feedback_affected("This command will alter {0} tasks.", filtered.size());
+    feedback_affected("This command will alter {} tasks.", filtered.size());
   }
   for (auto& task : filtered) {
     Task before(task);
@@ -87,7 +87,7 @@ int CmdDelete::execute(std::string&) {
       // Delete the specified task.
       std::string question;
       question =
-          std::format("Delete task {0} '{1}'?", task.identifier(true), task.get("description"));
+          std::format("Delete task {} '{}'?", task.identifier(true), task.get("description"));
 
       task.modify(Task::modAnnotate);
       task.setStatus(Task::deleted);
@@ -97,7 +97,7 @@ int CmdDelete::execute(std::string&) {
         updateRecurrenceMask(task);
         ++count;
         Context::getContext().tdb2.modify(task);
-        feedback_affected("Deleting task {0} '{1}'.", task);
+        feedback_affected("Deleting task {} '{}'.", task);
         feedback_unblocked(task);
         dependencyChainOnComplete(task);
         if (Context::getContext().verbose("project"))
@@ -157,7 +157,7 @@ int CmdDelete::execute(std::string&) {
         if (_permission_quit) break;
       }
     } else {
-      std::cout << std::format("Task {0} '{1}' is not deletable.", task.identifier(true),
+      std::cout << std::format("Task {} '{}' is not deletable.", task.identifier(true),
                                task.get("description"))
                 << '\n';
       rc = 1;
@@ -168,7 +168,7 @@ int CmdDelete::execute(std::string&) {
   for (const auto& change : projectChanges)
     if (change.first != "") Context::getContext().footnote(change.second);
 
-  feedback_affected("Deleted {0} task.", "Deleted {0} tasks.", count);
+  feedback_affected("Deleted {} task.", "Deleted {} tasks.", count);
 
   return rc;
 }

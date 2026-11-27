@@ -184,17 +184,17 @@ void ColumnTypeDate::modify(Task& task, const std::string& value) {
   } else {
     evaluatedValue.cast(Variant::type_date);
     Context::getContext().debug(label + _name + " <-- '" +
-                                std::format("{0}", evaluatedValue.get_date()) + "' <-- '" +
+                                std::format("{}", evaluatedValue.get_date()) + "' <-- '" +
                                 (std::string)evaluatedValue + "' <-- '" + value + '\'');
   }
 
   // If a date doesn't parse (2/29/2014) then it evaluates to zero.
   if (value != "" && evaluatedValue.get_date() == 0)
-    throw std::format("'{0}' is not a valid date in the '{1}' format.", value, Variant::dateFormat);
+    throw std::format("'{}' is not a valid date in the '{}' format.", value, Variant::dateFormat);
 
   time_t epoch = evaluatedValue.get_date();
   if (epoch < EPOCH_MIN_VALUE || epoch >= EPOCH_MAX_VALUE) {
-    throw std::format("'{0}' is not a valid date.", value);
+    throw std::format("'{}' is not a valid date.", value);
   }
   task.set(_name, epoch);
 }

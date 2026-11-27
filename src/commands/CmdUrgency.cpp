@@ -67,7 +67,7 @@ int CmdUrgency::execute(std::string& output) {
   std::stringstream out;
   for (auto& task : filtered) {
     // TODO: Review _urgency's round-trip precision with the Taskwarrior developers (see #4125).
-    out << std::format("task {0} urgency {1}", task.identifier(), task.urgency()) << '\n';
+    out << std::format("task {} urgency {}", task.identifier(), task.urgency()) << '\n';
   }
 
   output = out.str();

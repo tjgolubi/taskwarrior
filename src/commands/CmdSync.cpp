@@ -89,7 +89,7 @@ int CmdSync::execute(std::string& output) {
 
   if (server_dir != "") {
     if (verbose) {
-      out << std::format("Syncing with {0}", server_dir) << '\n';
+      out << std::format("Syncing with {}", server_dir) << '\n';
     }
     replica->sync_to_local(server_dir, avoid_snapshots);
   } else if (aws_bucket != "") {
@@ -128,7 +128,7 @@ int CmdSync::execute(std::string& output) {
     }
 
     if (verbose) {
-      out << std::format("Syncing with AWS bucket {0}", aws_bucket) << '\n';
+      out << std::format("Syncing with AWS bucket {}", aws_bucket) << '\n';
     }
 
     if (using_profile) {
@@ -150,7 +150,7 @@ int CmdSync::execute(std::string& output) {
       throw std::string("sync.encryption_secret is required");
     }
     if (verbose) {
-      out << std::format("Syncing with GCP bucket {0}", gcp_bucket) << '\n';
+      out << std::format("Syncing with GCP bucket {}", gcp_bucket) << '\n';
     }
     replica->sync_to_gcp(gcp_bucket, gcp_credential_path, encryption_secret, avoid_snapshots);
 
@@ -159,7 +159,7 @@ int CmdSync::execute(std::string& output) {
       throw std::string("sync.server.client_id and sync.encryption_secret are required");
     }
     if (verbose) {
-      out << std::format("Syncing with sync server at {0}", safe_server_url) << '\n';
+      out << std::format("Syncing with sync server at {}", safe_server_url) << '\n';
     }
     replica->sync_to_remote(server_url, tc::uuid_from_string(client_id), encryption_secret,
                             avoid_snapshots);
@@ -177,9 +177,9 @@ int CmdSync::execute(std::string& output) {
     }
     if (verbose) {
       if (git_remote != "") {
-        out << std::format("Syncing with git remote {0}", git_remote) << '\n';
+        out << std::format("Syncing with git remote {}", git_remote) << '\n';
       } else {
-        out << std::format("Syncing with local git repository at {0}", git_local_path) << '\n';
+        out << std::format("Syncing with local git repository at {}", git_local_path) << '\n';
       }
     }
     replica->sync_to_git(git_local_path, git_branch, git_remote, git_local_only, encryption_secret,
@@ -198,7 +198,7 @@ int CmdSync::execute(std::string& output) {
     // Taskchampion does not provide a measure of the number of operations received from
     // the server, but we can give some indication of the number sent.
     if (num_local_operations) {
-      out << std::format("Sent {0} local operations to the server", num_local_operations) << '\n';
+      out << std::format("Sent {} local operations to the server", num_local_operations) << '\n';
     }
   }
 

@@ -74,7 +74,7 @@ int CmdGet::execute(std::string& output) {
       case Lexer::Type::word:
       case Lexer::Type::identifier:
         if (!arg.hasTag("BINARY") && !arg.hasTag("CMD"))
-          throw std::format("'{0}' is not a DOM reference.", arg.attribute("raw"));
+          throw std::format("'{}' is not a DOM reference.", arg.attribute("raw"));
 
       default:
         break;
