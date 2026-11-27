@@ -30,12 +30,12 @@
 #include <CmdImport.h>
 #include <CmdModify.h>
 #include <Context.h>
-#include <format.h>
 #include <shared.h>
 #include <util.h>
 
 #include <format>
 #include <iostream>
+#include <string>
 #include <unordered_map>
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -177,7 +177,7 @@ void CmdImport::importSingleTask(json::object* obj) {
   Task task(obj);
 
   // An empty task is probably not intentional - at least a UUID should be included.
-  if (task.is_empty()) throw tjgformat("Cannot import an empty task.");
+  if (task.is_empty()) throw std::string{"Cannot import an empty task."};
 
   auto hasGeneratedEntry = not task.has("entry");
   auto hasExplicitEnd = task.has("end");

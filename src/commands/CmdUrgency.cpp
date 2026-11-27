@@ -31,7 +31,6 @@
 #include <Context.h>
 #include <Filter.h>
 #include <Lexer.h>
-#include <format.h>
 
 #include <format>
 #include <sstream>
@@ -67,8 +66,8 @@ int CmdUrgency::execute(std::string& output) {
   // Display urgency for the selected tasks.
   std::stringstream out;
   for (auto& task : filtered) {
-    out << std::format("task {0} urgency {1}", task.identifier(), ::tjgformat(task.urgency()))
-        << '\n';
+    // TODO: Review _urgency's round-trip precision with the Taskwarrior developers (see #4125).
+    out << std::format("task {0} urgency {1}", task.identifier(), task.urgency()) << '\n';
   }
 
   output = out.str();

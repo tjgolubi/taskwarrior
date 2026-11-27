@@ -27,7 +27,8 @@
 #ifndef INCLUDED_VERSION
 #define INCLUDED_VERSION
 
-#include <format.h>
+#include <format>
+#include <iosfwd>
 #include <string>
 
 // A utility class for handling Taskwarrior versions.
@@ -69,13 +70,12 @@ class Version {
   int patch = -1;
 };
 
-template<>
-struct ostream_formattable<Version> : std::true_type {};
-
-#ifdef __cpp_lib_format
 template <>
-struct std::formatter<Version, char> : ostream_formatter<Version> {};
-#endif
+struct std::formatter<Version, char> : std::formatter<std::string, char> {
+  auto format(const Version& version, auto& context) const {
+    return std::formatter<std::string, char>::format(static_cast<std::string>(version), context);
+  }
+};
 
 #endif
 ////////////////////////////////////////////////////////////////////////////////

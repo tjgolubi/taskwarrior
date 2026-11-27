@@ -50,7 +50,6 @@
 #ifdef PRODUCT_TASKWARRIOR
 #include <RX.h>
 #endif
-#include <format.h>
 #include <shared.h>
 #include <util.h>
 
@@ -1631,11 +1630,11 @@ void Task::validate(bool applyDefault /* = true */) {
   validate_before("scheduled", "end");
 
   if (!has("description") || get("description") == "")
-    Context::getContext().footnote(tjgformat("Warning: task has no description."));
+    Context::getContext().footnote("Warning: task has no description.");
 
   // Cannot have an old-style recur frequency with no due date - when would it recur?
   if (has("recur") && (!has("due") || get("due") == "")) {
-    Context::getContext().footnote(tjgformat("Warning: recurring task has no due date."));
+    Context::getContext().footnote("Warning: recurring task has no due date.");
     remove("recur");
   }
 
