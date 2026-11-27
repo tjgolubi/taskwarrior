@@ -34,6 +34,7 @@
 #include <format.h>
 #include <shared.h>
 
+#include <format>
 #include <iostream>
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -79,7 +80,7 @@ int CmdPrepend::execute(std::string&) {
 
     // Prepend to the specified task.
     std::string question =
-        ::format0("Prepend to task {0} '{1}'?", task.identifier(true), task.get("description"));
+        std::format("Prepend to task {0} '{1}'?", task.identifier(true), task.get("description"));
 
     task.modify(Task::modPrepend, true);
 
@@ -122,7 +123,7 @@ int CmdPrepend::execute(std::string&) {
   for (auto& change : projectChanges)
     if (change.first != "") Context::getContext().footnote(change.second);
 
-  feedback_affected(count == 1 ? "Prepended {0} task." : "Prepended {0} tasks.", count);
+  feedback_affected("Prepended {0} task.", "Prepended {0} tasks.", count);
   return rc;
 }
 

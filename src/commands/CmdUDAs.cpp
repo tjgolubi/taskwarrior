@@ -37,6 +37,7 @@
 #include <util.h>
 
 #include <algorithm>
+#include <format>
 #include <sstream>
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -110,8 +111,8 @@ int CmdUDAs::execute(std::string& output) {
     }
 
     out << optionalBlankLine() << table.render() << optionalBlankLine()
-        << (udas.size() == 1 ? ::format0("{0} UDA defined", udas.size())
-                             : ::format0("{0} UDAs defined", udas.size()))
+        << (udas.size() == 1 ? std::format("{0} UDA defined", udas.size())
+                             : std::format("{0} UDAs defined", udas.size()))
         << '\n';
   } else {
     out << "No UDAs defined.\n";
@@ -139,8 +140,8 @@ int CmdUDAs::execute(std::string& output) {
     }
 
     out << optionalBlankLine() << orphanTable.render() << optionalBlankLine()
-        << (udas.size() == 1 ? ::format0("{0} Orphan UDA", orphans.size())
-                             : ::format0("{0} Orphan UDAs", orphans.size()))
+        << (udas.size() == 1 ? std::format("{0} Orphan UDA", orphans.size())
+                             : std::format("{0} Orphan UDAs", orphans.size()))
         << '\n';
   }
 

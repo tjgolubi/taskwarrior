@@ -34,6 +34,8 @@
 #include <Variant.h>
 #include <format.h>
 
+#include <format>
+
 #define STRING_INVALID_MOD "The '{0}' attribute does not allow a value of '{1}'."
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -68,13 +70,13 @@ void ColumnTypeString::modify(Task& task, const std::string& value) {
       task.set(_name, strValue);
       Context::getContext().debug(label + _name + " <-- '" + strValue + "' <-- '" + value + '\'');
     } else
-      throw ::format0(STRING_INVALID_MOD, _name, value);
+      throw std::format(STRING_INVALID_MOD, _name, value);
   } else {
     if (validate(value)) {
       task.set(_name, value);
       Context::getContext().debug(label + _name + " <-- '" + value + '\'');
     } else
-      throw ::format0(STRING_INVALID_MOD, _name, value);
+      throw std::format(STRING_INVALID_MOD, _name, value);
   }
 }
 

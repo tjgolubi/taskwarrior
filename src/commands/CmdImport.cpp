@@ -34,6 +34,7 @@
 #include <shared.h>
 #include <util.h>
 
+#include <format>
 #include <iostream>
 #include <unordered_map>
 
@@ -61,7 +62,7 @@ int CmdImport::execute(std::string&) {
   // Get filenames from command line arguments.
   auto words = Context::getContext().cli2.getWords();
   if (!words.size() || (words.size() == 1 && words[0] == "-")) {
-    std::cout << ::format0("Importing '{0}'\n", "STDIN");
+    std::cout << std::format("Importing '{0}'\n", "STDIN");
 
     std::string json;
     std::string line;
@@ -72,9 +73,9 @@ int CmdImport::execute(std::string&) {
     // Import tasks from all specified files.
     for (auto& word : words) {
       File incoming(word);
-      if (!incoming.exists()) throw ::format0("File '{0}' not found.", word);
+      if (!incoming.exists()) throw std::format("File '{0}' not found.", word);
 
-      std::cout << ::format0("Importing '{0}'\n", word);
+      std::cout << std::format("Importing '{0}'\n", word);
 
       // Load the file.
       std::string json;
@@ -83,7 +84,7 @@ int CmdImport::execute(std::string&) {
     }
   }
 
-  Context::getContext().footnote(::format0("Imported {0} tasks.", count));
+  Context::getContext().footnote(std::format("Imported {0} tasks.", count));
 
   // Warn the user about multiple occurrences of the same UUID.
   auto duplicates = false;
@@ -91,7 +92,7 @@ int CmdImport::execute(std::string&) {
     if (occurrences > 1) {
       duplicates = true;
       Context::getContext().footnote(
-          ::format0("Input contains UUID '{0}' {1} times.", uuid, occurrences));
+          std::format("Input contains UUID '{0}' {1} times.", uuid, occurrences));
     }
   }
   if (duplicates)
@@ -156,7 +157,7 @@ int CmdImport::import(const std::string& input) {
         if (root && root->type() == json::j_object)
           objects.push_back(std::unique_ptr<json::object>((json::object*)root));
         else
-          throw ::format0("Invalid JSON: {0}", line);
+          throw std::format("Invalid JSON: {0}", line);
       }
     }
 

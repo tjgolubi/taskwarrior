@@ -32,6 +32,7 @@
 #include <format.h>
 #include <shared.h>
 
+#include <format>
 #include <iostream>
 #include <vector>
 
@@ -115,7 +116,7 @@ void dependencyChainOnComplete(Task& task) {
 
     // Nag about broken chain.
     if (Context::getContext().config.getBoolean("dependency.reminder")) {
-      std::cout << ::format0(STRING_DEPEND_BLOCKED, task.identifier()) << '\n';
+      std::cout << std::format(STRING_DEPEND_BLOCKED, task.identifier()) << '\n';
 
       for (const auto& b : blocking)
         std::cout << "  " << b.id << ' ' << b.get("description") << '\n';
@@ -157,7 +158,7 @@ void dependencyChainOnStart(Task& task) {
     // If the task is anything but the tail end of a dependency chain, nag about
     // broken chain.
     if (blocking.size()) {
-      std::cout << ::format0(STRING_DEPEND_BLOCKED, task.identifier()) << '\n';
+      std::cout << std::format(STRING_DEPEND_BLOCKED, task.identifier()) << '\n';
 
       for (const auto& b : blocking)
         std::cout << "  " << b.id << ' ' << b.get("description") << '\n';

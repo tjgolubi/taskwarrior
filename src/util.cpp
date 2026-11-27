@@ -29,6 +29,8 @@
 
 #include <format.h>
 #include <shared.h>
+
+#include <format>
 // If <iostream> is included, put it after <stdio.h>, because it includes
 // <stdio.h>, and therefore would ignore the _WITH_GETLINE.
 #ifdef FREEBSD
@@ -260,5 +262,5 @@ void setHeaderUnderline(Table& table) {
 //
 bool extractLongInteger(const std::string& input, long& output) {
   output = strtol(input.c_str(), nullptr, 10);
-  return (::format0("{0}", output) == input);
+  return (std::format("{0}", output) == input);
 }

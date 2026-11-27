@@ -33,6 +33,7 @@
 #include <Lexer.h>
 #include <format.h>
 
+#include <format>
 #include <sstream>
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -66,7 +67,7 @@ int CmdUrgency::execute(std::string& output) {
   // Display urgency for the selected tasks.
   std::stringstream out;
   for (auto& task : filtered) {
-    out << ::format0("task {0} urgency {1}", task.identifier(), ::format(task.urgency())) << '\n';
+    out << std::format("task {0} urgency {1}", task.identifier(), ::format(task.urgency())) << '\n';
   }
 
   output = out.str();

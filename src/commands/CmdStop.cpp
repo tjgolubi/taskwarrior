@@ -35,6 +35,7 @@
 #include <format.h>
 #include <recur.h>
 
+#include <format>
 #include <iostream>
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -79,7 +80,7 @@ int CmdStop::execute(std::string&) {
 
       // Stop the specified task.
       std::string question =
-          ::format0("Stop task {0} '{1}'?", task.identifier(true), task.get("description"));
+          std::format("Stop task {0} '{1}'?", task.identifier(true), task.get("description"));
 
       task.modify(Task::modAnnotate);
       task.remove("start");
@@ -101,8 +102,8 @@ int CmdStop::execute(std::string&) {
         if (_permission_quit) break;
       }
     } else {
-      std::cout << ::format0("Task {0} '{1}' not started.", task.identifier(true),
-                             task.get("description"))
+      std::cout << std::format("Task {0} '{1}' not started.", task.identifier(true),
+                               task.get("description"))
                 << '\n';
       rc = 1;
     }
@@ -112,7 +113,7 @@ int CmdStop::execute(std::string&) {
   for (auto& change : projectChanges)
     if (change.first != "") Context::getContext().footnote(change.second);
 
-  feedback_affected(count == 1 ? "Stopped {0} task." : "Stopped {0} tasks.", count);
+  feedback_affected("Stopped {0} task.", "Stopped {0} tasks.", count);
   return rc;
 }
 

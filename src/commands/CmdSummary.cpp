@@ -37,6 +37,7 @@
 #include <stdlib.h>
 #include <util.h>
 
+#include <format>
 #include <list>
 #include <sstream>
 
@@ -174,7 +175,7 @@ int CmdSummary::execute(std::string& output) {
   if (view.rows()) {
     out << optionalBlankLine() << view.render() << optionalBlankLine();
 
-    out << ::format0("{0} projects\n", view.rows());
+    out << std::format("{0} projects\n", view.rows());
   } else {
     out << "No projects.\n";
     rc = 1;

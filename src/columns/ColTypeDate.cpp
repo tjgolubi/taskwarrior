@@ -36,6 +36,8 @@
 #include <Variant.h>
 #include <format.h>
 
+#include <format>
+
 ////////////////////////////////////////////////////////////////////////////////
 ColumnTypeDate::ColumnTypeDate() {
   _name = "";
@@ -176,23 +178,23 @@ void ColumnTypeDate::modify(Task& task, const std::string& value) {
   std::string label = "  [1;37;43mMODIFICATION[0m ";
   if (evaluatedValue.type() == Variant::type_duration) {
     Context::getContext().debug(label + _name + " <-- '" +
-                                ::format0("{0}", format(evaluatedValue.get_duration())) +
+                                std::format("{0}", format(evaluatedValue.get_duration())) +
                                 "' <-- '" + (std::string)evaluatedValue + "' <-- '" + value + '\'');
     evaluatedValue.cast(Variant::type_date);
   } else {
     evaluatedValue.cast(Variant::type_date);
     Context::getContext().debug(label + _name + " <-- '" +
-                                ::format0("{0}", evaluatedValue.get_date()) + "' <-- '" +
+                                std::format("{0}", evaluatedValue.get_date()) + "' <-- '" +
                                 (std::string)evaluatedValue + "' <-- '" + value + '\'');
   }
 
   // If a date doesn't parse (2/29/2014) then it evaluates to zero.
   if (value != "" && evaluatedValue.get_date() == 0)
-    throw ::format0("'{0}' is not a valid date in the '{1}' format.", value, Variant::dateFormat);
+    throw std::format("'{0}' is not a valid date in the '{1}' format.", value, Variant::dateFormat);
 
   time_t epoch = evaluatedValue.get_date();
   if (epoch < EPOCH_MIN_VALUE || epoch >= EPOCH_MAX_VALUE) {
-    throw ::format0("'{0}' is not a valid date.", value);
+    throw std::format("'{0}' is not a valid date.", value);
   }
   task.set(_name, epoch);
 }

@@ -35,6 +35,7 @@
 #include <format.h>
 #include <shared.h>
 
+#include <format>
 #include <map>
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -218,8 +219,8 @@ void Eval::evaluatePostfixStack(const std::vector<std::pair<std::string, Lexer::
       Variant result = !right;
       values.push_back(result);
       if (_debug)
-        Context::getContext().debug(::format0("Eval {0} ↓'{1}' → ↑'{2}'", token.first,
-                                              (std::string)right, (std::string)result));
+        Context::getContext().debug(std::format("Eval {0} ↓'{1}' → ↑'{2}'", token.first,
+                                                (std::string)right, (std::string)result));
     } else if (token.second == Lexer::Type::op && token.first == "_neg_") {
       if (values.size() < 1) throw std::string("The expression could not be evaluated.");
 
@@ -231,12 +232,13 @@ void Eval::evaluatePostfixStack(const std::vector<std::pair<std::string, Lexer::
       values.push_back(result);
 
       if (_debug)
-        Context::getContext().debug(::format0("Eval {0} ↓'{1}' → ↑'{2}'", token.first,
-                                              (std::string)right, (std::string)result));
+        Context::getContext().debug(std::format("Eval {0} ↓'{1}' → ↑'{2}'", token.first,
+                                                (std::string)right, (std::string)result));
     } else if (token.second == Lexer::Type::op && token.first == "_pos_") {
       // The _pos_ operator is a NOP.
       if (_debug)
-        Context::getContext().debug(::format0("[{0}] eval op {1} NOP", values.size(), token.first));
+        Context::getContext().debug(
+            std::format("[{0}] eval op {1} NOP", values.size(), token.first));
     }
 
     // Binary operators.
@@ -301,16 +303,16 @@ void Eval::evaluatePostfixStack(const std::vector<std::pair<std::string, Lexer::
         else if (token.first == "_notag_")
           result = left.operator_notag(right, *contextTask);
         else
-          throw ::format0("Unsupported operator '{0}'.", token.first);
+          throw std::format("Unsupported operator '{0}'.", token.first);
       } else
-        throw ::format0("Unsupported operator '{0}'.", token.first);
+        throw std::format("Unsupported operator '{0}'.", token.first);
 
       values.push_back(result);
 
       if (_debug)
-        Context::getContext().debug(::format0("Eval ↓'{0}' {1} ↓'{2}' → ↑'{3}'", (std::string)left,
-                                              token.first, (std::string)right,
-                                              (std::string)result));
+        Context::getContext().debug(std::format("Eval ↓'{0}' {1} ↓'{2}' → ↑'{3}'",
+                                                (std::string)left, token.first, (std::string)right,
+                                                (std::string)result));
     }
 
     // Literals and identifiers.
@@ -321,11 +323,13 @@ void Eval::evaluatePostfixStack(const std::vector<std::pair<std::string, Lexer::
           if (Lexer::isAllDigits(token.first)) {
             v.cast(Variant::type_integer);
             if (_debug)
-              Context::getContext().debug(::format0("Eval literal number ↑'{0}'", (std::string)v));
+              Context::getContext().debug(
+                  std::format("Eval literal number ↑'{0}'", (std::string)v));
           } else {
             v.cast(Variant::type_real);
             if (_debug)
-              Context::getContext().debug(::format0("Eval literal decimal ↑'{0}'", (std::string)v));
+              Context::getContext().debug(
+                  std::format("Eval literal decimal ↑'{0}'", (std::string)v));
           }
           break;
 
@@ -339,8 +343,8 @@ void Eval::evaluatePostfixStack(const std::vector<std::pair<std::string, Lexer::
           for (const auto& source : _sources) {
             if (source(token.first, v)) {
               if (_debug)
-                Context::getContext().debug(::format0("Eval identifier source '{0}' → ↑'{1}'",
-                                                      token.first, (std::string)v));
+                Context::getContext().debug(std::format("Eval identifier source '{0}' → ↑'{1}'",
+                                                        token.first, (std::string)v));
               found = true;
               break;
             }
@@ -351,27 +355,28 @@ void Eval::evaluatePostfixStack(const std::vector<std::pair<std::string, Lexer::
             v.cast(Variant::type_string);
             if (_debug)
               Context::getContext().debug(
-                  ::format0("Eval identifier source failed '{0}'", token.first));
+                  std::format("Eval identifier source failed '{0}'", token.first));
           }
         } break;
 
         case Lexer::Type::date:
           v.cast(Variant::type_date);
           if (_debug)
-            Context::getContext().debug(::format0("Eval literal date ↑'{0}'", (std::string)v));
+            Context::getContext().debug(std::format("Eval literal date ↑'{0}'", (std::string)v));
           break;
 
         case Lexer::Type::duration:
           v.cast(Variant::type_duration);
           if (_debug)
-            Context::getContext().debug(::format0("Eval literal duration ↑'{0}'", (std::string)v));
+            Context::getContext().debug(
+                std::format("Eval literal duration ↑'{0}'", (std::string)v));
           break;
 
         // Nothing to do.
         case Lexer::Type::string:
         default:
           if (_debug)
-            Context::getContext().debug(::format0("Eval literal string ↑'{0}'", (std::string)v));
+            Context::getContext().debug(std::format("Eval literal string ↑'{0}'", (std::string)v));
           break;
       }
 

@@ -37,6 +37,7 @@
 #include <stdlib.h>
 #include <util.h>
 
+#include <format>
 #include <iomanip>
 #include <sstream>
 
@@ -265,7 +266,7 @@ int CmdStats::execute(std::string& output) {
   if (totalT) {
     row = view.addRow();
     view.set(row, 0, "Average desc length");
-    view.set(row, 1, ::format0("{0} characters", (int)(descLength / totalT)));
+    view.set(row, 1, std::format("{0} characters", (int)(descLength / totalT)));
   }
 
   // If an alternating row color is specified, notify the table.

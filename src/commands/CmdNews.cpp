@@ -38,6 +38,7 @@
 
 #include <cmath>
 #include <csignal>
+#include <format>
 #include <iostream>
 
 /* Adding a new version:
@@ -125,7 +126,7 @@ void NewsItem::render() {
 
   // TODO: For some reason, bold cannot be blended in 256-color terminals
   // Apply this workaround of colorizing twice.
-  std::cout << bold.colorize(header.colorize(::format0("{0} ({1})\n", _title, _version)));
+  std::cout << bold.colorize(header.colorize(std::format("{0} ({1})\n", _title, _version)));
   if (_background.size()) {
     if (_bg_title.empty()) _bg_title = "Background";
 
@@ -134,10 +135,10 @@ void NewsItem::render() {
 
   wait_for_enter();
 
-  std::cout << "  " << underline.colorize(::format0("What changed in {0}?\n", _version));
-  if (_punchline.size()) std::cout << footnote.colorize(::format0("{0}\n", _punchline));
+  std::cout << "  " << underline.colorize(std::format("What changed in {0}?\n", _version));
+  if (_punchline.size()) std::cout << footnote.colorize(std::format("{0}\n", _punchline));
 
-  if (_update.size()) std::cout << ::format0("{0}\n", _update);
+  if (_update.size()) std::cout << std::format("{0}\n", _update);
 
   wait_for_enter();
 
@@ -197,14 +198,14 @@ void NewsItem::version2_6_0(std::vector<NewsItem>& items) {
                  [&](auto& name) { return config.has("context." + name); });
 
     if (old_style.size()) {
-      advice << ::format0("  You have {0} defined contexts, out of which {1} are old-style:\n",
-                          defined.size(),
-                          std::count_if(defined.begin(), defined.end(),
-                                        [&](auto& name) { return config.has("context." + name); }));
+      advice << std::format(
+          "  You have {0} defined contexts, out of which {1} are old-style:\n", defined.size(),
+          std::count_if(defined.begin(), defined.end(),
+                        [&](auto& name) { return config.has("context." + name); }));
 
       for (auto context : defined) {
         std::string old_definition = config.get("context." + context);
-        if (old_definition != "") advice << ::format0("  * {0}: {1}\n", context, old_definition);
+        if (old_definition != "") advice << std::format("  * {0}: {1}\n", context, old_definition);
       }
 
       advice << "\n"
@@ -214,7 +215,7 @@ void NewsItem::version2_6_0(std::vector<NewsItem>& items) {
       for (auto context : defined) {
         std::string old_definition = config.get("context." + context);
         if (old_definition != "")
-          advice << ::format0("  $ task context define {0} '{1}'\n", context, old_definition);
+          advice << std::format("  $ task context define {0} '{1}'\n", context, old_definition);
       }
 
       advice
@@ -607,14 +608,14 @@ int CmdNews::execute(std::string& output) {
   } else {
     // Print release notes
     std::cout << bold.colorize(
-        ::format0("\n"
-                  "================================================\n"
-                  "Taskwarrior {0} through {1} Release Highlights\n"
-                  "================================================\n",
-                  news_version, current_version));
+        std::format("\n"
+                    "================================================\n"
+                    "Taskwarrior {0} through {1} Release Highlights\n"
+                    "================================================\n",
+                    news_version, current_version));
 
     for (unsigned short i = 0; i < items.size(); i++) {
-      std::cout << ::format0("\n({0}/{1}) ", i + 1, items.size());
+      std::cout << std::format("\n({0}/{1}) ", i + 1, items.size());
       items[i].render();
     }
     std::cout << "Thank you for catching up on the new features!\n";

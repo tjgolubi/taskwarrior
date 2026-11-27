@@ -34,6 +34,7 @@
 #include <format.h>
 #include <util.h>
 
+#include <format>
 #include <sstream>
 #include <vector>
 
@@ -111,12 +112,12 @@ int CmdTags::execute(std::string& output) {
     if (unique.size() == 1)
       Context::getContext().footnote("1 tag");
     else
-      Context::getContext().footnote(::format0("{0} tags", unique.size()));
+      Context::getContext().footnote(std::format("{0} tags", unique.size()));
 
     if (quantity == 1)
       Context::getContext().footnote("(1 task)");
     else
-      Context::getContext().footnote(::format0("({0} tasks)", quantity));
+      Context::getContext().footnote(std::format("({0} tasks)", quantity));
 
     out << '\n';
   } else {

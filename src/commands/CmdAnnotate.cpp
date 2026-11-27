@@ -34,6 +34,7 @@
 #include <format.h>
 #include <shared.h>
 
+#include <format>
 #include <iostream>
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -79,7 +80,7 @@ int CmdAnnotate::execute(std::string&) {
 
     // Annotate the specified task.
     std::string question =
-        ::format0("Annotate task {0} '{1}'?", task.identifier(true), task.get("description"));
+        std::format("Annotate task {0} '{1}'?", task.identifier(true), task.get("description"));
 
     task.modify(Task::modAnnotate, true);
 
@@ -122,7 +123,7 @@ int CmdAnnotate::execute(std::string&) {
   for (const auto& change : projectChanges)
     if (change.first != "") Context::getContext().footnote(change.second);
 
-  feedback_affected(count == 1 ? "Annotated {0} task." : "Annotated {0} tasks.", count);
+  feedback_affected("Annotated {0} task.", "Annotated {0} tasks.", count);
   return rc;
 }
 

@@ -36,6 +36,7 @@
 #include <recur.h>
 #include <shared.h>
 
+#include <format>
 #include <iostream>
 
 #define STRING_CMD_DELETE_TASK_R "Deleting recurring task {0} '{1}'."
@@ -86,7 +87,7 @@ int CmdDelete::execute(std::string&) {
       // Delete the specified task.
       std::string question;
       question =
-          ::format0("Delete task {0} '{1}'?", task.identifier(true), task.get("description"));
+          std::format("Delete task {0} '{1}'?", task.identifier(true), task.get("description"));
 
       task.modify(Task::modAnnotate);
       task.setStatus(Task::deleted);
@@ -156,8 +157,8 @@ int CmdDelete::execute(std::string&) {
         if (_permission_quit) break;
       }
     } else {
-      std::cout << ::format0("Task {0} '{1}' is not deletable.", task.identifier(true),
-                             task.get("description"))
+      std::cout << std::format("Task {0} '{1}' is not deletable.", task.identifier(true),
+                               task.get("description"))
                 << '\n';
       rc = 1;
     }
@@ -167,7 +168,7 @@ int CmdDelete::execute(std::string&) {
   for (const auto& change : projectChanges)
     if (change.first != "") Context::getContext().footnote(change.second);
 
-  feedback_affected(count == 1 ? "Deleted {0} task." : "Deleted {0} tasks.", count);
+  feedback_affected("Deleted {0} task.", "Deleted {0} tasks.", count);
 
   return rc;
 }

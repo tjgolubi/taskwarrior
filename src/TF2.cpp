@@ -31,6 +31,8 @@
 #include <Table.h>
 #include <cmake.h>
 #include <format.h>
+
+#include <format>
 #ifdef PRODUCT_TASKWARRIOR
 #include <legacy.h>
 #endif
@@ -157,7 +159,7 @@ void TF2::load_tasks() {
   }
 
   catch (const std::string& e) {
-    throw e + ::format0(" in {0} at line {1}", _file._data, line_number);
+    throw e + std::format(" in {0} at line {1}", _file._data, line_number);
   }
 
   Context::getContext().time_load_us += timer.total_us();

@@ -35,6 +35,7 @@
 #include <shared.h>
 #include <util.h>
 
+#include <format>
 #include <iostream>
 
 #define STRING_CMD_DENO_NO "Task not denotated."
@@ -122,12 +123,12 @@ int CmdDenotate::execute(std::string&) {
 
     if (before.getAnnotations() != task.getAnnotations()) {
       auto question =
-          ::format0("Denotate task {0} '{1}'?", task.identifier(true), task.get("description"));
+          std::format("Denotate task {0} '{1}'?", task.identifier(true), task.get("description"));
 
       if (permission(before.diff(task) + question, filtered.size())) {
         ++count;
         Context::getContext().tdb2.modify(task);
-        feedback_affected(::format0("Found annotation '{0}' and deleted it.", anno));
+        feedback_affected(std::format("Found annotation '{0}' and deleted it.", anno));
         if (Context::getContext().verbose("project"))
           projectChanges[task.get("project")] = onProjectChange(task, false);
       } else {
@@ -136,8 +137,8 @@ int CmdDenotate::execute(std::string&) {
         if (_permission_quit) break;
       }
     } else {
-      std::cout << ::format0("Did not find any matching annotation to be deleted for '{0}'.\n",
-                             pattern);
+      std::cout << std::format("Did not find any matching annotation to be deleted for '{0}'.\n",
+                               pattern);
       rc = 1;
     }
   }
@@ -146,7 +147,7 @@ int CmdDenotate::execute(std::string&) {
   for (const auto& change : projectChanges)
     if (change.first != "") Context::getContext().footnote(change.second);
 
-  feedback_affected(count == 1 ? STRING_CMD_DENO_1 : STRING_CMD_DENO_N, count);
+  feedback_affected(STRING_CMD_DENO_1, STRING_CMD_DENO_N, count);
   return rc;
 }
 

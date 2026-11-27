@@ -34,6 +34,7 @@
 #include <shared.h>
 
 #include <algorithm>
+#include <format>
 #include <sstream>
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -75,8 +76,8 @@ bool CmdConfig::setConfigVariable(const std::string& name, const std::string& va
       found = true;
       if (!confirmation ||
           confirm(
-              ::format0("Are you sure you want to change the value of '{0}' from '{1}' to '{2}'?",
-                        name, Context::getContext().config.get(name), value))) {
+              std::format("Are you sure you want to change the value of '{0}' from '{1}' to '{2}'?",
+                          name, Context::getContext().config.get(name), value))) {
         auto new_line = line.substr(0, pos + name.length() + 1) + json::encode(value);
 
         // Preserve the comment
@@ -91,15 +92,15 @@ bool CmdConfig::setConfigVariable(const std::string& name, const std::string& va
 
   // Not found, so append instead.
   if (!found && (!confirmation ||
-                 confirm(::format0("Are you sure you want to add '{0}' with a value of '{1}'?",
-                                   name, value)))) {
+                 confirm(std::format("Are you sure you want to add '{0}' with a value of '{1}'?",
+                                     name, value)))) {
     contents.push_back(name + '=' + json::encode(value));
     change = true;
   }
 
   if (change)
     if (!File::write(Context::getContext().config.file(), contents))
-      throw ::format0("Could not write to '{0}'.", Context::getContext().config.file());
+      throw std::format("Could not write to '{0}'.", Context::getContext().config.file());
 
   return change;
 }
@@ -126,7 +127,7 @@ int CmdConfig::unsetConfigVariable(const std::string& name, bool confirmation /*
       found = true;
 
       // Remove name
-      if (!confirmation || confirm(::format0("Are you sure you want to remove '{0}'?", name))) {
+      if (!confirmation || confirm(std::format("Are you sure you want to remove '{0}'?", name))) {
         // vector::erase method returns a valid iterator to the next object
         line = contents.erase(line);
         lineDeleted = true;
@@ -139,7 +140,7 @@ int CmdConfig::unsetConfigVariable(const std::string& name, bool confirmation /*
 
   if (change)
     if (!File::write(Context::getContext().config.file(), contents))
-      throw ::format0("Could not write to '{0}'.", Context::getContext().config.file());
+      throw std::format("Could not write to '{0}'.", Context::getContext().config.file());
 
   if (change && found)
     return 0;
@@ -193,12 +194,13 @@ int CmdConfig::execute(std::string& output) {
         } else if (rc == 1)
           found = true;
 
-        if (!found) throw ::format0("No entry named '{0}' found.", name);
+        if (!found) throw std::format("No entry named '{0}' found.", name);
       }
 
       // Show feedback depending on whether .taskrc has been rewritten
       if (change) {
-        out << ::format0("Config file {0} modified.", Context::getContext().config.file()) << '\n';
+        out << std::format("Config file {0} modified.", Context::getContext().config.file())
+            << '\n';
       } else
         out << "No changes made.\n";
     } else

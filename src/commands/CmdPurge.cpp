@@ -34,6 +34,8 @@
 #include <format.h>
 #include <shared.h>
 
+#include <format>
+
 ////////////////////////////////////////////////////////////////////////////////
 CmdPurge::CmdPurge() {
   _keyword = "purge";
@@ -93,7 +95,7 @@ void CmdPurge::handleChildren(Task& task, std::vector<Task>& tasks) {
     if (child.get("parent") == uuid) {
       if (child.getStatus() != Task::deleted)
         // In case any child task is not deleted, bail out
-        throw ::format0(
+        throw std::format(
             "Task '{0}' is a recurrence template. Its child task {1} must be deleted before it can "
             "be purged.",
             task.get("description"), child.identifier(true));
@@ -106,7 +108,7 @@ void CmdPurge::handleChildren(Task& task, std::vector<Task>& tasks) {
   if (children.empty()) return;
 
   // Ask for confirmation to purge them, if needed
-  std::string question = ::format0(
+  std::string question = std::format(
       "Task '{0}' is a recurrence template. All its {1} deleted children tasks will be purged as "
       "well. Continue?",
       task.get("description"), children.size());
@@ -146,8 +148,8 @@ int CmdPurge::execute(std::string&) {
       matched_deleted = true;
 
       std::string question;
-      question = ::format0("Permanently remove task {0} '{1}'?", task.identifier(true),
-                           task.get("description"));
+      question = std::format("Permanently remove task {0} '{1}'?", task.identifier(true),
+                             task.get("description"));
 
       if (permission(question, filtered.size())) handleRelations(task, tasks);
     }
@@ -162,7 +164,7 @@ int CmdPurge::execute(std::string&) {
     Context::getContext().footnote(
         "No deleted tasks specified. Maybe you forgot to delete tasks first?");
 
-  feedback_affected(tasks.size() == 1 ? "Purged {0} task." : "Purged {0} tasks.", tasks.size());
+  feedback_affected("Purged {0} task.", "Purged {0} tasks.", tasks.size());
   return rc;
 }
 

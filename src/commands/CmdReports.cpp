@@ -33,6 +33,7 @@
 #include <format.h>
 #include <util.h>
 
+#include <format>
 #include <sstream>
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -95,7 +96,7 @@ int CmdReports::execute(std::string& output) {
   }
 
   out << optionalBlankLine() << view.render() << optionalBlankLine()
-      << ::format0("{0} reports\n", reports.size());
+      << std::format("{0} reports\n", reports.size());
 
   output = out.str();
   return 0;

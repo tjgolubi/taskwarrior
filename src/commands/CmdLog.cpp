@@ -32,6 +32,8 @@
 #include <feedback.h>
 #include <format.h>
 
+#include <format>
+
 ////////////////////////////////////////////////////////////////////////////////
 CmdLog::CmdLog() {
   _keyword = "log";
@@ -67,7 +69,7 @@ int CmdLog::execute(std::string& output) {
     Context::getContext().footnote(onProjectChange(task));
 
   if (Context::getContext().verbose("new-uuid"))
-    output = ::format0("Logged task {0}.\n", task.get("uuid"));
+    output = std::format("Logged task {0}.\n", task.get("uuid"));
 
   return 0;
 }

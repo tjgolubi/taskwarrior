@@ -44,6 +44,7 @@
 #include <cerrno>
 #include <cstdlib>
 #include <cstring>
+#include <format>
 #include <iostream>
 #include <sstream>
 
@@ -91,7 +92,7 @@ int CmdEdit::execute(std::string&) {
   // If we are editing more than "bulk" tasks, ask for confirmation.
   // Bulk = 0 denotes infinite bulk.
   if ((filtered.size() > bulk) && (bulk != 0))
-    if (!confirm(::format0("Do you wish to manually edit {0} tasks?", filtered.size()))) return 2;
+    if (!confirm(std::format("Do you wish to manually edit {0} tasks?", filtered.size()))) return 2;
 
   // Find number of matching tasks.
   for (auto& task : filtered) {
@@ -591,7 +592,7 @@ void CmdEdit::parseTask(Task& task, const std::string& after, const std::string&
            (task.get(col.first) != Datetime(value, dateformat).toEpochString())) &&
           (type != "duration" || (task.get(col.first) != Duration(value).toString()))) {
         if (value != "") {
-          Context::getContext().footnote(::format0("UDA {0} modified.", col.first));
+          Context::getContext().footnote(std::format("UDA {0} modified.", col.first));
 
           if (type == "string") {
             task.set(col.first, value);
@@ -601,14 +602,14 @@ void CmdEdit::parseTask(Task& task, const std::string& after, const std::string&
             if (pig.getNumber(d) && pig.eos())
               task.set(col.first, value);
             else
-              throw ::format0("The value '{0}' is not a valid numeric value.", value);
+              throw std::format("The value '{0}' is not a valid numeric value.", value);
           } else if (type == "date") {
             task.set(col.first, Datetime(value, dateformat).toEpochString());
           } else if (type == "duration") {
             task.set(col.first, Duration(value).toTime_t());
           }
         } else {
-          Context::getContext().footnote(::format0("UDA {0} deleted.", col.first));
+          Context::getContext().footnote(std::format("UDA {0} deleted.", col.first));
           task.remove(col.first);
         }
       }
@@ -676,13 +677,13 @@ ARE_THESE_REALLY_HARMFUL:
   bool changes = false;  // No changes made.
 
   // Launch the editor.
-  std::cout << ::format0("Launching '{0}' now...\n", editor);
+  std::cout << std::format("Launching '{0}' now...\n", editor);
   int exitcode = system(editor.c_str());
   auto captured_errno = errno;
   if (0 == exitcode)
     std::cout << "Editing complete.\n";
   else {
-    std::cout << ::format0("Editing failed with exit code {0}.\n", exitcode);
+    std::cout << std::format("Editing failed with exit code {0}.\n", exitcode);
     if (-1 == exitcode) std::cout << std::strerror(captured_errno) << '\n';
     File::remove(file.str());
     return CmdEdit::editResult::error;

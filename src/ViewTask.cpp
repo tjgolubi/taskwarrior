@@ -34,6 +34,7 @@
 #include <utf8.h>
 #include <util.h>
 
+#include <format>
 #include <numeric>
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -175,9 +176,9 @@ std::string ViewTask::render(std::vector<Task>& data, std::vector<int>& sequence
 
   // Calculate final column widths.
   int overage = _width - sum_minimal - all_extra;
-  Context::getContext().debug(::format0("ViewTask::render min={0} ideal={1} overage={2} width={3}",
-                                        sum_minimal + all_extra, sum_ideal + all_extra, overage,
-                                        _width));
+  Context::getContext().debug(
+      std::format("ViewTask::render min={0} ideal={1} overage={2} width={3}",
+                  sum_minimal + all_extra, sum_ideal + all_extra, overage, _width));
 
   std::vector<int> widths;
 
@@ -222,7 +223,7 @@ std::string ViewTask::render(std::vector<Task>& data, std::vector<int>& sequence
         widths[second_longest] += half_overage;
       } else
         // If reducing two of the longest solumns to 2 characters is not sufficient, then give up.
-        Context::getContext().error(::format0(
+        Context::getContext().error(std::format(
             "The report has a minimum width of {0} and does not fit in the available width of {1}.",
             sum_minimal + all_extra, _width));
     }

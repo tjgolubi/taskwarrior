@@ -37,6 +37,7 @@
 #include <recur.h>
 #include <util.h>
 
+#include <format>
 #include <iostream>
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -83,7 +84,7 @@ int CmdDone::execute(std::string&) {
     if (task.is_open()) {
       // Complete the specified task.
       std::string question =
-          ::format0("Complete task {0} '{1}'?", task.identifier(true), task.get("description"));
+          std::format("Complete task {0} '{1}'?", task.identifier(true), task.get("description"));
 
       task.modify(Task::modAnnotate);
       task.setStatus(Task::completed);
@@ -114,8 +115,8 @@ int CmdDone::execute(std::string&) {
         if (_permission_quit) break;
       }
     } else {
-      std::cout << ::format0("Task {0} '{1}' is neither pending nor waiting.",
-                             task.identifier(true), task.get("description"))
+      std::cout << std::format("Task {0} '{1}' is neither pending nor waiting.",
+                               task.identifier(true), task.get("description"))
                 << '\n';
       rc = 1;
     }
@@ -127,7 +128,7 @@ int CmdDone::execute(std::string&) {
   for (const auto& change : projectChanges)
     if (change.first != "") Context::getContext().footnote(change.second);
 
-  feedback_affected(count == 1 ? "Completed {0} task." : "Completed {0} tasks.", count);
+  feedback_affected("Completed {0} task.", "Completed {0} tasks.", count);
   return rc;
 }
 

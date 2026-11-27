@@ -34,6 +34,7 @@
 #include <utf8.h>
 #include <util.h>
 
+#include <format>
 #include <regex>
 
 #define STRING_COLUMN_LABEL_DEP "Depends"
@@ -156,8 +157,8 @@ void ColumnDepends::modify(Task& task, const std::string& value) {
           else
             task.addDependency(loaded_task.get("uuid"));
         else
-          throw ::format0("Dependency could not be set - task with UUID '{0}' does not exist.",
-                          dep);
+          throw std::format("Dependency could not be set - task with UUID '{0}' does not exist.",
+                            dep);
       }
     }
     // ID range
@@ -177,7 +178,7 @@ void ColumnDepends::modify(Task& task, const std::string& value) {
       else
         task.addDependency(lower);
     else
-      throw ::format0("Invalid dependency value: '{0}'", dep);
+      throw std::format("Invalid dependency value: '{0}'", dep);
   }
 }
 

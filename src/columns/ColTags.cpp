@@ -133,7 +133,7 @@ void ColumnTags::modify(Task& task, const std::string& value) {
     tags.push_back((std::string)tag);
     Context::getContext().debug(label + "tags <-- '" + tag + '\'');
 
-    feedback_special_tags(task, tag);
+    feedback_special_tags(tag);
   }
 
   task.setTags(tags);

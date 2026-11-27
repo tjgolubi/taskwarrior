@@ -34,6 +34,8 @@
 #include <Variant.h>
 #include <format.h>
 
+#include <format>
+
 ////////////////////////////////////////////////////////////////////////////////
 ColumnTypeNumeric::ColumnTypeNumeric() { _type = "numeric"; }
 
@@ -73,9 +75,10 @@ void ColumnTypeNumeric::modify(Task& task, const std::string& value) {
       break;
     // Non-convertible variants
     case Variant::type_string:
-      throw ::format0("The value '{0}' is not a valid numeric value.", evaluatedValue.get_string());
+      throw std::format("The value '{0}' is not a valid numeric value.",
+                        evaluatedValue.get_string());
     default:
-      throw ::format0("Unexpected variant type: '{0}'", evaluatedValue.type());
+      throw std::format("Unexpected variant type: '{0}'", evaluatedValue.type());
   }
 
   task.set(_name, evaluatedValue);

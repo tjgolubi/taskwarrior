@@ -37,6 +37,7 @@
 #include <recur.h>
 #include <util.h>
 
+#include <format>
 #include <iostream>
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -83,7 +84,7 @@ int CmdStart::execute(std::string&) {
 
       // Start the specified task.
       std::string question =
-          ::format0("Start task {0} '{1}'?", task.identifier(true), task.get("description"));
+          std::format("Start task {0} '{1}'?", task.identifier(true), task.get("description"));
       task.setAsNow("start");
 
       Task::status status = task.getStatus();
@@ -113,7 +114,7 @@ int CmdStart::execute(std::string&) {
         if (_permission_quit) break;
       }
     } else {
-      std::cout << ::format0("Task {0} '{1}' already started.", task.id, task.get("description"))
+      std::cout << std::format("Task {0} '{1}' already started.", task.id, task.get("description"))
                 << '\n';
       rc = 1;
     }
@@ -125,7 +126,7 @@ int CmdStart::execute(std::string&) {
   for (auto& change : projectChanges)
     if (change.first != "") Context::getContext().footnote(change.second);
 
-  feedback_affected(count == 1 ? "Started {0} task." : "Started {0} tasks.", count);
+  feedback_affected("Started {0} task.", "Started {0} tasks.", count);
   return rc;
 }
 

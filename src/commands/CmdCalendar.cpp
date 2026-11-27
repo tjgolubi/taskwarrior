@@ -37,6 +37,7 @@
 #include <utf8.h>
 #include <util.h>
 
+#include <format>
 #include <iomanip>
 #include <sstream>
 
@@ -136,18 +137,18 @@ int CmdCalendar::execute(std::string& output) {
     else if (Lexer::isAllDigits(arg) && arg.length() <= 2) {
       argMonth = strtol(arg.c_str(), nullptr, 10);
       if (argMonth < 1 || argMonth > 12)
-        throw ::format0("Argument '{0}' is not a valid month.", arg);
+        throw std::format("Argument '{0}' is not a valid month.", arg);
     }
 
     // "January" etc.
     else if (autoComplete(Lexer::lowerCase(arg), monthNames, matches,
                           config.getInteger("abbreviation.minimum")) == 1) {
       argMonth = Datetime::monthOfYear(matches[0]);
-      if (argMonth == -1) throw ::format0("Argument '{0}' is not a valid month.", arg);
+      if (argMonth == -1) throw std::format("Argument '{0}' is not a valid month.", arg);
     }
 
     else
-      throw ::format0("Could not recognize argument '{0}'.", arg);
+      throw std::format("Could not recognize argument '{0}'.", arg);
   }
 
   // Supported combinations:
@@ -482,7 +483,7 @@ std::string CmdCalendar::renderMonths(int firstMonth, int firstYear, const Datet
       if (config.getBoolean("displayweeknumber"))
         view.set(row, (8 * mpl),
                  // Make sure the week number is always 4 columns, space-padded.
-                 ::format0((woy < 10 ? "   {0}" : "  {0}"), woy), color_weeknumber);
+                 std::format("{:>4}", woy), color_weeknumber);
 
       // Calculate column id.
       auto thisCol = dow +                       // 0 = Sunday

@@ -35,6 +35,7 @@
 #include <shared.h>
 #include <util.h>
 
+#include <format>
 #include <iostream>
 #include <unordered_map>
 
@@ -76,8 +77,8 @@ int CmdImportV2::execute(std::string&) {
 
   auto count = import(task_data);
 
-  Context::getContext().footnote(
-      ::format0("Imported {0} tasks from `*.data` files. You may now delete these files.", count));
+  Context::getContext().footnote(std::format(
+      "Imported {0} tasks from `*.data` files. You may now delete these files.", count));
   return 0;
 }
 

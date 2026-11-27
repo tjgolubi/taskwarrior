@@ -38,6 +38,8 @@
 #include <shared.h>
 #include <utf8.h>
 
+#include <format>
+
 ////////////////////////////////////////////////////////////////////////////////
 ColumnRecur::ColumnRecur() {
   _name = "recur";
@@ -105,7 +107,7 @@ void ColumnRecur::modify(Task& task, const std::string& value) {
     Context::getContext().debug(label + _name + " <-- '" + value + '\'');
     task.set(_name, value);
   } else
-    throw ::format0("The duration value '{0}' is not supported.", value);
+    throw std::format("The duration value '{0}' is not supported.", value);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

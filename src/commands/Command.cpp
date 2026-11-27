@@ -53,6 +53,7 @@
 #include <shared.h>
 #include <util.h>
 
+#include <format>
 #include <iostream>
 #include <vector>
 #ifdef HAVE_EXECUTE
@@ -261,7 +262,7 @@ void Command::factory(std::map<std::string, Command*>& all) {
   for (auto& report : reports) {
     // Make sure a custom report does not clash with a built-in command.
     if (all.find(report) != all.end())
-      throw ::format0("Custom report '{0}' conflicts with built-in task command.", report);
+      throw std::format("Custom report '{0}' conflicts with built-in task command.", report);
 
     c = new CmdCustom(report, "task <filter> " + report,
                       Context::getContext().config.get("report." + report + ".description"));

@@ -34,6 +34,7 @@
 #include <format.h>
 #include <shared.h>
 
+#include <format>
 #include <iostream>
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -79,7 +80,7 @@ int CmdAppend::execute(std::string&) {
 
     // Append to the specified task.
     auto question =
-        ::format0("Append to task {0} '{1}'?", task.identifier(true), task.get("description"));
+        std::format("Append to task {0} '{1}'?", task.identifier(true), task.get("description"));
 
     task.modify(Task::modAppend, true);
 
@@ -122,7 +123,7 @@ int CmdAppend::execute(std::string&) {
   for (const auto& change : projectChanges)
     if (change.first != "") Context::getContext().footnote(change.second);
 
-  feedback_affected(count == 1 ? "Appended {0} task." : "Appended {0} tasks.", count);
+  feedback_affected("Appended {0} task.", "Appended {0} tasks.", count);
   return rc;
 }
 

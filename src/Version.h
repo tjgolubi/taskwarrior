@@ -72,5 +72,10 @@ class Version {
 template<>
 struct ostream_formattable<Version> : std::true_type {};
 
+#ifdef __cpp_lib_format
+template <>
+struct std::formatter<Version, char> : ostream_formatter<Version> {};
+#endif
+
 #endif
 ////////////////////////////////////////////////////////////////////////////////

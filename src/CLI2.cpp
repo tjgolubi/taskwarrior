@@ -39,6 +39,7 @@
 #include <utf8.h>
 
 #include <algorithm>
+#include <format>
 #include <sstream>
 
 // Overridden by rc.abbreviation.minimum.
@@ -249,7 +250,7 @@ void CLI2::applyOverrides(int argc, const char** argv) {
     context.config.set(name, value);
   };
   auto display_overrides = [&](std::string raw) {
-    if (is_override(raw)) context.footnote(::format0("Configuration override {0}", raw));
+    if (is_override(raw)) context.footnote(std::format("Configuration override {0}", raw));
   };
   std::for_each(argv, last, override_settings);
   if (context.verbose("override")) std::for_each(argv, last, display_overrides);
@@ -551,7 +552,7 @@ void CLI2::addContext(bool readable, bool writeable) {
       if (a._lextype == Lexer::Type::uuid || a._lextype == Lexer::Type::number ||
           a._lextype == Lexer::Type::set) {
         Context::getContext().debug(
-            ::format0("UUID/ID argument found '{0}', not applying context.", a.attribute("raw")));
+            std::format("UUID/ID argument found '{0}', not applying context.", a.attribute("raw")));
         return;
       }
     }
@@ -567,8 +568,8 @@ void CLI2::addContext(bool readable, bool writeable) {
   // Inform the user about the application of context
   if (Context::getContext().verbose("context"))
     Context::getContext().footnote(
-        ::format0("Context '{0}' set. Use 'task context none' to remove.",
-                  Context::getContext().config.get("context")));
+        std::format("Context '{0}' set. Use 'task context none' to remove.",
+                    Context::getContext().config.get("context")));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -793,7 +794,7 @@ void CLI2::aliasExpansion() {
 
   if (counter >= safetyValveDefault)
     Context::getContext().debug(
-        ::format0("Nested alias limit of {0} reached.", safetyValveDefault));
+        std::format("Nested alias limit of {0} reached.", safetyValveDefault));
 
   if (changes && Context::getContext().config.getInteger("debug.parser") >= 2)
     Context::getContext().debug(dump("CLI2::analyze aliasExpansion"));
@@ -877,7 +878,7 @@ void CLI2::categorizeArgs() {
     else if (cmd && !cmd->accepts_filter() && !cmd->accepts_modifications() &&
              !cmd->accepts_miscellaneous()) {
       // No commands were expected --> error.
-      throw ::format0("The '{0}' command does not allow '{1}'.", command, a.attribute("raw"));
+      throw std::format("The '{0}' command does not allow '{1}'.", command, a.attribute("raw"));
     } else if (cmd && !cmd->accepts_filter() && !cmd->accepts_modifications() &&
                cmd->accepts_miscellaneous()) {
       a.tag("MISCELLANEOUS");
@@ -1211,7 +1212,7 @@ void CLI2::desugarFilterAttributes() {
           rhs.attribute("raw", "\\b" + value + "\\b");
 #endif
         } else
-          throw ::format0("Error: unrecognized attribute modifier '{0}'.", mod);
+          throw std::format("Error: unrecognized attribute modifier '{0}'.", mod);
 
         reconstructed.push_back(lhs);
         reconstructed.push_back(op);
