@@ -195,7 +195,7 @@ std::string Task::statusToText(Task::status s) {
 // as long as they have non-zero ID.
 const std::string Task::identifier(bool shortened /* = false */) const {
   if (id != 0)
-    return tjgformat(id);
+    return std::to_string(id);
   else if (shortened)
     return get("uuid").substr(0, 8);
   else
@@ -285,7 +285,7 @@ void Task::set(const std::string& name, const std::string& value) {
 
 ////////////////////////////////////////////////////////////////////////////////
 void Task::set(const std::string& name, long long value) {
-  data[name] = tjgformat(value);
+  data[name] = std::to_string(value);
 
   recalc_urgency = true;
 }
@@ -947,7 +947,7 @@ void Task::addAnnotation(const std::string& description) {
   std::string key;
 
   do {
-    key = "annotation_" + tjgformat((long long int)now);
+    key = "annotation_" + std::to_string((long long int)now);
     ++now;
   } while (has(key));
 

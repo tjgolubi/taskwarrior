@@ -57,7 +57,7 @@ int CmdCount::execute(std::string& output) {
   // Find number of matching tasks.  Skip recurring parent tasks.
   int count = std::count_if(filtered.begin(), filtered.end(),
                             [](const auto& task) { return task.getStatus() != Task::recurring; });
-  output = tjgformat(count) + '\n';
+  output = std::to_string(count) + '\n';
   return 0;
 }
 

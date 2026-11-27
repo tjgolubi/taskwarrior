@@ -78,7 +78,7 @@ int CmdUnique::execute(std::string& output) {
       values.insert(task.get(canonical));
     } else if (canonical == "id" && task.getStatus() != Task::deleted &&
                task.getStatus() != Task::completed) {
-      values.insert(tjgformat(task.id));
+      values.insert(std::to_string(task.id));
     }
   }
 

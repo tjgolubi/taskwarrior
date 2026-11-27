@@ -47,7 +47,7 @@ void ColumnUrgency::measure(Task& task, unsigned int& minimum, unsigned int& max
     minimum = maximum = format(task.urgency(), 4, 3).length();
 
   else if (_style == "integer")
-    minimum = maximum = tjgformat((int)task.urgency()).length();
+    minimum = maximum = std::to_string((int)task.urgency()).length();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -178,8 +178,8 @@ void ColumnTypeDate::modify(Task& task, const std::string& value) {
   std::string label = "  [1;37;43mMODIFICATION[0m ";
   if (evaluatedValue.type() == Variant::type_duration) {
     Context::getContext().debug(label + _name + " <-- '" +
-                                std::format("{0}", tjgformat(evaluatedValue.get_duration())) +
-                                "' <-- '" + (std::string)evaluatedValue + "' <-- '" + value + '\'');
+                                std::to_string(evaluatedValue.get_duration()) + "' <-- '" +
+                                (std::string)evaluatedValue + "' <-- '" + value + '\'');
     evaluatedValue.cast(Variant::type_date);
   } else {
     evaluatedValue.cast(Variant::type_date);

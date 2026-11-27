@@ -103,7 +103,8 @@ void ColumnTags::render(std::vector<std::string>& lines, Task& task, int width, 
     } else if (_style == "indicator") {
       renderStringRight(lines, width, color, Context::getContext().config.get("tag.indicator"));
     } else if (_style == "count") {
-      renderStringRight(lines, width, color, '[' + tjgformat(static_cast<int>(all.size())) + ']');
+      renderStringRight(lines, width, color,
+                        '[' + std::to_string(static_cast<int>(all.size())) + ']');
     }
   }
 }
