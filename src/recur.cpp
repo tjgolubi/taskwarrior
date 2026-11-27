@@ -100,7 +100,7 @@ void handleRecurrence() {
           rec.set("uuid", uuid());           // New UUID.
           rec.set("parent", t.get("uuid"));  // Remember mom.
           rec.setAsNow("entry");             // New entry date.
-          rec.set("due", format(d.toEpoch()));
+          rec.set("due", tjgformat(d.toEpoch()));
 
           if (t.has("wait")) {
             Datetime old_wait(t.get_date("wait"));
@@ -108,7 +108,7 @@ void handleRecurrence() {
             Datetime due(d);
             auto wait = checked_add_datetime(due, old_wait - old_due);
             if (wait) {
-              rec.set("wait", format(wait->toEpoch()));
+              rec.set("wait", tjgformat(wait->toEpoch()));
             } else {
               rec.remove("wait");
             }
@@ -125,7 +125,7 @@ void handleRecurrence() {
             Datetime due(d);
             auto scheduled = checked_add_datetime(due, old_scheduled - old_due);
             if (scheduled)
-              rec.set("scheduled", format(scheduled->toEpoch()));
+              rec.set("scheduled", tjgformat(scheduled->toEpoch()));
             else
               rec.remove("scheduled");
           }

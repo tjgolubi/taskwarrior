@@ -177,7 +177,7 @@ void CmdImport::importSingleTask(json::object* obj) {
   Task task(obj);
 
   // An empty task is probably not intentional - at least a UUID should be included.
-  if (task.is_empty()) throw format("Cannot import an empty task.");
+  if (task.is_empty()) throw tjgformat("Cannot import an empty task.");
 
   auto hasGeneratedEntry = not task.has("entry");
   auto hasExplicitEnd = task.has("end");

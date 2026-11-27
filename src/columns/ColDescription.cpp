@@ -120,14 +120,14 @@ void ColumnDescription::measure(Task& task, unsigned int& minimum, unsigned int&
   // The text [2]
   else if (_style == "count") {
     // <description> + ' ' + '[' + <count> + ']'
-    maximum = utf8_width(description) + 1 + 1 + format(task.annotation_count).length() + 1;
+    maximum = utf8_width(description) + 1 + 1 + tjgformat(task.annotation_count).length() + 1;
     minimum = longestWord(description);
   }
 
   // The te... [2]
   else if (_style == "truncated_count") {
     minimum = 4;
-    maximum = utf8_width(description) + 1 + 1 + format(task.annotation_count).length() + 1;
+    maximum = utf8_width(description) + 1 + 1 + tjgformat(task.annotation_count).length() + 1;
   }
 }
 
@@ -200,7 +200,7 @@ void ColumnDescription::render(std::vector<std::string>& lines, Task& task, int 
 
   // This is a description [2]
   else if (_style == "count") {
-    if (task.annotation_count) description += " [" + format(task.annotation_count) + ']';
+    if (task.annotation_count) description += " [" + tjgformat(task.annotation_count) + ']';
 
     std::vector<std::string> raw;
     wrapText(raw, description, width, _hyphenate);
@@ -215,7 +215,7 @@ void ColumnDescription::render(std::vector<std::string>& lines, Task& task, int 
     std::string annos_count;
     int len_annos = 0;
     if (task.annotation_count) {
-      annos_count = " [" + format(task.annotation_count) + ']';
+      annos_count = " [" + tjgformat(task.annotation_count) + ']';
       len_annos = utf8_width(annos_count);
       len += len_annos;
     }

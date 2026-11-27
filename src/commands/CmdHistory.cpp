@@ -112,19 +112,19 @@ void CmdHistoryBase<HistoryStrategy>::outputGraphical(std::string& output) {
       if (Context::getContext().color()) {
         std::string aBar;
         if (addedGroup[i.first]) {
-          aBar = format(addedGroup[i.first]);
+          aBar = tjgformat(addedGroup[i.first]);
           while (aBar.length() < addedBar) aBar = ' ' + aBar;
         }
 
         std::string cBar;
         if (completedGroup[i.first]) {
-          cBar = format(completedGroup[i.first]);
+          cBar = tjgformat(completedGroup[i.first]);
           while (cBar.length() < completedBar) cBar = ' ' + cBar;
         }
 
         std::string dBar;
         if (deletedGroup[i.first]) {
-          dBar = format(deletedGroup[i.first]);
+          dBar = tjgformat(deletedGroup[i.first]);
           while (dBar.length() < deletedBar) dBar = ' ' + dBar;
         }
 

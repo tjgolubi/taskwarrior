@@ -67,7 +67,8 @@ int CmdUrgency::execute(std::string& output) {
   // Display urgency for the selected tasks.
   std::stringstream out;
   for (auto& task : filtered) {
-    out << std::format("task {0} urgency {1}", task.identifier(), ::format(task.urgency())) << '\n';
+    out << std::format("task {0} urgency {1}", task.identifier(), ::tjgformat(task.urgency()))
+        << '\n';
   }
 
   output = out.str();

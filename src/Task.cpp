@@ -195,7 +195,7 @@ std::string Task::statusToText(Task::status s) {
 // as long as they have non-zero ID.
 const std::string Task::identifier(bool shortened /* = false */) const {
   if (id != 0)
-    return format(id);
+    return tjgformat(id);
   else if (shortened)
     return get("uuid").substr(0, 8);
   else
@@ -285,7 +285,7 @@ void Task::set(const std::string& name, const std::string& value) {
 
 ////////////////////////////////////////////////////////////////////////////////
 void Task::set(const std::string& name, long long value) {
-  data[name] = format(value);
+  data[name] = tjgformat(value);
 
   recalc_urgency = true;
 }
@@ -947,7 +947,7 @@ void Task::addAnnotation(const std::string& description) {
   std::string key;
 
   do {
-    key = "annotation_" + format((long long int)now);
+    key = "annotation_" + tjgformat((long long int)now);
     ++now;
   } while (has(key));
 
@@ -1631,11 +1631,11 @@ void Task::validate(bool applyDefault /* = true */) {
   validate_before("scheduled", "end");
 
   if (!has("description") || get("description") == "")
-    Context::getContext().footnote(format("Warning: task has no description."));
+    Context::getContext().footnote(tjgformat("Warning: task has no description."));
 
   // Cannot have an old-style recur frequency with no due date - when would it recur?
   if (has("recur") && (!has("due") || get("due") == "")) {
-    Context::getContext().footnote(format("Warning: recurring task has no due date."));
+    Context::getContext().footnote(tjgformat("Warning: recurring task has no due date."));
     remove("recur");
   }
 

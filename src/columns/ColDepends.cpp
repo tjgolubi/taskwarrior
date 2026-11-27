@@ -74,7 +74,7 @@ void ColumnDepends::measure(Task& task, unsigned int& minimum, unsigned int& max
     }
 
     else if (_style == "count") {
-      minimum = maximum = 2 + format((int)deptasks.size()).length();
+      minimum = maximum = 2 + tjgformat((int)deptasks.size()).length();
     }
 
     else if (_style == "default" || _style == "list") {
@@ -89,7 +89,7 @@ void ColumnDepends::measure(Task& task, unsigned int& minimum, unsigned int& max
 
       unsigned int length;
       for (auto& i : deptasks) {
-        length = format(i.id).length();
+        length = tjgformat(i.id).length();
         if (length > minimum) minimum = length;
       }
     }
@@ -107,7 +107,8 @@ void ColumnDepends::render(std::vector<std::string>& lines, Task& task, int widt
     }
 
     else if (_style == "count") {
-      renderStringRight(lines, width, color, '[' + format(static_cast<int>(deptasks.size())) + ']');
+      renderStringRight(lines, width, color,
+                        '[' + tjgformat(static_cast<int>(deptasks.size())) + ']');
     }
 
     else if (_style == "default" || _style == "list") {

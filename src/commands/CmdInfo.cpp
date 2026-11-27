@@ -107,7 +107,7 @@ int CmdInfo::execute(std::string& output) {
     // id
     auto row = view.addRow();
     view.set(row, 0, "ID");
-    view.set(row, 1, (task.id ? format(task.id) : "-"));
+    view.set(row, 1, (task.id ? tjgformat(task.id) : "-"));
 
     std::string status = Lexer::ucFirst(Task::statusToText(task.getStatus()));
 
