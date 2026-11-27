@@ -48,6 +48,7 @@
 #include <format>
 #include <iomanip>
 #include <iostream>
+#include <print>
 #include <regex>
 #include <sstream>
 
@@ -669,7 +670,7 @@ int Context::initialize(int argc, const char** argv) {
   }
 
   catch (const std::regex_error& e) {
-    std::cout << "regex_error caught: " << e.what() << '\n';
+    std::println(std::cout, "regex_error caught: {}", e.what());
   } catch (...) {
     error("Unknown error. Please report.");
     rc = 3;
@@ -681,36 +682,36 @@ int Context::initialize(int argc, const char** argv) {
     if (config.getBoolean("debug")) {
       for (auto& d : debugMessages)
         if (color())
-          std::cerr << colorizeDebug(d) << '\n';
+          std::println(std::cerr, "{}", colorizeDebug(d));
         else
-          std::cerr << d << '\n';
+          std::println(std::cerr, "{}", d);
     }
 
     // Dump all headers, controlled by 'header' verbosity token.
     if (verbose("header")) {
       for (auto& h : headers)
         if (color())
-          std::cerr << colorizeHeader(h) << '\n';
+          std::println(std::cerr, "{}", colorizeHeader(h));
         else
-          std::cerr << h << '\n';
+          std::println(std::cerr, "{}", h);
     }
 
     // Dump all footnotes, controlled by 'footnote' verbosity token.
     if (verbose("footnote")) {
       for (auto& f : footnotes)
         if (color())
-          std::cerr << colorizeFootnote(f) << '\n';
+          std::println(std::cerr, "{}", colorizeFootnote(f));
         else
-          std::cerr << f << '\n';
+          std::println(std::cerr, "{}", f);
     }
 
     // Dump all errors, non-maskable.
     // Colorized as footnotes.
     for (auto& e : errors)
       if (color())
-        std::cerr << colorizeFootnote(e) << '\n';
+        std::println(std::cerr, "{}", colorizeFootnote(e));
       else
-        std::cerr << e << '\n';
+        std::println(std::cerr, "{}", e);
   }
 
   time_init_us += timer_total.total_us();
@@ -773,39 +774,39 @@ int Context::run() {
   if (config.getBoolean("debug")) {
     for (auto& d : debugMessages)
       if (color())
-        std::cerr << colorizeDebug(d) << '\n';
+        std::println(std::cerr, "{}", colorizeDebug(d));
       else
-        std::cerr << d << '\n';
+        std::println(std::cerr, "{}", d);
   }
 
   // Dump all headers, controlled by 'header' verbosity token.
   if (verbose("header")) {
     for (auto& h : headers)
       if (color())
-        std::cerr << colorizeHeader(h) << '\n';
+        std::println(std::cerr, "{}", colorizeHeader(h));
       else
-        std::cerr << h << '\n';
+        std::println(std::cerr, "{}", h);
   }
 
   // Dump the report output.
-  std::cout << output;
+  std::print(std::cout, "{}", output);
 
   // Dump all footnotes, controlled by 'footnote' verbosity token.
   if (verbose("footnote")) {
     for (auto& f : footnotes)
       if (color())
-        std::cerr << colorizeFootnote(f) << '\n';
+        std::println(std::cerr, "{}", colorizeFootnote(f));
       else
-        std::cerr << f << '\n';
+        std::println(std::cerr, "{}", f);
   }
 
   // Dump all errors, non-maskable.
   // Colorized as footnotes.
   for (auto& e : errors)
     if (color())
-      std::cerr << colorizeError(e) << '\n';
+      std::println(std::cerr, "{}", colorizeError(e));
     else
-      std::cerr << e << '\n';
+      std::println(std::cerr, "{}", e);
 
   return rc;
 }
@@ -1249,7 +1250,7 @@ void Context::updateXtermTitle() {
       title += a->attribute("raw");
     }
 
-    std::cout << "]0;task " << command << ' ' << title << "";
+    std::print(std::cout, "]0;task {} {}", command, title);
   }
 }
 

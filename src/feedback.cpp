@@ -38,6 +38,7 @@
 
 #include <format>
 #include <iostream>
+#include <print>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -69,7 +70,7 @@ std::string renderAttribute(const std::string& name, const std::string& value,
 // Implements:
 //    <string>
 void feedback_affected(const std::string& effect) {
-  if (Context::getContext().verbose("affected")) std::cout << effect << "\n";
+  if (Context::getContext().verbose("affected")) std::println(std::cout, "{}", effect);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -78,7 +79,7 @@ void feedback_affected(const std::string& effect) {
 //
 // The 'effect' string should contain a replacement field for the quantity.
 void feedback_affected(std::format_string<int&> effect, int quantity) {
-  if (Context::getContext().verbose("affected")) std::cout << std::format(effect, quantity) << "\n";
+  if (Context::getContext().verbose("affected")) std::println(std::cout, effect, quantity);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -95,7 +96,7 @@ void feedback_affected(std::format_string<int&> singular, std::format_string<int
 void feedback_affected(std::format_string<const std::string, const std::string> effect,
                        const Task& task) {
   if (Context::getContext().verbose("affected")) {
-    std::cout << std::format(effect, task.identifier(true), task.get("description")) << "\n";
+    std::println(std::cout, effect, task.identifier(true), task.get("description"));
   }
 }
 
@@ -135,7 +136,7 @@ void feedback_special_tags(const std::string& tag) {
           "report.";
 
     if (msg.length()) {
-      std::cout << msg << "\n";
+      std::println(std::cout, "{}", msg);
     }
   }
 }
@@ -157,11 +158,10 @@ void feedback_unblocked(const Task& task) {
       auto blocking = i.getDependencyTasks();
       if (blocking.size() == 0) {
         if (i.id)
-          std::cout << std::format("Unblocked {} '{}'.", i.id, i.get("description")) << "\n";
+          std::println(std::cout, "Unblocked {} '{}'.", i.id, i.get("description"));
         else {
           std::string uuid = i.get("uuid");
-          std::cout << std::format("Unblocked {} '{}'.", i.get("uuid"), i.get("description"))
-                    << "\n";
+          std::println(std::cout, "Unblocked {} '{}'.", i.get("uuid"), i.get("description"));
         }
       }
     }

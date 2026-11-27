@@ -36,6 +36,7 @@
 
 #include <format>
 #include <iostream>
+#include <print>
 
 ////////////////////////////////////////////////////////////////////////////////
 CmdPrepend::CmdPrepend() {
@@ -113,7 +114,7 @@ int CmdPrepend::execute(std::string&) {
         }
       }
     } else {
-      std::cout << "Task not prepended.\n";
+      std::println(std::cout, "Task not prepended.");
       rc = 1;
       if (_permission_quit) break;
     }

@@ -31,9 +31,11 @@
 #include <rust/cxx.h>
 #include <signal.h>
 
+#include <cstdio>
 #include <cstring>
 #include <iostream>
 #include <new>
+#include <print>
 #include <regex>
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -54,7 +56,7 @@ int main(int argc, const char** argv) {
 
   // Lightweight version checking that doesn't require initialization or any I/O.
   if (argc == 2 && !strcmp(argv[1], "--version")) {
-    std::cout << VERSION << "\n";
+    std::println(std::cout, "{}", VERSION);
   } else {
     try {
       status = Context::getContext().initialize(argc, argv);
@@ -62,26 +64,31 @@ int main(int argc, const char** argv) {
     }
 
     catch (const std::string& error) {
-      std::cerr << error << "\n";
+      std::println(std::cerr, "{}", error);
       status = -1;
     }
 
     catch (rust::Error& err) {
-      std::cerr << err.what() << "\n";
+      std::println(std::cerr, "{}", err.what());
       status = -1;
     }
 
     catch (std::bad_alloc& error) {
-      std::cerr << "Error: Memory allocation failed: " << error.what() << "\n";
+      // Report allocation failure without allocating a formatted string.
+      std::fflush(stdout);
+      std::fputs("Error: Memory allocation failed: ", stderr);
+      std::fputs(error.what(), stderr);
+      std::fputc('\n', stderr);
+      std::fflush(stderr);
       status = -3;
     }
 
     catch (const std::regex_error& e) {
-      std::cout << "regex_error caught: " << e.what() << '\n';
+      std::println(std::cout, "regex_error caught: {}", e.what());
     }
 
     catch (...) {
-      std::cerr << "Unknown error. Please report.\n";
+      std::println(std::cerr, "Unknown error. Please report.");
       status = -2;
     }
   }

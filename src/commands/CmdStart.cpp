@@ -39,6 +39,7 @@
 
 #include <format>
 #include <iostream>
+#include <print>
 
 ////////////////////////////////////////////////////////////////////////////////
 CmdStart::CmdStart() {
@@ -109,13 +110,12 @@ int CmdStart::execute(std::string&) {
         // Save unmodified task for potential nagging later
         modified.push_back(before);
       } else {
-        std::cout << "Task not started.\n";
+        std::println(std::cout, "Task not started.");
         rc = 1;
         if (_permission_quit) break;
       }
     } else {
-      std::cout << std::format("Task {} '{}' already started.", task.id, task.get("description"))
-                << '\n';
+      std::println(std::cout, "Task {} '{}' already started.", task.id, task.get("description"));
       rc = 1;
     }
   }

@@ -39,6 +39,7 @@
 
 #include <format>
 #include <iostream>
+#include <print>
 
 ////////////////////////////////////////////////////////////////////////////////
 CmdDone::CmdDone() {
@@ -110,14 +111,13 @@ int CmdDone::execute(std::string&) {
         // Save unmodified task for potential nagging later
         modified.push_back(before);
       } else {
-        std::cout << "Task not completed.\n";
+        std::println(std::cout, "Task not completed.");
         rc = 1;
         if (_permission_quit) break;
       }
     } else {
-      std::cout << std::format("Task {} '{}' is neither pending nor waiting.",
-                               task.identifier(true), task.get("description"))
-                << '\n';
+      std::println(std::cout, "Task {} '{}' is neither pending nor waiting.", task.identifier(true),
+                   task.get("description"));
       rc = 1;
     }
   }

@@ -37,6 +37,7 @@
 
 #include <format>
 #include <iostream>
+#include <print>
 #include <unordered_map>
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -95,7 +96,7 @@ int CmdImportV2::import(const std::vector<std::map<std::string, std::string>>& t
   for (auto& task : task_data) {
     auto uuid_iter = task.find(uuid_key);
     if (uuid_iter == task.end()) {
-      std::cout << " err  - Task with no UUID\n";
+      std::println(std::cout, " err  - Task with no UUID");
       continue;
     }
     auto uuid_str = uuid_iter->second;
@@ -117,17 +118,17 @@ int CmdImportV2::import(const std::vector<std::map<std::string, std::string>>& t
     count++;
 
     if (added_task) {
-      std::cout << " add ";
+      std::print(std::cout, " add ");
     } else {
-      std::cout << " mod ";
+      std::print(std::cout, " mod ");
     }
-    std::cout << uuid_str << ' ';
+    std::print(std::cout, "{} ", uuid_str);
     if (auto descr_iter = task.find(descr_key); descr_iter != task.end()) {
-      std::cout << descr_iter->second;
+      std::print(std::cout, "{}", descr_iter->second);
     } else {
-      std::cout << "(no description)";
+      std::print(std::cout, "(no description)");
     }
-    std::cout << "\n";
+    std::println(std::cout, "");
   }
 
   replica->commit_operations(std::move(ops));

@@ -38,6 +38,7 @@
 
 #include <format>
 #include <iostream>
+#include <print>
 
 #define STRING_CMD_DELETE_TASK_R "Deleting recurring task {} '{}'."
 #define STRING_CMD_DELETE_CONFIRM_R \
@@ -152,14 +153,13 @@ int CmdDelete::execute(std::string&) {
           }
         }
       } else {
-        std::cout << "Task not deleted.\n";
+        std::println(std::cout, "Task not deleted.");
         rc = 1;
         if (_permission_quit) break;
       }
     } else {
-      std::cout << std::format("Task {} '{}' is not deletable.", task.identifier(true),
-                               task.get("description"))
-                << '\n';
+      std::println(std::cout, "Task {} '{}' is not deletable.", task.identifier(true),
+                   task.get("description"));
       rc = 1;
     }
   }

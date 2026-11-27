@@ -36,6 +36,7 @@
 
 #include <format>
 #include <iostream>
+#include <print>
 
 ////////////////////////////////////////////////////////////////////////////////
 CmdAppend::CmdAppend() {
@@ -113,7 +114,7 @@ int CmdAppend::execute(std::string&) {
         }
       }
     } else {
-      std::cout << "Task not appended.\n";
+      std::println(std::cout, "Task not appended.");
       rc = 1;
       if (_permission_quit) break;
     }

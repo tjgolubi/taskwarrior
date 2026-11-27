@@ -51,6 +51,7 @@
 #include <util.h>
 
 #include <iostream>
+#include <print>
 #include <string>
 #include <vector>
 
@@ -86,8 +87,9 @@ int confirm4(const std::string& question) {
   signal(SIGINT, signal_handler);
 
   do {
-    std::cout << question << " (" << options[1] << '/' << options[2] << '/' << options[4] << '/'
-              << options[5] << ") ";
+    std::print(std::cout, "{} ({}/{}/{}/{}) ", question, options[1], options[2], options[4],
+               options[5]);
+    std::cout.flush();
 
     std::string answer{""};
     std::getline(std::cin, answer);

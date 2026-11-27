@@ -35,6 +35,7 @@
 
 #include <format>
 #include <iostream>
+#include <print>
 #include <string>
 #include <unordered_map>
 
@@ -62,7 +63,7 @@ int CmdImport::execute(std::string&) {
   // Get filenames from command line arguments.
   auto words = Context::getContext().cli2.getWords();
   if (!words.size() || (words.size() == 1 && words[0] == "-")) {
-    std::cout << std::format("Importing '{}'\n", "STDIN");
+    std::println(std::cout, "Importing '{}'", "STDIN");
 
     std::string json;
     std::string line;
@@ -75,7 +76,7 @@ int CmdImport::execute(std::string&) {
       File incoming(word);
       if (!incoming.exists()) throw std::format("File '{}' not found.", word);
 
-      std::cout << std::format("Importing '{}'\n", word);
+      std::println(std::cout, "Importing '{}'", word);
 
       // Load the file.
       std::string json;
@@ -214,16 +215,16 @@ void CmdImport::importSingleTask(json::object* obj) {
       CmdModify modHelper;
       modHelper.checkConsistency(before, task);
       modHelper.modifyAndUpdate(before, task);
-      std::cout << " mod  ";
+      std::print(std::cout, " mod  ");
     } else {
-      std::cout << " skip ";
+      std::print(std::cout, " skip ");
     }
   } else {
     Context::getContext().tdb2.add(task);
-    std::cout << " add  ";
+    std::print(std::cout, " add  ");
   }
 
-  std::cout << task.get("uuid") << ' ' << task.get("description") << '\n';
+  std::println(std::cout, "{} {}", task.get("uuid"), task.get("description"));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

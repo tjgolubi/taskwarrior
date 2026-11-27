@@ -46,6 +46,7 @@
 #include <cstring>
 #include <format>
 #include <iostream>
+#include <print>
 #include <sstream>
 
 #define STRING_EDIT_START_MOD "Start date modified."
@@ -677,14 +678,14 @@ ARE_THESE_REALLY_HARMFUL:
   bool changes = false;  // No changes made.
 
   // Launch the editor.
-  std::cout << std::format("Launching '{}' now...\n", editor);
+  std::println(std::cout, "Launching '{}' now...", editor);
   int exitcode = system(editor.c_str());
   auto captured_errno = errno;
   if (0 == exitcode)
-    std::cout << "Editing complete.\n";
+    std::println(std::cout, "Editing complete.");
   else {
-    std::cout << std::format("Editing failed with exit code {}.\n", exitcode);
-    if (-1 == exitcode) std::cout << std::strerror(captured_errno) << '\n';
+    std::println(std::cout, "Editing failed with exit code {}.", exitcode);
+    if (-1 == exitcode) std::println(std::cout, "{}", std::strerror(captured_errno));
     File::remove(file.str());
     return CmdEdit::editResult::error;
   }
@@ -696,7 +697,7 @@ ARE_THESE_REALLY_HARMFUL:
   // Update task based on what can be parsed back out of the file, but only
   // if changes were made.
   if (before_orig != after) {
-    std::cout << "Edits were detected.\n";
+    std::println(std::cout, "Edits were detected.");
     std::string problem = "";
     auto oops = false;
 
@@ -711,7 +712,7 @@ ARE_THESE_REALLY_HARMFUL:
     }
 
     if (oops) {
-      std::cerr << "Error: " << problem << '\n';
+      std::println(std::cerr, "Error: {}", problem);
 
       File::remove(file.str());
 
@@ -725,7 +726,7 @@ ARE_THESE_REALLY_HARMFUL:
     } else
       changes = true;
   } else {
-    std::cout << "No edits were detected.\n";
+    std::println(std::cout, "No edits were detected.");
     changes = false;
   }
 

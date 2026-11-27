@@ -55,6 +55,7 @@
 
 #include <format>
 #include <iostream>
+#include <print>
 #include <vector>
 #ifdef HAVE_EXECUTE
 #include <CmdExec.h>
@@ -377,7 +378,7 @@ bool Command::permission(const std::string& question, unsigned int quantity) {
   // style. Bulk = 0 denotes infinite bulk.
   if ((bulk == 0 || quantity < bulk) && (!_needs_confirm || !confirmation)) return true;
 
-  if (Context::getContext().verbose("blank") && !_first_iteration) std::cout << '\n';
+  if (Context::getContext().verbose("blank") && !_first_iteration) std::println(std::cout, "");
   int answer = confirm4(question);
   _first_iteration = false;
   switch (answer) {

@@ -32,7 +32,7 @@
 #include <unistd.h>
 
 #include <iomanip>
-#include <iostream>
+#include <print>
 
 ///////////////////////////////////////////////////////////////////////////////
 UnitTest::UnitTest() : _planned(0), _counter(0), _passed(0), _failed(0), _skipped(0) {}
@@ -40,7 +40,7 @@ UnitTest::UnitTest() : _planned(0), _counter(0), _passed(0), _failed(0), _skippe
 ///////////////////////////////////////////////////////////////////////////////
 UnitTest::UnitTest(int planned)
     : _planned(planned), _counter(0), _passed(0), _failed(0), _skipped(0) {
-  std::cout << "1.." << _planned << '\n';
+  std::println("1..{}", _planned);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -50,15 +50,15 @@ UnitTest::~UnitTest() {
     percentPassed = (100.0 * _passed) / std::max(_planned, _passed + _failed + _skipped);
 
   if (_counter < _planned) {
-    std::cout << "# Only " << _counter << " tests, out of a planned " << _planned << " were run.\n";
+    std::println("# Only {} tests, out of a planned {} were run.", _counter, _planned);
     _skipped += _planned - _counter;
   }
 
   else if (_counter > _planned)
-    std::cout << "# " << _counter << " tests were run, but only " << _planned << " were planned.\n";
+    std::println("# {} tests were run, but only {} were planned.", _counter, _planned);
 
-  std::cout << "# " << _passed << " passed, " << _failed << " failed, " << _skipped << " skipped. "
-            << std::setprecision(3) << percentPassed << "% passed.\n";
+  std::println("# {} passed, {} failed, {} skipped. {:.3g}% passed.", _passed, _failed, _skipped,
+               percentPassed);
   exit(_failed > 0);
 }
 
@@ -70,13 +70,13 @@ void UnitTest::plan(int planned) {
   _failed = 0;
   _skipped = 0;
 
-  std::cout << "1.." << _planned << '\n';
+  std::println("1..{}", _planned);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 void UnitTest::planMore(int extra) {
   _planned += extra;
-  std::cout << "1.." << _planned << '\n';
+  std::println("1..{}", _planned);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -87,11 +87,11 @@ void UnitTest::ok(bool expression, const std::string& name, bool expfail /* = fa
 
   if (success and !expfail) {
     ++_passed;
-    std::cout << green("ok") << " " << _counter << " - " << name << '\n';
+    std::println("{} {} - {}", green("ok"), _counter, name);
   } else {
     if (success == expfail) ++_failed;
-    std::cout << red("not ok") << " " << _counter << " - " << name
-              << (expfail ? (success ? " # FIXED" : " # TODO") : "") << '\n';
+    std::println("{} {} - {}{}", red("not ok"), _counter, name,
+                 (expfail ? (success ? " # FIXED" : " # TODO") : ""));
   }
 }
 
@@ -103,11 +103,11 @@ void UnitTest::notok(bool expression, const std::string& name, bool expfail /* =
 
   if (success and !expfail) {
     ++_passed;
-    std::cout << green("ok") << " " << _counter << " - " << name << '\n';
+    std::println("{} {} - {}", green("ok"), _counter, name);
   } else {
     if (success == expfail) ++_failed;
-    std::cout << red("not ok") << " " << _counter << " - " << name
-              << (expfail ? (success ? " # FIXED" : " # TODO") : "") << '\n';
+    std::println("{} {} - {}{}", red("not ok"), _counter, name,
+                 (expfail ? (success ? " # FIXED" : " # TODO") : ""));
   }
 }
 
@@ -118,12 +118,11 @@ void UnitTest::is(bool actual, bool expected, const std::string& name, bool expf
 
   if (success and !expfail) {
     ++_passed;
-    std::cout << green("ok") << " " << _counter << " - " << name << '\n';
+    std::println("{} {} - {}", green("ok"), _counter, name);
   } else {
     if (success == expfail) ++_failed;
-    std::cout << red("not ok") << " " << _counter << " - " << name
-              << (expfail ? (success ? " # FIXED" : " # TODO") : "") << "\n# expected: " << expected
-              << "\n#      got: " << actual << '\n';
+    std::println("{} {} - {}{}\n# expected: {:d}\n#      got: {:d}", red("not ok"), _counter, name,
+                 (expfail ? (success ? " # FIXED" : " # TODO") : ""), expected, actual);
   }
 }
 
@@ -135,12 +134,11 @@ void UnitTest::is(size_t actual, size_t expected, const std::string& name,
 
   if (success and !expfail) {
     ++_passed;
-    std::cout << green("ok") << " " << _counter << " - " << name << '\n';
+    std::println("{} {} - {}", green("ok"), _counter, name);
   } else {
     if (success == expfail) ++_failed;
-    std::cout << red("not ok") << " " << _counter << " - " << name
-              << (expfail ? (success ? " # FIXED" : " # TODO") : "") << "\n# expected: " << expected
-              << "\n#      got: " << actual << '\n';
+    std::println("{} {} - {}{}\n# expected: {}\n#      got: {}", red("not ok"), _counter, name,
+                 (expfail ? (success ? " # FIXED" : " # TODO") : ""), expected, actual);
   }
 }
 
@@ -151,12 +149,11 @@ void UnitTest::is(int actual, int expected, const std::string& name, bool expfai
 
   if (success and !expfail) {
     ++_passed;
-    std::cout << green("ok") << " " << _counter << " - " << name << '\n';
+    std::println("{} {} - {}", green("ok"), _counter, name);
   } else {
     if (success == expfail) ++_failed;
-    std::cout << red("not ok") << " " << _counter << " - " << name
-              << (expfail ? (success ? " # FIXED" : " # TODO") : "") << "\n# expected: " << expected
-              << "\n#      got: " << actual << '\n';
+    std::println("{} {} - {}{}\n# expected: {}\n#      got: {}", red("not ok"), _counter, name,
+                 (expfail ? (success ? " # FIXED" : " # TODO") : ""), expected, actual);
   }
 }
 
@@ -168,12 +165,11 @@ void UnitTest::is(double actual, double expected, const std::string& name,
 
   if (success and !expfail) {
     ++_passed;
-    std::cout << green("ok") << " " << _counter << " - " << name << '\n';
+    std::println("{} {} - {}", green("ok"), _counter, name);
   } else {
     if (success == expfail) ++_failed;
-    std::cout << red("not ok") << " " << _counter << " - " << name
-              << (expfail ? (success ? " # FIXED" : " # TODO") : "") << "\n# expected: " << expected
-              << "\n#      got: " << actual << '\n';
+    std::println("{} {} - {}{}\n# expected: {:.6g}\n#      got: {:.6g}", red("not ok"), _counter,
+                 name, (expfail ? (success ? " # FIXED" : " # TODO") : ""), expected, actual);
   }
 }
 
@@ -185,12 +181,11 @@ void UnitTest::is(double actual, double expected, double tolerance, const std::s
 
   if (success and !expfail) {
     ++_passed;
-    std::cout << green("ok") << " " << _counter << " - " << name << '\n';
+    std::println("{} {} - {}", green("ok"), _counter, name);
   } else {
     if (success == expfail) ++_failed;
-    std::cout << red("not ok") << " " << _counter << " - " << name
-              << (expfail ? (success ? " # FIXED" : " # TODO") : "") << "\n# expected: " << expected
-              << "\n#      got: " << actual << '\n';
+    std::println("{} {} - {}{}\n# expected: {:.6g}\n#      got: {:.6g}", red("not ok"), _counter,
+                 name, (expfail ? (success ? " # FIXED" : " # TODO") : ""), expected, actual);
   }
 }
 
@@ -202,12 +197,12 @@ void UnitTest::is(unsigned char actual, unsigned char expected, const std::strin
 
   if (success and !expfail) {
     ++_passed;
-    std::cout << green("ok") << " " << _counter << " - " << name << '\n';
+    std::println("{} {} - {}", green("ok"), _counter, name);
   } else {
     if (success == expfail) ++_failed;
-    std::cout << red("not ok") << " " << _counter << " - " << name
-              << (expfail ? (success ? " # FIXED" : " # TODO") : "") << "\n# expected: " << expected
-              << "\n#      got: " << actual << '\n';
+    std::println("{} {} - {}{}\n# expected: {}\n#      got: {}", red("not ok"), _counter, name,
+                 (expfail ? (success ? " # FIXED" : " # TODO") : ""), static_cast<char>(expected),
+                 static_cast<char>(actual));
   }
 }
 
@@ -219,13 +214,11 @@ void UnitTest::is(const std::string& actual, const std::string& expected, const 
 
   if (success and !expfail) {
     ++_passed;
-    std::cout << green("ok") << " " << _counter << " - " << name << '\n';
+    std::println("{} {} - {}", green("ok"), _counter, name);
   } else {
     if (success == expfail) ++_failed;
-    std::cout << red("not ok") << " " << _counter << " - " << name
-              << (expfail ? (success ? " # FIXED" : " # TODO") : "") << "\n# expected: '"
-              << expected << "'"
-              << "\n#      got: '" << actual << "'\n";
+    std::println("{} {} - {}{}\n# expected: '{}'\n#      got: '{}'", red("not ok"), _counter, name,
+                 (expfail ? (success ? " # FIXED" : " # TODO") : ""), expected, actual);
   }
 }
 
@@ -237,13 +230,11 @@ void UnitTest::is(const char* actual, const char* expected, const std::string& n
 
   if (success and !expfail) {
     ++_passed;
-    std::cout << green("ok") << " " << _counter << " - " << name << '\n';
+    std::println("{} {} - {}", green("ok"), _counter, name);
   } else {
     if (success == expfail) ++_failed;
-    std::cout << red("not ok") << " " << _counter << " - " << name
-              << (expfail ? (success ? " # FIXED" : " # TODO") : "") << "\n# expected: '"
-              << expected << "'"
-              << "\n#      got: '" << actual << "'\n";
+    std::println("{} {} - {}{}\n# expected: '{}'\n#      got: '{}'", red("not ok"), _counter, name,
+                 (expfail ? (success ? " # FIXED" : " # TODO") : ""), expected, actual);
   }
 }
 
@@ -252,28 +243,28 @@ void UnitTest::diag(const std::string& text) {
   auto start = text.find_first_not_of(" \t\n\r\f");
   auto end = text.find_last_not_of(" \t\n\r\f");
   if (start != std::string::npos && end != std::string::npos)
-    std::cout << "# " << text.substr(start, end - start + 1) << '\n';
+    std::println("# {}", text.substr(start, end - start + 1));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 void UnitTest::pass(const std::string& text) {
   ++_counter;
   ++_passed;
-  std::cout << green("ok") << " " << _counter << " - " << text << '\n';
+  std::println("{} {} - {}", green("ok"), _counter, text);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 void UnitTest::fail(const std::string& text) {
   ++_counter;
   ++_failed;
-  std::cout << red("not ok") << " " << _counter << " - " << text << '\n';
+  std::println("{} {} - {}", red("not ok"), _counter, text);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 void UnitTest::skip(const std::string& text) {
   ++_counter;
   ++_skipped;
-  std::cout << yellow("ok") << " " << _counter << " - " << text << " # skip" << '\n';
+  std::println("{} {} - {} # skip", yellow("ok"), _counter, text);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

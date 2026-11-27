@@ -34,12 +34,13 @@
 #include <util.h>
 
 #include <iostream>
+#include <print>
 
 namespace {
 
 ////////////////////////////////////////////////////////////////////////////////
 int usage() {
-  std::cerr << "USAGE: make_tc_task DATADIR KEY=VALUE ..\n";
+  std::println(std::cerr, "USAGE: make_tc_task DATADIR KEY=VALUE ..");
   return 1;
 }
 
@@ -69,7 +70,7 @@ int main(int argc, char** argv) {
   }
   replica->commit_operations(std::move(operations));
 
-  std::cout << static_cast<std::string>(uuid.to_string()) << "\n";
+  std::println("{}", static_cast<std::string>(uuid.to_string()));
   return 0;
 }
 

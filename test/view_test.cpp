@@ -37,7 +37,7 @@
 #include <test.h>
 #include <unistd.h>
 
-#include <iostream>
+#include <print>
 
 Context context;
 extern std::string configurationDefaults;
@@ -148,7 +148,7 @@ int TEST_NAME(int, char**) {
     view.intraColorEven(even_color);
 
     // Render the view.
-    std::cout << view.render(data, sequence);
+    std::print("{}", view.render(data, sequence));
     int expected_lines = 5;
     if (!isatty(fileno(stdout))) expected_lines = 6;
 

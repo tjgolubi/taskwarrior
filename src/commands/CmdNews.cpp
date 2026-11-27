@@ -40,6 +40,7 @@
 #include <csignal>
 #include <format>
 #include <iostream>
+#include <print>
 
 /* Adding a new version:
  *
@@ -87,9 +88,10 @@ void wait_for_enter() {
   signal(SIGINT, signal_handler);
 
   std::string dummy;
-  std::cout << "\nPress enter to continue..";
+  std::print(std::cout, "\nPress enter to continue..");
+  std::cout.flush();
   std::getline(std::cin, dummy);
-  std::cout << "\33[2K\033[A\33[2K";  // Erase current line, move up, and erase again
+  std::print(std::cout, "\33[2K\033[A\33[2K");  // Erase current line, move up, and erase again
 
   signal(SIGINT, SIG_DFL);
 }
@@ -126,30 +128,37 @@ void NewsItem::render() {
 
   // TODO: For some reason, bold cannot be blended in 256-color terminals
   // Apply this workaround of colorizing twice.
-  std::cout << bold.colorize(header.colorize(std::format("{} ({})\n", _title, _version)));
+  std::print(std::cout, "{}",
+             bold.colorize(header.colorize(std::format("{} ({})\n", _title, _version))));
   if (_background.size()) {
     if (_bg_title.empty()) _bg_title = "Background";
 
-    std::cout << "\n  " << underline.colorize(_bg_title) << std::endl << _background << std::endl;
+    std::println(std::cout, "\n  {}", underline.colorize(_bg_title));
+    std::cout.flush();
+    std::println(std::cout, "{}", _background);
+    std::cout.flush();
   }
 
   wait_for_enter();
 
-  std::cout << "  " << underline.colorize(std::format("What changed in {}?\n", _version));
-  if (_punchline.size()) std::cout << footnote.colorize(std::format("{}\n", _punchline));
+  std::print(std::cout, "  {}", underline.colorize(std::format("What changed in {}?\n", _version)));
+  if (_punchline.size())
+    std::print(std::cout, "{}", footnote.colorize(std::format("{}\n", _punchline)));
 
-  if (_update.size()) std::cout << std::format("{}\n", _update);
+  if (_update.size()) std::println(std::cout, "{}", _update);
 
   wait_for_enter();
 
   if (_reasoning.size()) {
-    std::cout << "  " << underline.colorize("What was the motivation behind this feature?\n")
-              << _reasoning << std::endl;
+    std::println(std::cout, "  {}{}",
+                 underline.colorize("What was the motivation behind this feature?\n"), _reasoning);
+    std::cout.flush();
     wait_for_enter();
   }
 
   if (_actions.size()) {
-    std::cout << "  " << underline.colorize("What do I have to do?\n") << _actions << std::endl;
+    std::println(std::cout, "  {}{}", underline.colorize("What do I have to do?\n"), _actions);
+    std::cout.flush();
     wait_for_enter();
   }
 }
@@ -604,21 +613,21 @@ int CmdNews::execute(std::string& output) {
 
   Color bold = Color("bold");
   if (items.empty()) {
-    std::cout << bold.colorize("You are up to date!\n");
+    std::print(std::cout, "{}", bold.colorize("You are up to date!\n"));
   } else {
     // Print release notes
-    std::cout << bold.colorize(
-        std::format("\n"
-                    "================================================\n"
-                    "Taskwarrior {} through {} Release Highlights\n"
-                    "================================================\n",
-                    news_version, current_version));
+    std::print(std::cout, "{}",
+               bold.colorize(std::format("\n"
+                                         "================================================\n"
+                                         "Taskwarrior {} through {} Release Highlights\n"
+                                         "================================================\n",
+                                         news_version, current_version)));
 
     for (unsigned short i = 0; i < items.size(); i++) {
-      std::cout << std::format("\n({}/{}) ", i + 1, items.size());
+      std::print(std::cout, "\n({}/{}) ", i + 1, items.size());
       items[i].render();
     }
-    std::cout << "Thank you for catching up on the new features!\n";
+    std::println(std::cout, "Thank you for catching up on the new features!");
   }
   wait_for_enter();
 

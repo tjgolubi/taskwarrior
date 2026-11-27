@@ -36,6 +36,7 @@
 
 #include <format>
 #include <iostream>
+#include <print>
 
 ////////////////////////////////////////////////////////////////////////////////
 CmdAnnotate::CmdAnnotate() {
@@ -113,7 +114,7 @@ int CmdAnnotate::execute(std::string&) {
         }
       }
     } else {
-      std::cout << "Task not annotated.\n";
+      std::println(std::cout, "Task not annotated.");
       rc = 1;
       if (_permission_quit) break;
     }

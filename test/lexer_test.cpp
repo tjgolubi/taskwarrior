@@ -33,7 +33,7 @@
 #include <string.h>
 #include <test.h>
 
-#include <iostream>
+#include <print>
 #include <vector>
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -105,7 +105,7 @@ int TEST_NAME(int, char**) {
 
   tokens.clear();
   while (l2.token(token, type)) {
-    std::cout << "# «" << token << "» " << Lexer::typeName(type) << "\n";
+    std::println("# «{}» {}", token, Lexer::typeName(type));
     tokens.emplace_back(token, type);
   }
 
@@ -146,7 +146,7 @@ int TEST_NAME(int, char**) {
   Lexer l3("1 12 123 1234 12345 123456 1234567");
   tokens.clear();
   while (l3.token(token, type)) {
-    std::cout << "# «" << token << "» " << Lexer::typeName(type) << "\n";
+    std::println("# «{}» {}", token, Lexer::typeName(type));
     tokens.emplace_back(token, type);
   }
 

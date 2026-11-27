@@ -37,6 +37,7 @@
 
 #include <format>
 #include <iostream>
+#include <print>
 
 #define STRING_CMD_MODIFY_TASK_R "Modifying recurring task {} '{}'."
 #define STRING_CMD_MODIFY_RECUR \
@@ -91,7 +92,7 @@ int CmdModify::execute(std::string&) {
           Context::getContext().config.getBoolean("confirmation") &&
           !confirm(std::format("End the iterative series for task {} '{}'?",
                                task.identifier(true), task.get("description")))) {
-        std::cout << "Task not modified.\n";
+        std::println(std::cout, "Task not modified.");
         rc = 1;
         continue;
       }
@@ -102,7 +103,7 @@ int CmdModify::execute(std::string&) {
       if (permission(before.diff(task) + question, filtered.size())) {
         count += modifyAndUpdate(before, task, &projectChanges);
       } else {
-        std::cout << "Task not modified.\n";
+        std::println(std::cout, "Task not modified.");
         rc = 1;
         if (_permission_quit) break;
       }

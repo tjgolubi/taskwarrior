@@ -36,6 +36,7 @@
 
 #include <format>
 #include <iostream>
+#include <print>
 
 ////////////////////////////////////////////////////////////////////////////////
 CmdDuplicate::CmdDuplicate() {
@@ -86,18 +87,16 @@ int CmdDuplicate::execute(std::string&) {
       dup.remove("recur");
       dup.remove("until");
       dup.remove("imask");
-      std::cout << std::format("Note: task {} was a recurring task.  The duplicated task is not.",
-                               task.identifier())
-                << '\n';
+      std::println(std::cout, "Note: task {} was a recurring task.  The duplicated task is not.",
+                   task.identifier());
     }
 
     // When duplicating a parent task, create a new parent task.
     else if (dup.getStatus() == Task::recurring) {
       dup.remove("mask");
-      std::cout << std::format(
-                       "Note: task {} was a parent recurring task.  The duplicated task is too.",
-                       task.identifier())
-                << '\n';
+      std::println(std::cout,
+                   "Note: task {} was a parent recurring task.  The duplicated task is too.",
+                   task.identifier());
     }
 
     dup.setStatus(Task::pending);  // Does not inherit status.
@@ -114,15 +113,15 @@ int CmdDuplicate::execute(std::string&) {
 
       auto status = dup.getStatus();
       if (Context::getContext().verbose("new-id") && dup.is_open())
-        std::cout << std::format("Created task {}.\n", dup.id);
+        std::println(std::cout, "Created task {}.", dup.id);
 
       else if (Context::getContext().verbose("new-uuid") && status != Task::recurring)
-        std::cout << std::format("Created task {}.\n", dup.get("uuid"));
+        std::println(std::cout, "Created task {}.", dup.get("uuid"));
 
       if (Context::getContext().verbose("project"))
         projectChanges[task.get("project")] = onProjectChange(task);
     } else {
-      std::cout << "Task not duplicated.\n";
+      std::println(std::cout, "Task not duplicated.");
       rc = 1;
       if (_permission_quit) break;
     }

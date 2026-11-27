@@ -37,6 +37,7 @@
 
 #include <format>
 #include <iostream>
+#include <print>
 
 #define STRING_CMD_DENO_NO "Task not denotated."
 #define STRING_CMD_DENO_1 "Denotated {} task."
@@ -132,13 +133,13 @@ int CmdDenotate::execute(std::string&) {
         if (Context::getContext().verbose("project"))
           projectChanges[task.get("project")] = onProjectChange(task, false);
       } else {
-        std::cout << STRING_CMD_DENO_NO << '\n';
+        std::println(std::cout, "{}", STRING_CMD_DENO_NO);
         rc = 1;
         if (_permission_quit) break;
       }
     } else {
-      std::cout << std::format("Did not find any matching annotation to be deleted for '{}'.\n",
-                               pattern);
+      std::println(std::cout, "Did not find any matching annotation to be deleted for '{}'.",
+                   pattern);
       rc = 1;
     }
   }

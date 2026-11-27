@@ -37,6 +37,7 @@
 
 #include <format>
 #include <iostream>
+#include <print>
 
 ////////////////////////////////////////////////////////////////////////////////
 CmdStop::CmdStop() {
@@ -97,14 +98,13 @@ int CmdStop::execute(std::string&) {
         if (Context::getContext().verbose("project"))
           projectChanges[task.get("project")] = onProjectChange(task, false);
       } else {
-        std::cout << "Task not stopped.\n";
+        std::println(std::cout, "Task not stopped.");
         rc = 1;
         if (_permission_quit) break;
       }
     } else {
-      std::cout << std::format("Task {} '{}' not started.", task.identifier(true),
-                               task.get("description"))
-                << '\n';
+      std::println(std::cout, "Task {} '{}' not started.", task.identifier(true),
+                   task.get("description"));
       rc = 1;
     }
   }

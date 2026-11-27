@@ -44,6 +44,7 @@
 #include <algorithm>
 #include <format>
 #include <iostream>
+#include <print>
 #include <sstream>
 #include <vector>
 
@@ -239,11 +240,13 @@ int CmdCustom::execute(std::string& output) {
   File pending_data = File(location + "/pending.data");
   if (pending_data.exists()) {
     Color warning = Color(Context::getContext().config.get("color.warning"));
-    std::cerr << warning.colorize(std::format("Found existing '*.data' files in {}", location))
-              << "\n";
-    std::cerr << "  Taskwarrior's storage format changed in 3.0, requiring a manual migration.\n";
-    std::cerr << "  See https://taskwarrior.org/docs/upgrade-3/. Run `task import-v2` to import\n";
-    std::cerr << "  the tasks into the Taskwarrior-3.x format\n";
+    std::println(std::cerr, "{}",
+                 warning.colorize(std::format("Found existing '*.data' files in {}", location)));
+    std::println(std::cerr,
+                 "  Taskwarrior's storage format changed in 3.0, requiring a manual migration.");
+    std::println(std::cerr,
+                 "  See https://taskwarrior.org/docs/upgrade-3/. Run `task import-v2` to import");
+    std::println(std::cerr, "  the tasks into the Taskwarrior-3.x format");
   }
 
   feedback_backlog();
