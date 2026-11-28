@@ -56,6 +56,7 @@
 #include <ColWait.h>
 #include <Column.h>
 #include <Context.h>
+#include <clip.h>
 #include <format.h>
 #include <shared.h>
 
@@ -325,7 +326,8 @@ void Column::renderInteger(std::vector<std::string>& lines, int width, Color& co
 ////////////////////////////////////////////////////////////////////////////////
 // All floating point values are right-justified.
 void Column::renderDouble(std::vector<std::string>& lines, int width, Color& color, double value) {
-  lines.push_back(color.colorize(rightJustify(format(value, 4, 3), width)));
+  lines.push_back(color.colorize(
+      rightJustify(std::format("{:4.3g}", tjg::clipped(value)), width)));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
