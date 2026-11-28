@@ -34,7 +34,7 @@
 #include <Filter.h>
 #include <Lexer.h>
 #include <Operation.h>
-#include <clip.h>
+#include <clipped.h>
 #include <feedback.h>
 #include <format.h>
 #include <rules.h>

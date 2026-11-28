@@ -34,7 +34,7 @@
 #include <Eval.h>
 #include <Filter.h>
 #include <Variant.h>
-#include <clip.h>
+#include <clipped.h>
 
 #include <format>
 

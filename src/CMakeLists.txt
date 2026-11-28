@@ -41,7 +41,7 @@ add_library (libshared STATIC libshared/src/Color.cpp
                        libshared/src/RX.cpp
                        libshared/src/Table.cpp
                        libshared/src/Timer.cpp
-                       libshared/src/clip.cpp
+                       libshared/src/clipped.cpp
                        libshared/src/format.cpp
                        libshared/src/ip.cpp
                        libshared/src/shared.cpp

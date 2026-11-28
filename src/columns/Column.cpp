@@ -56,7 +56,7 @@
 #include <ColWait.h>
 #include <Column.h>
 #include <Context.h>
-#include <clip.h>
+#include <clipped.h>
 #include <format.h>
 #include <shared.h>
 

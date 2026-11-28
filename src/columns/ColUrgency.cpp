@@ -28,7 +28,7 @@
 // cmake.h include header must come first
 
 #include <ColUrgency.h>
-#include <clip.h>
+#include <clipped.h>
 
 #include <format>
 
